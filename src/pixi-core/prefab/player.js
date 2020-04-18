@@ -1,4 +1,4 @@
-import { GameObject, TileSprite } from '../core'
+import { GameObject, TileSprite, CollisionOut, DEFAULT_PIXEL_TO_CENTIMET } from '../core'
 
 export default class Player extends GameObject {
 	/**
@@ -97,5 +97,15 @@ export default class Player extends GameObject {
 				if (e instanceof Array) { e.forEach(e1 => e1.setFilter(colorCode)) } else e.setFilter(colorCode)
 			})
 		} else this.__renderer.setFilter(colorCode)
+	}
+
+	/**
+     * @param {CollisionOut} out
+     */
+	OnCollision(out) {
+		this.x += this.vx * out.normalX * DEFAULT_PIXEL_TO_CENTIMET
+		this.y += this.vy * out.normalY * DEFAULT_PIXEL_TO_CENTIMET
+		this.vx = 0
+		this.vy = 0
 	}
 }

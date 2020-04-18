@@ -36,8 +36,8 @@ export default class AnimationComponent extends Component {
    * @param {() => void} action
    * @param {Number} speed The action to perform in animation
    */
-  constructor(attachObj, action, speed = 30) {
-    super(attachObj)
+  constructor(action, speed = 30) {
+    super()
     this._state = ANIMATION_STATE.IDLE
     this._currentFrame = 0
     this._actionCallback = action

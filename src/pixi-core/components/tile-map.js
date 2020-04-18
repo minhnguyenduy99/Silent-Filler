@@ -32,7 +32,7 @@ export default class TileMap extends Component {
 	 * @param {Number[][]} tile
 	 */
 	constructor(attachObj, tile) {
-		super(attachObj)
+		super()
 		this.tile = test.reverse()
 		this._containerObj = new GameObject()
 
@@ -90,7 +90,6 @@ export default class TileMap extends Component {
 				return flag > 0 ? 32 - flag : 14
 			case 15:
 				flag = this.__getPoint(i + 1, j + 1) + (this.__getPoint(i + 1, j - 1) << 1) + (this.__getPoint(i - 1, j - 1) << 2) + (this.__getPoint(i - 1, j + 1) << 3)
-				console.log(flag)
 				return flag === 15 ? 15 : 32 + flag
 		}
 		return ret
@@ -119,43 +118,5 @@ export default class TileMap extends Component {
 				tile.setFilter(colorCode)
 			})
 		})
-	}
-
-	update(delta) {
-		super.update(delta)
-
-		let b = GameManagerInstance.bump
-
-		this.collisionObject.forEach(e => {
-			let width = e.getBounds(false).width
-			let height = e.getBounds(false).height
-			let top = Math.floor((e.y + height / 2) / 32) + 1
-			let bot = Math.floor((e.y - height / 2) / 32) - 1
-			let left = Math.floor((e.x - width / 2) / 32) - 1
-			let right = Math.floor((e.x + width / 2) / 32) + 1
-			for (let i = bot; i <= top; i++) {
- for (let j = left; j <= right; j++) {
- if (this.__getPoint(i, j) > 0) {
-						// console.log(`[${this.__map[i][j]}] [${e}]`)
-						if (b.hit(e, this.__map[i][j], true)) { e.vy = 10 }
-							// console.log('bùm')
-					}
-}
-}
-		})
-	}
-
-	/**
-	 * @type {GameObject[]}
-	 */
-	collisionObject = []
-
-	/**
-	 * @public
-	 * @param {GameObject} obj
-	 */
-	AddColisionObject(obj) {
-		this._containerObj.addChild(obj)
-		this.collisionObject.push(obj)
 	}
 }
