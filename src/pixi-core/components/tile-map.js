@@ -1,11 +1,16 @@
 import { Component, GameObject, TileSprite } from '../core'
-import GameManagerInstance from '../core/game-manager'
 
 const test = [
-	[1, 1, 1, 1, 1, -1],
-	[1, 1, -1, -1, 1, 1],
-	[1, 1, 1, -1, 1, 1],
-	[1, 1, 1, 1, 1]
+	[1],
+	[1],
+	[1],
+	[1],
+	[1],
+	[1],
+	[1, 1, -1, -1, 1, 1, -1],
+	[1, 1, 1, 1, 1, 1, 1, 1]
+	// [1, 1, 1, 1, 1, 1],
+	// [1, 1, 1, 1, 1]
 ]
 
 export default class TileMap extends Component {
@@ -40,13 +45,12 @@ export default class TileMap extends Component {
 		for (let i = 0; i < this.tile.length; i++) {
 			this.__map[i] = new Array(this.tile[i].length)
 			for (let j = 0; j < this.tile[i].length; j++) {
-				if (this.tile[i][j] < 0) {
-					continue
+				if (this.__getPoint(i, j)) {
+					this.__map[i][j] = new TileSprite('tilemap', 32, 32)
+					this.__map[i][j].setTileByIndex(this.__getTileIndex(i, j))
+					this._containerObj.addChild(this.__map[i][j])
+					this.__map[i][j].position.set(j * 32 + 16, i * 32 + 16)
 				}
-				this.__map[i][j] = new TileSprite('tilemap', 32, 32)
-				this.__map[i][j].setTileByIndex(this.__getTileIndex(i, j))
-				this._containerObj.addChild(this.__map[i][j])
-				this.__map[i][j].position.set(j * 32 + 16, i * 32 + 16)
 			}
 		}
 
@@ -65,28 +69,28 @@ export default class TileMap extends Component {
 		let flag = 0
 		switch (ret) {
 			case 3:
-				return this.__getPoint(i + 1, j + 1) === 0 ? 16 : 3
+				return this.__getPoint(i + 1, j + 1) ? 3 : 16
 			case 6:
-				return this.__getPoint(i + 1, j - 1) === 0 ? 17 : 6
+				return this.__getPoint(i + 1, j - 1) ? 6 : 17
 			case 7:
-				if (this.__getPoint(i + 1, j - 1) === 0) { flag += 1 }
-				if (this.__getPoint(i + 1, j + 1) === 0) { flag += 2 }
+				if (!this.__getPoint(i + 1, j - 1)) { flag += 1 }
+				if (!this.__getPoint(i + 1, j + 1)) { flag += 2 }
 				return flag > 0 ? 21 - flag : 7
 			case 9:
-				return this.__getPoint(i - 1, j + 1) === 0 ? 21 : 9
+				return this.__getPoint(i - 1, j + 1) ? 9 : 21
 			case 11:
-				if (this.__getPoint(i + 1, j + 1) === 0) { flag += 1 }
-				if (this.__getPoint(i - 1, j + 1) === 0) { flag += 2 }
+				if (!this.__getPoint(i + 1, j + 1)) { flag += 1 }
+				if (!this.__getPoint(i - 1, j + 1)) { flag += 2 }
 				return flag > 0 ? 25 - flag : 11
 			case 12:
-				return this.__getPoint(i - 1, j - 1) === 0 ? 25 : 12
+				return this.__getPoint(i - 1, j - 1) ? 12 : 25
 			case 13:
-				if (this.__getPoint(i - 1, j + 1) === 0) { flag += 1 }
-				if (this.__getPoint(i - 1, j - 1) === 0) { flag += 2 }
+				if (!this.__getPoint(i - 1, j + 1)) { flag += 1 }
+				if (!this.__getPoint(i - 1, j - 1)) { flag += 2 }
 				return flag > 0 ? 29 - flag : 13
 			case 14:
-				if (this.__getPoint(i - 1, j - 1) === 0) { flag += 1 }
-				if (this.__getPoint(i + 1, j - 1) === 0) { flag += 2 }
+				if (!this.__getPoint(i - 1, j - 1)) { flag += 1 }
+				if (!this.__getPoint(i + 1, j - 1)) { flag += 2 }
 				return flag > 0 ? 32 - flag : 14
 			case 15:
 				flag = this.__getPoint(i + 1, j + 1) + (this.__getPoint(i + 1, j - 1) << 1) + (this.__getPoint(i - 1, j - 1) << 2) + (this.__getPoint(i - 1, j + 1) << 3)
@@ -97,13 +101,16 @@ export default class TileMap extends Component {
 
 	/**
 	 * @private
-	 * @returns number check if map[i][j] is exist and have flatform
+	 * @returns {boolean} number check if map[i][j] is exist and have flatform
 	 * @param {number} i
 	 * @param {number} j
 	 */
 	__getPoint(i, j) {
-		if (i < 0 || j < 0 || i >= this.tile.length || j >= this.tile[i].length) { return 0 }
-		return this.tile[i][j] < 0 ? 0 : 1
+		if (this.tile[i] && this.tile[i][j]) {
+			return this.tile[i][j] >= 0
+		} else {
+			return false
+		}
 	}
 
 	// #endregion

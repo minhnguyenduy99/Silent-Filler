@@ -181,4 +181,12 @@ export default class GameObject extends pixi.Container {
       component.update(delta)
     })
   }
+
+  /**
+   * @returns {pixi.Point}
+   */
+  get GlobalPosition() {
+    let p = this.parent.GlobalPosition
+    return new pixi.Point(p.x + this.x, p.y + this.y)
+  }
 }

@@ -1,5 +1,5 @@
 import { Rigidbody, TileMap } from './../components'
-import { sweptAABB } from './collision'
+import { sweptAABB, Box } from './collision'
 
 class Physical {
     /**
@@ -22,21 +22,29 @@ class Physical {
     update(delta) {
         this.RigidbodyList.forEach(e => e.update(delta))
 
-        // Collision call
+        // Collision to other object
+
+        for (let i = 0; i < this.RigidbodyList.length - 1; i++) {
+            for (let j = i + 1; j < this.RigidbodyList.length; j++) {
+                sweptAABB(this.RigidbodyList[i]._object, this.RigidbodyList[j]._object, delta, true)
+            }
+        }
+
+        // Collision to tilemap
         if (!this.tilemap) {
             return
         }
 
         this.RigidbodyList.forEach(rigi => {
-            let e = rigi._object
-            let top = Math.floor((e.y + e.height / 2) / 32) + 1
-            let bot = Math.floor((e.y - e.height / 2) / 32) - 1
-            let left = Math.floor((e.x - e.width / 2) / 32) - 1
-            let right = Math.floor((e.x + e.width / 2) / 32) + 1
+            let box = new Box(rigi)
+            let top = Math.floor((box.top + 16) / 32)
+            let bot = Math.floor((box.bottom - 16) / 32)
+            let left = Math.floor((box.left - 16) / 32)
+            let right = Math.floor((box.right + 16) / 32)
             for (let i = bot; i <= top; i++) {
                 for (let j = left; j <= right; j++) {
                     if (this.tilemap.__getPoint(i, j) > 0) {
-                        sweptAABB(e, this.tilemap.__map[i][j], delta)
+                        sweptAABB(box, this.tilemap.__map[i][j], delta)
                     }
                 }
             }

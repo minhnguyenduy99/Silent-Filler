@@ -1,4 +1,4 @@
-import { GameObject, TileSprite, CollisionOut, DEFAULT_PIXEL_TO_CENTIMET } from '../core'
+import { GameObject, TileSprite, CollisionOut, DEFAULT_PIXEL_TO_CENTIMET, sweptAABB } from '../core'
 
 export default class Player extends GameObject {
 	/**
@@ -16,7 +16,7 @@ export default class Player extends GameObject {
 
 		if (width === 1 && height === 1) {
 			this.__renderer = new TileSprite('player', 32, 32)
-			this.setRenderSprite(this.__renderer)
+			this.addChild(this.__renderer)
 			this.__renderer.setTileByIndex(0)
 			return
 		}
@@ -103,9 +103,6 @@ export default class Player extends GameObject {
      * @param {CollisionOut} out
      */
 	OnCollision(out) {
-		this.x += this.vx * out.normalX * DEFAULT_PIXEL_TO_CENTIMET
-		this.y += this.vy * out.normalY * DEFAULT_PIXEL_TO_CENTIMET
-		this.vx = 0
-		this.vy = 0
+		out.gameObject.setFilter(0xff00ff)
 	}
 }

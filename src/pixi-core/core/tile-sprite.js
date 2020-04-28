@@ -85,4 +85,12 @@ export default class TileSprite extends pixi.TilingSprite {
     this.pivot.set(this.width / 2, this.height / 2)
     this.scale.set(1, -1)
   }
+
+  /**
+   * @returns {pixi.Point}
+   */
+  get GlobalPosition() {
+    let p = this.parent.GlobalPosition
+    return new pixi.Point(p.x + this.x, p.y + this.y)
+  }
 }

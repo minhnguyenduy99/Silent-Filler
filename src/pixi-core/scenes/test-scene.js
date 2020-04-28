@@ -15,11 +15,11 @@ export default class TestScene extends BaseScene {
     map.setFilter(0x000080)
     PhysicalInstance.tilemap = map
 
-    let p = new Player(2, 2)
-    p.position.set(32 << 1, 300)
+    let p = new Player(1, 1)
+    p.position.set(32 * 8 - 16, 32 * 8 - 16 + 64 * 2)
     p.setFilter(0xff0000)
     p.addComponent(new Rigidbody())
-    p.setVelocity(0, 15)
+    p.setVelocity(-12, -6)
     this.addChild(mapContainer)
     this.addChild(p)
   }
