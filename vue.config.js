@@ -7,16 +7,5 @@ module.exports = {
       game: path.resolve(__dirname, 'src/pixi-core/')
     }
     config.devtool = 'source-map'
-  },
-  chainWebpack: config => {
-    config.module
-      .rule('images')
-      .use('url-loader')
-      .loader('url-loader')
-      .tap(options => {
-        options.encoding = false
-        options.name = 'img/[name].[ext]'
-        return options
-      })
   }
 }
