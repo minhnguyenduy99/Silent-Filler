@@ -34,7 +34,7 @@ export default {
     },
     map: {
       type: Array,
-      required: true,
+      required: false,
       default: () => Array.from(Array)
     },
     colors: {

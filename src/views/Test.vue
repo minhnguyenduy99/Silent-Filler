@@ -2,7 +2,8 @@
   <div class="editor-page position-absolute d-flex justify-content-center">
     <button-panel
       class="panel panel__button"
-      @fileUploaded="loadGameInfo"></button-panel>
+      @fileUploaded="changeEditorImage"
+      @blockClicked="loadDefaultGridLayout"></button-panel>
     <control-panel class="panel panel__control"></control-panel>
     <!-- <color-picker class="panel panel__color"></color-picker> -->
     <game-object-panel
@@ -11,10 +12,14 @@
       class="panel panel__objects"
     />
     <div class="edit-area">
+      <img class="edit-area__image" :src="image.src" />
       <map-drawer
         :drawObject="currentSelectedObj"
         :colors="_listColorsByTag"
-        :map="_map" ref="map-drawer"/>
+        :w="image.width"
+        :h="image.height"
+        :map="_map" ref="map-drawer"
+      />
     </div>
   </div>
 </template>
@@ -36,8 +41,13 @@ export default {
     return {
       gameInfo: {
         objects: [],
-        map: [[]],
+        map: null,
         tags: []
+      },
+      image: {
+        width: 0,
+        height: 0,
+        src: null
       },
       currentSelectedObj: null,
       currentSelectedCell: null,
@@ -98,6 +108,9 @@ export default {
         this.gameInfo = JSON.parse(evt.target.result)
         this.isLoaded = false
       }.bind(this)
+    },
+    loadDefaultGridLayout() {
+      this.$refs['map-drawer'].loadDefaultMap()
     }
   }
 }

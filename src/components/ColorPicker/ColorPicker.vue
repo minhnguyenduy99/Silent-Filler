@@ -44,8 +44,8 @@
 
 <script>
 import ColorItem from './ColorItem'
-import IconButton from '../IconButton'
-import SidePanel from '../SidePanel'
+import IconButton from '../Utilities/IconButton'
+import SidePanel from '../Utilities/SidePanel'
 
 export default {
   name: 'ColorPicker',

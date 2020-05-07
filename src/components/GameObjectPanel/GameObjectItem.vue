@@ -4,31 +4,17 @@
     class="game-object__container p-3" bg-variant="info"
     @click="toggleSelect"
     >
-    <b-container fluid="false">
-      <b-row no-gutters>
-        <b-col cols="auto">
-          <div class="d-flex flex-column justify-content-end h-100">
-            <b-row no-gutters class="text-light mb-2">
-              <b-col cols="7" class="text-left">
-                <span><strong>Tag</strong>: {{ tag }}</span>
-              </b-col>
-              <b-col cols="5">{{ getFormatSize }}</b-col>
-            </b-row>
-            <b-row no-gutters class="text-light" align-v="end">
-              <b-col cols="7">
-                <b-form-input type="text" required v-model="name"></b-form-input>
-              </b-col>
-              <b-col cols="5">
-                <color-item :color="color" size="lg"></color-item>
-              </b-col>
-            </b-row>
-          </div>
+    <b-container fluid="false" style="max-width: 250px">
+      <b-row no-gutters class="text-light justify-content-between" align-v="center">
+        <b-form-input ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" :disabled="!isSelected" class="w-25 mb-2"></b-form-input>
+        <b-col cols="3" class="text-right">
+          <div class="mb-1" v-b-tooltip.hover title="Size"><strong>{{ getFormatSize }}</strong></div>
         </b-col>
-        <b-col cols="auto">
-          <b-row no-gutters class="justify-content-between">
-            <b-button class="col col-12 btn-success w-100 mb-2" size="sm">Save</b-button>
-            <b-button class="col col-12 btn-danger w-100" size="sm">Delete</b-button>
-          </b-row>
+        <b-col cols="9">
+           <b-form-input ref="name-input" @click.stop type="text" required lazy v-model="name" placeholder="Object name" :disabled="!isSelected"></b-form-input>
+        </b-col>
+        <b-col cols="3" class="text-right">
+          <color-input @click.stop v-model="color" size="lg" :disabled="!isSelected"></color-input>
         </b-col>
       </b-row>
     </b-container>
@@ -36,12 +22,12 @@
 </template>
 
 <script>
-import ColorItem from '../ColorPicker/ColorItem'
+import ColorInput from '../ColorPicker/ColorInput'
 
 export default {
   name: 'GameObjectItem',
   components: {
-    ColorItem
+    ColorInput
   },
   props: {
     gameObject: {
@@ -49,39 +35,47 @@ export default {
       required: true
     }
   },
+  model: {
+    prop: 'gameObject',
+    event: 'input'
+  },
   data() {
     return {
       tag: this.gameObject.tag,
       name: this.gameObject.name,
       size: this.gameObject.size,
       color: this.gameObject.color,
-      isSelected: false
+      localGameObject: this.gameObject,
+      isSelected: false,
+      preKeyValueStack: []
+    }
+  },
+  mounted: function() {
+    this.select()
+  },
+  watch: {
+    name: function(newVal, oldVal) {
+      this._setGameObjectValue('name', newVal)
+    },
+    tag: function(newVal, oldVal) {
+      this._setGameObjectValue('tag', newVal)
+    },
+    size: function(newVal, oldVal) {
+      this._setGameObjectValue('size', newVal)
+    },
+    color: function(newVal, oldVal) {
+      this._setGameObjectValue('color', newVal)
     }
   },
   computed: {
-    _gameObject: {
-      get () {
-        let newObjectValue = {
-          tag: this.tag,
-          name: this.name,
-          size: this.size,
-          color: this.color
-        }
-        this.$emit('input', newObjectValue)
-        return newObjectValue
-      },
-      set(val) {
-        this.gameObject = val
-        this.$emit('input', val)
-      }
-    },
     _cardStyle() {
       return {
-        opacity: this.isSelected ? '1' : '0.6'
+        opacity: this.isSelected ? '1' : '0.6',
+        transition: '0.2s'
       }
     },
     getFormatSize() {
-      let { width, height } = this._gameObject.size
+      let { width, height } = this.size
       return `${width} x ${height}`
     }
   },
@@ -100,6 +94,16 @@ export default {
       }
       this.isSelected = false
       this.$emit('unselected', this)
+    },
+    restoreThePreviousValue() {
+      let lastPreKeyValue = this.preKeyValueStack.pop()
+      this.localGameObject[lastPreKeyValue.key] = lastPreKeyValue.value
+      this[lastPreKeyValue.key] = this.$refs[`${lastPreKeyValue.key}-input`].localValue = lastPreKeyValue.value
+    },
+    _setGameObjectValue(key, newValue) {
+      this.preKeyValueStack.push({ key: key, value: this.localGameObject[key] })
+      this.localGameObject[key] = newValue
+      this.$emit('input', this.localGameObject)
     }
   }
 }

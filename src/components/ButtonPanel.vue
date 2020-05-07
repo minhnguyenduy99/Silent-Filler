@@ -4,11 +4,11 @@
       <div>
         <b-container class="p-3" fluid="false">
           <b-row align-h="start">
-            <icon-button size="lg" class="btn--block col col-1" btnIconName="square" btnTitle="Block mode"></icon-button>
+            <icon-button size="lg" class="btn--block col col-1" btnIconName="square" btnTitle="Block mode" @click="onBlockButtonClicked"></icon-button>
             <icon-button size="lg" class="btn--eraser col col-1" btnIconName="archive" btnTitle="Erase mode"></icon-button>
             <icon-button size="lg" class="btn--duplicate col col-1" btnIconName="files" btnTitle="Duplicate"></icon-button>
             <icon-button size="lg" class="btn--add col col-1" btnIconName="plus-circle" btnTitle="Add"></icon-button>
-            <b-form-file accept=".json" size="lg" @input="onFileUploaded" class="col" browse-text="Upload"/>
+            <b-form-file accept="image/*" size="lg" @input="onFileUploaded" class="col" browse-text="Upload"/>
           </b-row>
         </b-container>
       </div>
@@ -17,8 +17,8 @@
 </template>
 
 <script>
-import SidePanel from './SidePanel'
-import IconButton from './IconButton'
+import SidePanel from './Utilities/SidePanel'
+import IconButton from './Utilities/IconButton'
 
 export default {
   name: 'ButtonPanel',
@@ -35,6 +35,9 @@ export default {
   methods: {
     onFileUploaded(file) {
       this.$emit('fileUploaded', file)
+    },
+    onBlockButtonClicked(ev) {
+      this.$emit('blockClicked', ev)
     }
   }
 }

@@ -1,6 +1,12 @@
 <template>
   <div>
-    <b-button class="b-icon" :size="size" :variant="variant" @click="onButtonClicked">
+    <b-button
+      class="b-icon"
+      :size="size"
+      :variant="variant"
+      v-bind="$attrs" v-on="$listeners"
+      :disabled="disabled"
+      ref="innerButton">
       <b-icon :icon="btnIconName"></b-icon>
     </b-button>
     <span class="btn-description d-block text-center mt-1">{{ btnTitle }}</span>
@@ -29,11 +35,10 @@ export default {
       type: String,
       required: false,
       default: () => ''
-    }
-  },
-  methods: {
-    onButtonClicked(ev) {
-      this.$emit('clicked', ev)
+    },
+    disabled: {
+      type: Boolean,
+      default: () => false
     }
   }
 }

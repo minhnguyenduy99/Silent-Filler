@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import SidePanel from './SidePanel'
+import SidePanel from './Utilities/SidePanel'
 
 export default {
   name: 'ControlPanel',

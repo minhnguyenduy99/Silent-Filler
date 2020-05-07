@@ -23,8 +23,8 @@ export default {
     color: {
       type: String,
       required: true,
-      validator: (val) => /^#[\da-f]{6}$/.test(val),
-      default: () => '#000000'
+      validator: (val) => /(^#[\da-f]{6}$)|(transparent)/.test(val),
+      default: () => 'transparent'
     }
   },
   data() {

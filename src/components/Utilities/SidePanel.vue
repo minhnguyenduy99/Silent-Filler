@@ -11,7 +11,7 @@
           variant="primary"
           size="sm"
           :btnIconName="getButtonName.close"
-          @clicked="onTogglePanel(false)">
+          @click="onTogglePanel(false)">
         </icon-button>
       </div>
       <icon-button
@@ -22,7 +22,7 @@
         variant="primary"
         size="sm"
         :btnIconName="getButtonName.open"
-        @clicked="onTogglePanel(true)">
+        @click="onTogglePanel(true)">
       </icon-button>
     </transition-group>
   </div>
