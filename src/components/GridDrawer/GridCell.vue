@@ -31,12 +31,22 @@ export default {
     return {
       isSelected: false,
       selectedColor: '#0f0f0f',
-      currentColor: this.color
+      currentColor: this.color,
+      colorStack: []
     }
   },
   watch: {
     color: function(newVal, oldVal) {
-      this.currentColor = newVal
+      if (!newVal) {
+        this.currentColor = null
+        return
+      }
+      if (newVal !== 'transparent') {
+        this.currentColor = newVal
+        this.colorStack.push(newVal)
+        return
+      }
+      this.currentColor = colorStack.pop() || 'transparent'
     }
   },
   computed: {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :style="_getPanelStyle">
     <side-panel background="#efefef" direction="horizontal-right" main-panel-class="shadow-lg">
       <div>
         <div class="d-flex justify-content-start">
@@ -15,21 +15,23 @@
           <game-object-item
             class="mb-1 m-2"
             v-for="(object, index) in listObjects"
-            :key="object.tag + object.name"
+            :key="object.id"
             :game-object="object"
             v-show="_isObjectInCurrentPage(index)"
             @input="_onObjectChanged(index, $event)"
             @selected="_updateSelectedObj(index)"
             @unselected="_onItemUnselected(index)"
             ref="gameObjects"/>
+          <b-pagination
+            v-show="listObjects.length > 0"
+            class="ml-2"
+            v-model="currentPage"
+            :total-rows.sync="totalRow"
+            :per-page="objectPerPage"
+            :limit="3"
+            ref="pagination">
+          </b-pagination>
         </div>
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="_totalRows"
-          :per-page="objectPerPage"
-          :limit="3"
-          ref="pagination">
-        </b-pagination>
       </div>
     </side-panel>
     <b-modal id="invalid-object-modal">
@@ -42,37 +44,64 @@
 import GameObjectItem from './GameObjectItem'
 import SidePanel from '../Utilities/SidePanel'
 import IconButton from '../Utilities/IconButton'
+import { GameObject } from '../MapUtilities'
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'GameObjectPanel',
   components: {
     GameObjectItem, SidePanel, IconButton
   },
-  props: {
-    objects: {
-      type: Array,
-      default: () => []
-    }
-  },
-  model: {
-    prop: 'objects',
-    event: 'objectsChanged'
-  },
   data() {
     return {
       selectedIndex: -1,
-      listObjects: [...this.objects],
+      listObjects: null,
       objectPerPage: 3,
       currentPage: 1,
-      invalidValue: null
+      invalidValue: null,
+      totalRow: 0,
+      isRowIncreased: true
     }
+  },
+  updated: function() {
+    console.log(this.listObjects)
   },
   watch: {
-    objects: function(newVal, oldVal) {
-      this.listObjects = newVal
+    tab: function(newVal, oldVal) {
+      this.listObjects = this.tabData.availableMap.objects
+      this._updateSelectedObj(this.tabData.currentSelectedIndex)
+    },
+    listObjects: function(newVal, oldVal) {
+      this.isRowIncreased = newVal.length > this.totalRow
+      this.totalRow = newVal.length
+    },
+    totalRow: function(newVal) {
+      if (this._isNumberOfPageChanged) {
+        this._navigateCurrentPage()
+      }
+    },
+    mode: function(newVal, oldVal) {
+      if (newVal === this.AVAILABLE_MODE.DRAW_MODE) {
+        return
+      }
+      this._updateSelectedObj(-1)
     }
   },
+  created: function() {
+    this.listObjects = []
+  },
+  mounted: function() {
+    this.$refs.gameObjects = []
+  },
   computed: {
+    ...mapState({
+      tab: 'currentTab',
+      AVAILABLE_MODE: 'AVAILABLE_MODE'
+    }),
+    ...mapGetters({
+      mode: 'mode',
+      tabData: 'currentTabData'
+    }),
     _autoIncrementTagValue() {
       if (!this.listObjects || this.listObjects.length === 0) {
         return 0
@@ -82,11 +111,20 @@ export default {
     _selectedObj() {
       return this.listObjects[this.selectedIndex]
     },
-    _totalRows() {
-      return this.listObjects.length
-    },
     _hasObjectSelected() {
       return this.selectedIndex !== -1
+    },
+    _isNumberOfPageChanged() {
+      return (this.listObjects.length % this.objectPerPage === 0 && !this.isRowIncreased) ||
+            (this.listObjects.length % this.objectPerPage === 1 && this.isRowIncreased)
+    },
+    _paginator() {
+      return this.$refs.pagination
+    },
+    _getPanelStyle() {
+      return {
+        'visibility': this.mode === this.AVAILABLE_MODE.DRAW_MODE ? 'visible' : 'hidden'
+      }
     }
   },
   methods: {
@@ -94,6 +132,7 @@ export default {
       let sameObj = this.listObjects.filter((obj, index) =>
         objIndex !== index && (obj.name === objVal.name || obj.tag === objVal.tag))[0]
       if (!sameObj) {
+        this._onCurrentObjectChanged(objIndex, objVal)
         return
       }
       if (sameObj.tag === objVal.tag) {
@@ -114,6 +153,7 @@ export default {
       if (shouldUnselectPreObj) {
         preObj.unselect()
       }
+      this._onCurrentObjectChanged(index, selectedObj)
       this.$emit('update:selected', selectedObj)
     },
     _onItemUnselected(index) {
@@ -121,15 +161,17 @@ export default {
         return
       }
       this.selectedIndex = -1
+      this.$emit('update:selected', null)
     },
     _addObject() {
       let tagValue = this._autoIncrementTagValue
-      this.listObjects.push({
-        tag: tagValue,
-        name: `Object ${tagValue}`,
-        color: '#000000',
-        size: { width: 1, height: 1 }
-      })
+      this.listObjects.push(new GameObject(
+         tagValue,
+         `Object ${tagValue}`,
+         '#000000',
+         { width: 1, height: 1 },
+         true
+      ))
       this._onObjectAdded()
     },
     _deleteSelectedObj() {
@@ -146,16 +188,40 @@ export default {
       return index >= startIndex && index <= endIndex
     },
     _onObjectAdded() {
-      // this._navigateCurrentPage()
-      console.log(this.currentPage)
+      this.$emit('objects-changed', this.listObjects)
     },
     _onObjectDeleted() {
-      // this._navigateCurrentPage()
-      console.log(this.currentPage)
+      this._onCurrentObjectChanged(-1, null)
+      this.$emit('objects-changed', this.listObjects)
+    },
+    _onCurrentObjectChanged(objIndex, obj) {
+      this.tabData.currentSelectedIndex = objIndex
+      this.$emit('current-object-changed', objIndex, obj)
     },
     _showInvalidObjectValue(obj) {
       this.invalidValue = obj
       this.$bvModal.show('invalid-object-modal')
+    },
+    _navigateCurrentPage() {
+      let isLastObjOfPage = this.listObjects.length !== 0 && this.listObjects.length % this.objectPerPage === 0
+      let updatedLastPage = Math.floor(this.listObjects.length / this.objectPerPage) + (isLastObjOfPage ? 0 : 1)
+      let paginationCurrentPage = this.$refs.pagination.$data.localNumberOfPages
+
+      // A page has just been deleted
+      if (updatedLastPage < paginationCurrentPage) {
+        // The current page value is the deleted page => go to last updated page
+        if (this.currentPage === paginationCurrentPage) {
+          this._paginator.$data.localNumberOfPages--
+          this.currentPage = this._paginator.$data.localNumberOfPages
+        }
+        // else stay at the current page
+      } else {
+        // A new page has just been added => navigate to last page of paginator
+        if (updatedLastPage === paginationCurrentPage + 1) {
+          this._paginator.$data.localNumberOfPages++
+          this.currentPage = this._paginator.$data.localNumberOfPages
+        }
+      }
     }
   }
 }

@@ -1,33 +1,28 @@
 <template>
   <div @click.stop>
-    <b-dropdown ref="drop-down" no-caret toggle-class="p-0 m-0 bg-transparent border-0" menu-class="p-1" :disabled="disabled">
-      <color-item slot="button-content" :color="inputColor" :size="size"></color-item>
-      <b-dropdown-form form-class="p-2">
-        <b-form-input
-          v-model="inputColor"
-          :state="isInputColorValid"
-          placeholder="Enter color code"
-          aria-describedby="input-live-help input-live-feedback"
-        />
-        <b-form-invalid-feedback id="input-live-feedback" class="text-left">
-          Color code is invalid
-        </b-form-invalid-feedback>
-        <b-button
-          class="mt-2"
-          variant="success"
-          :disabled="!isInputColorValid"
-          @click="updateColor">Save</b-button>
-      </b-dropdown-form>
-    </b-dropdown>
+    <popup-form :disabled="disabled" :isDataValid="isInputColorValid" :isDataChanged="dataChanged" @save="updateColor">
+      <color-item slot="active" :color="inputColor" :size="size"></color-item>
+      <b-form-input
+        v-model="inputColor"
+        :state="isInputColorValid"
+        placeholder="Enter color code"
+        aria-describedby="input-live-help input-live-feedback"
+      />
+      <b-form-invalid-feedback id="input-live-feedback" class="text-left">
+        Color code is invalid
+      </b-form-invalid-feedback>
+    </popup-form>
   </div>
 </template>
 
 <script>
 import ColorItem from './ColorItem'
+import PopupForm from '../Utilities/PopupForm'
+
 export default {
   name: 'ColorInput',
   components: {
-    ColorItem
+    ColorItem, PopupForm
   },
   props: {
     color: {
@@ -51,16 +46,13 @@ export default {
   data() {
     return {
       inputColor: this.color,
-      isShow: false
+      dataChanged: false
     }
   },
-  mounted: function() {
-    this.$root.$on('bv::dropdown::hide', function(bvEvent) {
-      if (this.isInputColorValid) {
-        return
-      }
-      bvEvent.preventDefault()
-    }.bind(this))
+  watch: {
+    inputColor: function(newVal, oldVal) {
+      this.dataChanged = newVal !== this.color
+    }
   },
   computed: {
     isInputColorValid() {
@@ -70,7 +62,6 @@ export default {
   methods: {
     updateColor() {
       this.$emit('input', this.inputColor)
-      this.$refs['drop-down'].hide(true)
     }
   }
 }

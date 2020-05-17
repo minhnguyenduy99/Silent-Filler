@@ -6,9 +6,25 @@
     >
     <b-container fluid="false" style="max-width: 250px">
       <b-row no-gutters class="text-light justify-content-between" align-v="center">
-        <b-form-input ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" :disabled="!isSelected" class="w-25 mb-2"></b-form-input>
+        <b-col class="d-flex">
+          <b-form-input ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" :disabled="!isSelected" class="w-25 mb-2"></b-form-input>
+          <b-form-checkbox
+            class="h-100 ml-2"
+            name="overlapable-checkbox"
+            v-b-tooltip.hover
+            :title="isOverlapable ? 'Không overlapable' : 'Chọn overlapable'"
+            button
+            button-variant="primary"
+            size="sm"
+            @click.native.stop
+            v-model="isOverlapable"
+            :disabled="!isSelected"
+          >
+            {{ isOverlapable ? 'Overlapable' : 'Not overlapable' }}
+          </b-form-checkbox>
+        </b-col>
         <b-col cols="3" class="text-right">
-          <div class="mb-1" v-b-tooltip.hover title="Size"><strong>{{ getFormatSize }}</strong></div>
+          <size-input @click.stop v-model="size" :disabled="!isSelected" class="mb-1" v-b-tooltip.hover title="Size" />
         </b-col>
         <b-col cols="9">
            <b-form-input ref="name-input" @click.stop type="text" required lazy v-model="name" placeholder="Object name" :disabled="!isSelected"></b-form-input>
@@ -23,15 +39,17 @@
 
 <script>
 import ColorInput from '../ColorPicker/ColorInput'
+import SizeInput from './SizeInput'
+import { GameObject } from '../MapUtilities'
 
 export default {
   name: 'GameObjectItem',
   components: {
-    ColorInput
+    ColorInput, SizeInput
   },
   props: {
     gameObject: {
-      type: Object,
+      type: GameObject,
       required: true
     }
   },
@@ -39,12 +57,14 @@ export default {
     prop: 'gameObject',
     event: 'input'
   },
-  data() {
+  data: function () {
     return {
       tag: this.gameObject.tag,
       name: this.gameObject.name,
       size: this.gameObject.size,
       color: this.gameObject.color,
+      isOverlapable: this.gameObject.isOverlapable,
+      isCreated: false,
       localGameObject: this.gameObject,
       isSelected: false,
       preKeyValueStack: []
@@ -54,17 +74,20 @@ export default {
     this.select()
   },
   watch: {
-    name: function(newVal, oldVal) {
+    name: function(newVal) {
       this._setGameObjectValue('name', newVal)
     },
-    tag: function(newVal, oldVal) {
+    tag: function(newVal) {
       this._setGameObjectValue('tag', newVal)
     },
-    size: function(newVal, oldVal) {
+    size: function(newVal) {
       this._setGameObjectValue('size', newVal)
     },
-    color: function(newVal, oldVal) {
+    color: function(newVal) {
       this._setGameObjectValue('color', newVal)
+    },
+    isOverlapable: function(newVal) {
+      this._setGameObjectValue('isOverlapable', newVal)
     }
   },
   computed: {
@@ -80,7 +103,7 @@ export default {
     }
   },
   methods: {
-    toggleSelect() {
+    toggleSelect(ev) {
       let cb = this.isSelected ? this.unselect : this.select
       cb()
     },

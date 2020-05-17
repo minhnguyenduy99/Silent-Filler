@@ -2,25 +2,34 @@
   <div class="editor-page position-absolute d-flex justify-content-center">
     <button-panel
       class="panel panel__button"
-      @fileUploaded="changeEditorImage"
-      @blockClicked="loadDefaultGridLayout"></button-panel>
+      @addNewTabButtonClicked="createNewTab"
+      @duplicateButtonClicked="duplicateCurrentTab"></button-panel>
     <control-panel class="panel panel__control"></control-panel>
     <!-- <color-picker class="panel panel__color"></color-picker> -->
     <game-object-panel
-      :objects="_gameObjects"
-      v-bind:selected.sync="currentSelectedObj"
+      v-if="tabs.length > 0"
+      @objects-changed="_updateListObjects"
+      @current-object-changed="_updateSelectedObj"
       class="panel panel__objects"
     />
-    <div class="edit-area">
-      <img class="edit-area__image" :src="image.src" />
-      <map-drawer
-        :drawObject="currentSelectedObj"
-        :colors="_listColorsByTag"
-        :w="image.width"
-        :h="image.height"
-        :map="_map" ref="map-drawer"
-      />
+    <div v-if="tabs.length === 0" class="empty-area">
+      <div class="empty-area__content-container">
+        <span class="h1">No tabs created yet !</span>
+        <b-button class="mt-2" size="lg" variant="outline-dark" @click="createNewTab">Create new</b-button>
+      </div>
     </div>
+    <b-card id="tab-card" no-body class="m-5">
+      <b-tabs
+        card
+        v-model="currentTabIndex">
+        <draw-tab v-for="tab in tabs" :key="tab.id"
+          :tab="tab"
+          ref='draw-tabs'
+          :selectedObjIndex="currentObjIndex"
+        />
+      </b-tabs>
+    </b-card>
+    <loading-dialog v-model="isTabLoading" :centered="true" :content="content"/>
   </div>
 </template>
 
@@ -30,87 +39,73 @@ import ControlPanel from '../components/ControlPanel'
 // import ColorPicker from '../components/ColorPicker/ColorPicker'
 import GameObjectPanel from '../components/GameObjectPanel/GameObjectPanel'
 import GridCellLayout from '../components/GridDrawer/GridCellLayout'
-import MapDrawer from '../components/GridDrawer/MapDrawer'
+import LoadingDialog from '../components/Utilities/LoadingDialog'
+import { DrawTab, TabObject } from '../components/DrawTab'
+import { mapMutations, mapGetters, mapState } from 'vuex'
 
 export default {
   name: 'Test',
   components: {
-    ButtonPanel, ControlPanel, GameObjectPanel, MapDrawer
+    ButtonPanel, ControlPanel, GameObjectPanel, LoadingDialog, DrawTab
   },
   data() {
     return {
-      gameInfo: {
-        objects: [],
-        map: null,
-        tags: []
-      },
-      image: {
-        width: 0,
-        height: 0,
-        src: null
-      },
       currentSelectedObj: null,
       currentSelectedCell: null,
-      isLoaded: false
+      isTabLoading: false,
+      tabs: [],
+      currentTab: null,
+      generateTabIndex: 0,
+      currentTabIndex: -1,
+      currentObjIndex: -1,
+      content: 'Đang load hình ảnh ...'
     }
   },
   watch: {
-    currentSelectedObj: function(newVal, oldVal) {
-      console.log(newVal)
+    currentTabIndex: function(newVal, oldVal) {
+      this.currentTab = this.tabs[newVal]
+      this.updateCurrentTab(this.tabComponents[this.currentTabIndex])
     }
   },
+  created: function() {
+    this.updateCurrentTab(this.currentTab)
+  },
   computed: {
-    _listColorsByTag() {
-      return this.gameInfo.objects.map(object => object.color)
+    ...mapGetters(['lengthOfTabs']),
+
+    tabComponents() {
+      return this.$refs['draw-tabs']
     },
-    _tags() {
-      return this.gameInfo.tags
-    },
-    _map() {
-      return this.gameInfo.map
-    },
-    _gameObjects() {
-      let listObjects = this.gameInfo.objects
-      return Object.keys(this._tags).map(function(tagKey) {
-        let tag = this._tags[tagKey]
-        return {
-          name: tagKey,
-          tag: tag,
-          color: listObjects[tag].color,
-          size: listObjects[tag].size
-        }
-      }.bind(this))
+    currentTabData() {
+      return this.currentTab.tab
     }
   },
   methods: {
-    changeEditorImage(file) {
-      let reader = new FileReader()
-      reader.readAsDataURL(file)
-      reader.onload = evt => {
-        let img = new Image()
-        img.onload = () => {
-          this.image.width = img.width
-          this.image.height = img.height
-          this.image.src = img.src
-        }
-        img.src = evt.target.result
-      }
+    ...mapMutations(['updateCurrentTab', 'updateLengthTab']),
 
-      reader.onerror = evt => {
-        console.error(evt)
-      }
+    createNewTab() {
+      let newTab = new TabObject()
+      newTab.title = `Tab ${this.generateTabIndex + 1}`
+      this.tabs.push(newTab)
+      this._onTabAdded()
     },
-    loadGameInfo(file) {
-      this.isLoaded = false
-      let reader = new FileReader()
-      reader.readAsText(file, 'utf-8')
-      reader.onload = function(evt) {
-        this.gameInfo = JSON.parse(evt.target.result)
-        this.isLoaded = false
-      }.bind(this)
+    duplicateCurrentTab() {
+      let newTab = this.tabs[this.currentTabIndex].copy()
+      console.log(newTab)
+      newTab.title = `Tab ${this.generateTabIndex + 1}`
+      this.tabs.push(newTab)
+      this._onTabAdded()
     },
-    loadDefaultGridLayout() {
-      this.$refs['map-drawer'].loadDefaultMap()
+    _onTabAdded() {
+      this.generateTabIndex++
+      this.updateLengthTab(this.tabs.length)
+    },
+    _updateListObjects(listObjs) {
+      // this.currentTab.availableMap.objects = listObjs
+    },
+    _updateSelectedObj(index, obj) {
+      // this.currentTab.availableMap.objects[index] = obj
+      this.currentObjIndex = index
     }
   }
 }
@@ -152,14 +147,20 @@ export default {
   }
 }
 
-.edit-area {
-  position: relative;
-  display: flex;
-  margin: 100px;
+.empty-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
 
-  & &__image {
-    position: absolute;
-    z-index: 0;
+  & &__content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
   }
 }
 </style>
