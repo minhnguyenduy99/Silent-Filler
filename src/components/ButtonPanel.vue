@@ -23,6 +23,17 @@
               :disabled="_duplicateButtonDisabled"
             />
             <icon-button size="lg" class="btn--add col col-1" btnIconName="plus-circle" btnTitle="Add" @click="onAddNewTabButtonClicked"></icon-button>
+            <size-input
+              square
+              v-model="localCellSize"
+              class="btn--cell-size-modify col col-1"
+              :disabled="_isCellSizeModifyButtonDisabled">
+              <icon-button
+                :disabled="_isCellSizeModifyButtonDisabled"
+                class="text-dark"
+                btnIconName="pencil-square" btnTitle="Cell size" size="lg">
+              </icon-button>
+            </size-input>
             <b-form-file
               accept="image/*"
               size="lg"
@@ -30,7 +41,7 @@
               @input="onFileUploaded"
               class="col"
               browse-text="Upload"
-              :disabled="_duplicateButtonDisabled"/>
+              :disabled="_isFormInputDisabled"/>
           </b-row>
         </b-container>
       </div>
@@ -43,13 +54,14 @@
 <script>
 import SidePanel from './Utilities/SidePanel'
 import IconButton from './Utilities/IconButton'
+import SizeInput from './Utilities/SizeInput'
 import { LoadFileCommand, DrawMapCommand } from './Commands'
 import { mapActions, mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'ButtonPanel',
   components: {
-    SidePanel, IconButton, LoadFileCommand, DrawMapCommand
+    SidePanel, IconButton, LoadFileCommand, DrawMapCommand, SizeInput
   },
   data: () => {
     return {
@@ -57,12 +69,18 @@ export default {
         'eraser.png'
       ],
       file: null,
-      isDrawButtonPressed: false
+      isDrawButtonPressed: false,
+      localCellSize: 20
+    }
+  },
+  watch: {
+    localCellSize: function (newVal, oldVal) {
+      this.currentTabData.cellSize = newVal
     }
   },
   computed: {
     ...mapState(['AVAILABLE_MODE', 'tabLength', 'mode']),
-    ...mapGetters(['lengthOfTabs', 'isImageLoaded', 'isMapLoaded']),
+    ...mapGetters(['lengthOfTabs', 'isImageLoaded', 'isMapLoaded', 'currentTabData']),
 
     _blockButtonDisabled() {
         return this.lengthOfTabs === 0 || !this.isImageLoaded
@@ -72,6 +90,12 @@ export default {
     },
     _duplicateButtonDisabled() {
       return this.lengthOfTabs === 0
+    },
+    _isCellSizeModifyButtonDisabled() {
+      return this.lengthOfTabs === 0 || !this.isImageLoaded || this.isMapLoaded
+    },
+    _isFormInputDisabled() {
+      return this.lengthOfTabs === 0 || this.isMapLoaded
     }
   },
   methods: {

@@ -8,12 +8,13 @@
       <map-drawer
         class="map-area__map"
         :mapInfo.sync="localTabObject.mapInfo"
-        :drawObject="localObject"
+        :drawObject="selectedObj"
         :availableMap="localTabObject.availableMap"
+        :cellSize.sync="cellSize"
         ref="map-drawer"
         @drawFinished="_onDrawFinished"
         @map-changed="_onMapChanged"
-        @map-loaded="_onMapLoaded"
+        @gamemap-changed="_onGameMapChanged"
       />
     </div>
   </b-tab>
@@ -22,7 +23,7 @@
 <script>
 import MapDrawer from '../GridDrawer/MapDrawer'
 import TabObject from './TabObject'
-import { mapState, mapActions, mapMutations } from 'vuex'
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 import GameObject from '../MapUtilities/GameObject'
 
 export default {
@@ -40,22 +41,15 @@ export default {
       type: Image,
       required: false,
       default: () => null
-    },
-    selectedObjIndex: {
-      type: Number,
-      required: true,
-      default: () => -1
     }
   },
   data: () => ({
     title: null,
-    localTabObject: null,
-    localObject: null
+    localTabObject: null
   }),
   created: function() {
     this.title = this.tab ? this.tab.title : null
     this.localTabObject = this.tab
-    this.localObject = null
   },
   watch: {
     title: function(newVal, oldVal) {
@@ -71,10 +65,17 @@ export default {
     tab: function(newVal, oldVal) {
       this.title = newVal ? newVal.title : null
       this.localTabObject = newVal
-      this.localObject = this.localObject.currentSelectedObj
+    }
+  },
+  computed: {
+    ...mapGetters(['currentTabData']),
+
+    selectedObj() {
+      return this.currentTabData.currentSelectedObj
     },
-    selectedObjIndex: function(newVal, oldVal) {
-      this.localObject = this.localTabObject.currentSelectedObj
+
+    cellSize() {
+      return this.tab.cellSize
     }
   },
   methods: {
@@ -92,14 +93,14 @@ export default {
     _onImageLoaded() {
       this.$emit('image-loaded', this)
     },
-    _onMapLoaded() {
-      this.$emit('loaded', this)
-    },
     _onDrawFinished() {
       this.$emit('draw-finished', this)
     },
     _onMapChanged(map) {
       this.tab.availableMap.map = map
+    },
+    _onGameMapChanged(gameMap) {
+      this.tab.availableMap.mapObjects = gameMap
     }
   }
 }

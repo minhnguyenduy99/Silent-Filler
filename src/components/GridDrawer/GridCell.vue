@@ -38,15 +38,9 @@ export default {
   watch: {
     color: function(newVal, oldVal) {
       if (!newVal) {
-        this.currentColor = null
         return
       }
-      if (newVal !== 'transparent') {
-        this.currentColor = newVal
-        this.colorStack.push(newVal)
-        return
-      }
-      this.currentColor = colorStack.pop() || 'transparent'
+      this._updateColorStack(newVal)
     }
   },
   computed: {
@@ -66,7 +60,7 @@ export default {
   },
   methods: {
     updateColor(color) {
-      this.currentColor = color
+      this._updateColorStack(color)
     },
     select() {
       this.isSelected = true
@@ -92,6 +86,15 @@ export default {
     _onCellClicked() {
       let event = this.isSelected ? 'selected' : 'unselected'
       this.$emit(event, this)
+    },
+    _updateColorStack(color) {
+      if (color !== 'transparent') {
+        this.currentColor = color
+        this.colorStack.push(color)
+        return
+      }
+      this.colorStack.pop()
+      this.currentColor = this.colorStack[this.colorStack.length - 1] || 'transparent'
     }
   }
 }

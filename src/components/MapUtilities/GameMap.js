@@ -8,6 +8,8 @@ export default class GameMap {
    */
   _maps = {}
 
+  _objArr = []
+
   _concatKeyMapCharacter = 'x'
 
   /**
@@ -25,6 +27,7 @@ export default class GameMap {
     }
     let key = this.__generateMapKey(position)
     this._maps[key] = gameObj
+    this._objArr.push(gameObj)
     return true
   }
 
@@ -36,6 +39,11 @@ export default class GameMap {
   async remove(position) {
     let posKey = this.__generateMapKey(position)
     let obj = this._maps[posKey]
+    // The remove object is not the last object
+    if (obj !== this._objArr[this._objArr.length - 1]) {
+      return null
+    }
+    this._objArr.pop()
     this._maps[posKey] = undefined
     delete this._maps[posKey]
     return obj
@@ -61,6 +69,10 @@ export default class GameMap {
     return false
   }
 
+  isEmpty() {
+    return Object.keys(this._maps).length === 0
+  }
+
   /**
    * Get all objects in a specific range from `topLeft` to `bottomRIght`
    * @param {Position} topLeft
@@ -80,6 +92,28 @@ export default class GameMap {
       }
     }
     return checkObjs
+  }
+
+  copy() {
+    let cloneMap = new GameMap()
+    let _map = {}
+    Object.keys(this._maps).forEach(function(key) {
+      _map[key] = this._maps[key].copy()
+    }.bind(this))
+    cloneMap._maps = _map
+    cloneMap._concatKeyMapCharacter = this._concatKeyMapCharacter
+    return cloneMap
+  }
+
+  getDistinctObjects() {
+    let ids = []
+    return Object.values(this._maps).filter(function(obj) {
+      if (ids.includes(obj.id)) {
+        return false
+      }
+      ids.push(obj.id)
+      return true
+    })
   }
 
   /**

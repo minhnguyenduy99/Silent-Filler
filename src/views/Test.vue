@@ -8,8 +8,6 @@
     <!-- <color-picker class="panel panel__color"></color-picker> -->
     <game-object-panel
       v-if="tabs.length > 0"
-      @objects-changed="_updateListObjects"
-      @current-object-changed="_updateSelectedObj"
       class="panel panel__objects"
     />
     <div v-if="tabs.length === 0" class="empty-area">
@@ -25,7 +23,6 @@
         <draw-tab v-for="tab in tabs" :key="tab.id"
           :tab="tab"
           ref='draw-tabs'
-          :selectedObjIndex="currentObjIndex"
         />
       </b-tabs>
     </b-card>
@@ -57,7 +54,6 @@ export default {
       currentTab: null,
       generateTabIndex: 0,
       currentTabIndex: -1,
-      currentObjIndex: -1,
       content: 'Đang load hình ảnh ...'
     }
   },
@@ -91,7 +87,6 @@ export default {
     },
     duplicateCurrentTab() {
       let newTab = this.tabs[this.currentTabIndex].copy()
-      console.log(newTab)
       newTab.title = `Tab ${this.generateTabIndex + 1}`
       this.tabs.push(newTab)
       this._onTabAdded()
@@ -99,13 +94,6 @@ export default {
     _onTabAdded() {
       this.generateTabIndex++
       this.updateLengthTab(this.tabs.length)
-    },
-    _updateListObjects(listObjs) {
-      // this.currentTab.availableMap.objects = listObjs
-    },
-    _updateSelectedObj(index, obj) {
-      // this.currentTab.availableMap.objects[index] = obj
-      this.currentObjIndex = index
     }
   }
 }

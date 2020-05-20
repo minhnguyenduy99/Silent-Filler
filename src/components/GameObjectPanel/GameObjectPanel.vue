@@ -63,9 +63,6 @@ export default {
       isRowIncreased: true
     }
   },
-  updated: function() {
-    console.log(this.listObjects)
-  },
   watch: {
     tab: function(newVal, oldVal) {
       this.listObjects = this.tabData.availableMap.objects
@@ -154,14 +151,13 @@ export default {
         preObj.unselect()
       }
       this._onCurrentObjectChanged(index, selectedObj)
-      this.$emit('update:selected', selectedObj)
     },
     _onItemUnselected(index) {
       if (index !== this.selectedIndex) {
         return
       }
       this.selectedIndex = -1
-      this.$emit('update:selected', null)
+      this._onCurrentObjectChanged(-1, null)
     },
     _addObject() {
       let tagValue = this._autoIncrementTagValue

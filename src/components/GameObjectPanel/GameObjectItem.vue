@@ -39,7 +39,7 @@
 
 <script>
 import ColorInput from '../ColorPicker/ColorInput'
-import SizeInput from './SizeInput'
+import SizeInput from '../Utilities/SizeInput'
 import { GameObject } from '../MapUtilities'
 
 export default {
