@@ -27,4 +27,11 @@ export default class BaseScene extends pixi.Container {
       }
     })
   }
+
+  /**
+   * @returns {pixi.Point}
+   */
+  get GlobalPosition() {
+    return new pixi.Point(0, 0)
+  }
 }

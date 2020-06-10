@@ -17,9 +17,11 @@ export default class Component {
    *
    * @param {GameObject} attachObj
    */
-  constructor(attachObj) {
-    this._object = attachObj
-    this.deactive()
+  constructor(attachObj = undefined) {
+    if (attachObj) {
+      this._object = attachObj
+    }
+    this.activate()
   }
 
   get name() {
@@ -52,12 +54,10 @@ export default class Component {
    * @param {Number} delta
    */
   update(delta) {
-    if (!this.isActive) {
-
-    }
   }
 
-  render() {}
+  render() {
+  }
 
   /**
    * @param {Function} type The subtype of `Component` class
@@ -65,7 +65,7 @@ export default class Component {
    * @param {any[]} args
    * @returns {Component}
    */
-  static create(type, gameObj, ...args) {
+  static create(type, gameObj = undefined, ...args) {
     const ComponentType = type
     return new ComponentType(gameObj, ...args)
   }

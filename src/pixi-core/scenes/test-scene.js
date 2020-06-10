@@ -1,7 +1,6 @@
-import { BaseScene, Component, GameObject } from '../core'
-import TileMap from '../components//tile-map'
+import { BaseScene, GameObject, PhysicalInstance } from '../core'
 import Player from '../prefab/player'
-import Rigibody from '../components/rigibody'
+import { TileMap, Rigidbody } from '../components'
 
 export default class TestScene extends BaseScene {
   constructor() {
@@ -12,14 +11,16 @@ export default class TestScene extends BaseScene {
 
   __initializeGameObjects() {
     let mapContainer = new GameObject()
-    let map = mapContainer.addComponent(Component.create(TileMap, mapContainer, null))
+    let map = mapContainer.addComponent(new TileMap(mapContainer))
     map.setFilter(0x000080)
+    PhysicalInstance.tilemap = map
 
-    let p = new Player(2, 2)
-    p.position.set(32 << 1, 300)
+    let p = new Player(1, 1)
+    p.position.set(32 * 8 - 16, 32 * 8 - 16 + 64 * 2)
     p.setFilter(0xff0000)
-    p.addComponent(Component.create(Rigibody, p, 0, 1))
-    map.AddColisionObject(p)
+    p.addComponent(new Rigidbody())
+    p.setVelocity(-12, -6)
     this.addChild(mapContainer)
+    this.addChild(p)
   }
 }

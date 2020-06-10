@@ -1,43 +1,53 @@
-import Component from '../core/component'
-import { GameObject } from '../core'
+import { Component, CollisionOut, DEFAULT_PIXEL_TO_CENTIMET } from '../core'
 
-const gravitiScale = 10
+const gravitiScale = 1
 
-export default class Rigibody extends Component {
+export default class Rigidbody extends Component {
     /**
+     * Acceleration on x-axis
      * @public
      * @type {number}
      */
     ax;
 
     /**
+     * Acceleration on y-axis
      * @public
      * @type {number}
      */
     ay;
 
     /**
-     * Init rigibody physic
-     * @param {GameObject} gameObject attach GameObject
-     * @param {Number} vx Init vx velocity
-     * @param {Number} vy Init vy velocity
-     * @param {Number} vy Init ax acceleration
-     * @param {Number} vy Init ay acceleration
+     * @param {number} ax Acceleration on x-axis
+     * @param {number} ay Acceleration on y-axis
      */
-    constructor(gameObject, vx = 0, vy = 0) {
-        super(gameObject)
-        this._object.setVelocity(vx, vy * gravitiScale)
-        this.ax = 0
-        this.ay = -9.8
+    constructor(ax = 0, ay = -9.8) {
+        super()
+        this.ax = ax
+        this.ay = ay
     }
 
-    /**
-     * @override
-     * @param {number} delta delta time
-     */
     update(delta) {
         super.update(delta)
         this._object.vx += this.ax * delta
         this._object.vy += this.ay * gravitiScale * delta
+    }
+
+    /**
+     * @param {CollisionOut} out
+     */
+	OnCollision(out) {
+        if (out.normalX >= 0) {
+            this._object.x += this._object.vx * out.normalX * DEFAULT_PIXEL_TO_CENTIMET
+            this._object.vx = 0
+        }
+        if (out.normalY >= 0) {
+            this._object.y += this._object.vy * out.normalY * DEFAULT_PIXEL_TO_CENTIMET
+            this._object.vy = 0
+        }
+    }
+
+    IsPhysical() {
+        return true
     }
 }

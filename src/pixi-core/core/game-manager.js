@@ -4,6 +4,7 @@ import ControlComponent from '../components/control-component'
 import ResourceManager from './resource-manager'
 import SceneManager from './scene-manager'
 import BaseScene from './base-scene'
+import { PhysicalInstance } from '.'
 
 class GameManager {
   /**
@@ -132,6 +133,7 @@ class GameManager {
   _gameLoop(delta) {
     const currentScene = this._sceneManager.currentScene
     currentScene.render(this._app.renderer)
+    PhysicalInstance.update(delta)
     currentScene.update(delta)
     ControlComponent.update()
   }
