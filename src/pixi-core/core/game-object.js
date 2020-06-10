@@ -131,6 +131,7 @@ export default class GameObject extends pixi.Container {
         child.update(delta)
       }
     })
+
     this.x += this.vx * delta * DEFAULT_PIXEL_TO_CENTIMET
     this.y += this.vy * delta * DEFAULT_PIXEL_TO_CENTIMET
   }

@@ -1,4 +1,5 @@
-import { GameObject, TileSprite, CollisionOut, DEFAULT_PIXEL_TO_CENTIMET, sweptAABB } from '../core'
+import { GameObject, TileSprite, CollisionOut, ControlComponent } from '../core'
+import { Rigidbody } from '../components'
 
 export default class Player extends GameObject {
 	/**
@@ -7,13 +8,28 @@ export default class Player extends GameObject {
 	__renderer
 
 	/**
+	 * @type {ControlComponent}
+	 */
+	__controler
+
+	/**
 	 * @type {GameObject}
 	 */
 	__container
 
 	constructor(width = 1, height = 1) {
 		super()
+		this.addComponent(new Rigidbody())
+		this.__MakeInput()
+		this.__MakeRenderer(width, height)
+	}
 
+	__MakeInput() {
+		this.__controler = new ControlComponent()
+		this.addComponent(this.__controler)
+	}
+
+	__MakeRenderer(width = 1, height = 1) {
 		if (width === 1 && height === 1) {
 			this.__renderer = new TileSprite('player', 32, 32)
 			this.addChild(this.__renderer)
@@ -85,6 +101,23 @@ export default class Player extends GameObject {
 			this.__renderer[j][width - 1].setTileByIndex(11)
 		}
 		this.addChild(this.__container)
+	}
+
+	update(delta) {
+		super.update(delta)
+		if (this.__controler.isKeyDown('ArrowLeft', 'KeyA') && (this.__controler.isKeyDown('ArrowRight', 'KeyD'))) {
+			this.vx = 0
+		} else if (this.__controler.isKeyDown('ArrowLeft', 'KeyA')) {
+			this.vx = -2
+		} else if (this.__controler.isKeyDown('ArrowRight', 'KeyD')) {
+			this.vx = 2
+		} else {
+			this.vx = 0
+		}
+
+		if (this.__controler.isKeyPressed('KeyW', 'ArrowUp')) {
+			this.vy = 10
+		}
 	}
 
 	/**

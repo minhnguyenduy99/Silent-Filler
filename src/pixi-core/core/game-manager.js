@@ -132,9 +132,12 @@ class GameManager {
    */
   _gameLoop(delta) {
     const currentScene = this._sceneManager.currentScene
-    currentScene.render(this._app.renderer)
-    PhysicalInstance.update(delta)
     currentScene.update(delta)
+    PhysicalInstance.update(delta)
+    PhysicalInstance.CollisionCall(delta)
+    // keyboard.KeyboardManager.update()
+    currentScene.render(this._app.renderer)
+
     ControlComponent.update()
   }
 }

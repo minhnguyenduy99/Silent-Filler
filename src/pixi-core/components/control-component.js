@@ -25,41 +25,43 @@ export default class ControlComponent extends Component {
   /**
    *
    * @param {(keyCode: Number, ev: Event) => void} handler
-   * @param {String} key
+   * @param {String} keys
    */
-  onKeyPressed(handler, key = null) {
-    this._onKeyEvent('pressed', handler, key)
+  onKeyPressed(handler, ...keys) {
+    this._onKeyEvent('pressed', handler, ...keys)
   }
 
   /**
    *
    * @param {(keyCode: Number, ev: Event) => void} handler
-   * @param {String} key
+   * @param {String} keys
    */
-  onKeyReleased(handler, key = null) {
-    this._onKeyEvent('released', handler, key)
+  onKeyReleased(handler, ...keys) {
+    this._onKeyEvent('released', handler, ...keys)
   }
 
   /**
    * Execute the `handler` when the `key` is down. If `key` is null, then the `handler` executes if any key is down
    * @param {(keyCode: Number, ev: Event) => void} handler
-   * @param {String} key
+   * @param {String} keys
    */
-  onKeyDown(handler, key = null) {
-    this._onKeyEvent('down', handler, key)
+  onKeyDown(handler, ...keys) {
+    this._onKeyEvent('down', handler, ...keys)
   }
 
   /**
    * @param {'pressed' | 'released' | 'down'} eventType
    * @param {(keyCode: Number, ev: Event) => void} handler
-   * @param {String} key
+   * @param {String} keys
    */
-  _onKeyEvent(eventType, handler, key = null) {
-    if (!key) {
+  _onKeyEvent(eventType, handler, ...keys) {
+    if (!keys) {
       Keyboard.events.on(`${eventType}`, null, (keyCode, ev) => handler(keyCode, ev))
       return
     }
-    Keyboard.events.on(`${eventType}_Key${key}`, null, (keyCode, ev) => handler(keyCode, ev))
+    keys.forEach((key) => {
+      Keyboard.events.on(`${eventType}_${key}`, null, (keyCode, ev) => handler(keyCode, ev))
+    })
   }
 
   /**
@@ -67,7 +69,7 @@ export default class ControlComponent extends Component {
    * @param  {...String} keys Check if all the keys are pressed
    */
   isKeyPressed(...keys) {
-    return Keyboard.isKeyPressed(keys)
+    return Keyboard.isKeyPressed(...keys)
   }
 
   /**
@@ -75,7 +77,7 @@ export default class ControlComponent extends Component {
    * @param  {...String} keys Check if all the keys are released
    */
   isKeyReleased(...keys) {
-    return Keyboard.isKeyReleased(keys)
+    return Keyboard.isKeyReleased(...keys)
   }
 
   /**
@@ -83,7 +85,7 @@ export default class ControlComponent extends Component {
    * @param  {...String} keys Check if all the keys are down
    */
   isKeyDown(...keys) {
-    return Keyboard.isKeyDown(keys)
+    return Keyboard.isKeyDown(...keys)
   }
 
   /**
