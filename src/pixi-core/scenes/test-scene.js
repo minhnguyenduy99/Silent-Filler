@@ -1,6 +1,6 @@
 import { BaseScene, GameObject, PhysicalInstance } from '../core'
 import Player from '../prefab/player'
-import { TileMap, Rigidbody } from '../components'
+import { TileMap } from '../components'
 
 export default class TestScene extends BaseScene {
   constructor() {
@@ -16,10 +16,8 @@ export default class TestScene extends BaseScene {
     PhysicalInstance.tilemap = map
 
     let p = new Player(1, 1)
-    p.position.set(32 * 8 - 16, 32 * 8 - 16 + 64 * 2)
+    p.position.set(32 * 4 - 16, 32 * 9)
     p.setFilter(0xff0000)
-    p.addComponent(new Rigidbody())
-    p.setVelocity(-12, -6)
     this.addChild(mapContainer)
     this.addChild(p)
   }

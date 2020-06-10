@@ -27,6 +27,30 @@ export default class Rigidbody extends Component {
         this.ay = ay
     }
 
+    /**
+     * @private
+     * @type {CollisionOut}
+     */
+    __frameCollision = undefined;
+
+    /**
+     * @public
+     * @param {CollisionOut} o
+     */
+    MergeCollision(o) {
+        if (o instanceof CollisionOut) {
+            if (o.normalX !== undefined) {
+                this.OnCollision(o)
+            } else {
+                if (this.__frameCollision === undefined) {
+                    this.__frameCollision = o
+                } else if (o.normalY < this.__frameCollision.normalY) {
+                    this.__frameCollision = o
+                }
+            }
+        }
+    }
+
     update(delta) {
         super.update(delta)
         this._object.vx += this.ax * delta
@@ -36,12 +60,19 @@ export default class Rigidbody extends Component {
     /**
      * @param {CollisionOut} out
      */
-	OnCollision(out) {
-        if (out.normalX >= 0) {
+    OnCollision(out = undefined) {
+        if (!out) {
+            if (!this.__frameCollision) {
+                return
+            }
+            out = this.__frameCollision
+            this.__frameCollision = undefined
+        }
+        if (out.normalX !== undefined) {
             this._object.x += this._object.vx * out.normalX * DEFAULT_PIXEL_TO_CENTIMET
             this._object.vx = 0
         }
-        if (out.normalY >= 0) {
+        if (out.normalY !== undefined) {
             this._object.y += this._object.vy * out.normalY * DEFAULT_PIXEL_TO_CENTIMET
             this._object.vy = 0
         }
