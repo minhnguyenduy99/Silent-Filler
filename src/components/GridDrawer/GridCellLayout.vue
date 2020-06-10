@@ -6,11 +6,10 @@
           <grid-cell
             :size="_cellSize"
             :pos="{row: rowIndex, col: colIndex}"
-            :color="_getCellColor(cell)"
+            :color="_getColorByTag(cell)"
             @mousedown="_onEnterSelectedMode"
             @mouseenter="_onUpdateSelectedEndPoint"
             @mouseup="_onUpdateSelectedZone"
-            @selected="_updateSelectedCell"
             ref="cells"/>
         </b-col>
       </b-row>
@@ -20,6 +19,7 @@
 
 <script>
 import GridCell from './GridCell'
+import { GameObject } from '../MapUtilities'
 
 export default {
   name: 'GridCellLayout',
@@ -37,10 +37,12 @@ export default {
       required: false,
       default: () => Array.from(Array)
     },
-    colors: {
-      type: Array,
-      required: true,
-      default: () => []
+    colors: Object,
+    color: {
+      type: String
+    },
+    tag: {
+      type: Number
     }
   },
   model: {
@@ -73,40 +75,20 @@ export default {
     },
     _cellSize() {
       return this._parseToPx(this.cellSize)
+    },
+    _color() {
+      return this.color
+    },
+    _colors() {
+      return this.colors
+    },
+    _tag() {
+      return this.tag
     }
   },
   methods: {
-    draw({ startPoint, size, color, tag }) {
-      let endPoint = { row: startPoint.row + size.height - 1, col: startPoint.col + size.width - 1 }
-      let updatedCells = []
-      this._actionOnCell(startPoint, endPoint, function (cell) {
-        cell.updateColor(color)
-        updatedCells.push(cell)
-      })
-      this._updateMaps(updatedCells.map(cell => cell.pos), tag)
-    },
-    drawFromSelectedCell(object) {
-      object.startPoint = this.selectedCell.pos
-      this.draw(object)
-    },
-    _getCellColor(tag) {
-      return this.colors[tag]
-    },
     _parseToPx(value) {
       return `${value}px`
-    },
-    _updateMaps(cellPos, tag) {
-      if (!cellPos) {
-        return
-      }
-      cellPos.forEach(function (pos) {
-        this.currentMap[pos.row][pos.col] = tag
-      }.bind(this))
-      this.$emit('mapChanged', this.currentMap)
-    },
-    _updateSelectedCell(cell) {
-      this.selectedCell = cell
-      this.$emit('selectedCellChanged', cell)
     },
     _onEnterSelectedMode(cell) {
       this.isOnSelectedMode = true
@@ -117,9 +99,16 @@ export default {
         this.endPoint = cell.pos
       }
     },
+    _getColorByTag(cell) {
+      return cell === -1 ? 'transparent' : this.colors[cell]
+    },
     _onUpdateSelectedZone(cell) {
       this.endPoint = cell.pos
-      this._actionOnCell(this.startPoint, this.endPoint, (cell) => cell.select())
+      this._actionOnCell(this.startPoint, this.endPoint, function(cell) {
+        let pos = cell.pos
+        cell.updateColor(this._color)
+        this.currentMap[pos.row][pos.col] = this._tag
+      }.bind(this))
       this.isOnSelectedMode = false
     },
     _actionOnCell(startPoint, endPoint, cb) {

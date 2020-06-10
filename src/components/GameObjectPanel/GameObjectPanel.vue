@@ -55,7 +55,6 @@ export default {
   data() {
     return {
       selectedIndex: -1,
-      listObjects: null,
       objectPerPage: 3,
       currentPage: 1,
       invalidValue: null,
@@ -65,12 +64,10 @@ export default {
   },
   watch: {
     tab: function(newVal, oldVal) {
-      this.listObjects = this.tabData.availableMap.objects
+      if (!newVal) {
+        return
+      }
       this._updateSelectedObj(this.tabData.currentSelectedIndex)
-    },
-    listObjects: function(newVal, oldVal) {
-      this.isRowIncreased = newVal.length > this.totalRow
-      this.totalRow = newVal.length
     },
     totalRow: function(newVal) {
       if (this._isNumberOfPageChanged) {
@@ -82,6 +79,10 @@ export default {
         return
       }
       this._updateSelectedObj(-1)
+    },
+    listObjects: function(newVal, oldVal) {
+      this.isRowIncreased = newVal.length > this.totalRow
+      this.totalRow = newVal.length
     }
   },
   created: function() {
@@ -105,6 +106,12 @@ export default {
       }
       return this.listObjects[this.listObjects.length - 1].tag + 1
     },
+    listObjects: {
+      get () {
+        return this.tabData ? this.tabData.objects : []
+      },
+      set (newVal) {}
+    },
     _selectedObj() {
       return this.listObjects[this.selectedIndex]
     },
@@ -112,8 +119,10 @@ export default {
       return this.selectedIndex !== -1
     },
     _isNumberOfPageChanged() {
-      return (this.listObjects.length % this.objectPerPage === 0 && !this.isRowIncreased) ||
-            (this.listObjects.length % this.objectPerPage === 1 && this.isRowIncreased)
+      return (Math.floor(this.listObjects.length / this.objectPerPage) + 1) !== this.currentPage
+      // let result = (this.listObjects.length % this.objectPerPage === 0 && !this.isRowIncreased) ||
+      //       (this.listObjects.length % this.objectPerPage === 1 && this.isRowIncreased)
+      // return result
     },
     _paginator() {
       return this.$refs.pagination
@@ -161,8 +170,8 @@ export default {
     },
     _addObject() {
       let tagValue = this._autoIncrementTagValue
-      this.listObjects.push(new GameObject(
-         tagValue,
+      this.tabData.addObject(new GameObject(
+        tagValue,
          `Object ${tagValue}`,
          '#000000',
          { width: 1, height: 1 },

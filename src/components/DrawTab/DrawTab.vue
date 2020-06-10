@@ -1,5 +1,16 @@
 <template>
   <b-tab v-on="$listeners" v-bind="$attrs" :title="title">
+    <div slot="title" class="d-flex justify-content-start align-items-center">
+      <b-form-input class="w-50 mr-2" v-model.lazy="localTabObject.title"></b-form-input>
+      <icon-button
+        size="xs"
+        btnIconName="x"
+        variant="danger"
+        v-b-tooltip.hover
+        title="Remove tab"
+        @click="_onTabRemoveButtonClicked"
+      />
+    </div>
     <div v-if="!localTabObject.isImageLoaded">
       <span class="h2 d-block text-left">This tab is empty</span>
     </div>
@@ -8,13 +19,12 @@
       <map-drawer
         class="map-area__map"
         :mapInfo.sync="localTabObject.mapInfo"
+        :map="map"
         :drawObject="selectedObj"
-        :availableMap="localTabObject.availableMap"
         :cellSize.sync="cellSize"
         ref="map-drawer"
         @drawFinished="_onDrawFinished"
         @map-changed="_onMapChanged"
-        @gamemap-changed="_onGameMapChanged"
       />
     </div>
   </b-tab>
@@ -25,11 +35,12 @@ import MapDrawer from '../GridDrawer/MapDrawer'
 import TabObject from './TabObject'
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 import GameObject from '../MapUtilities/GameObject'
+import IconButton from '../Utilities/IconButton'
 
 export default {
   name: 'DrawTab',
   components: {
-    MapDrawer
+    MapDrawer, IconButton
   },
   props: {
     tab: {
@@ -74,6 +85,10 @@ export default {
       return this.currentTabData.currentSelectedObj
     },
 
+    map() {
+      return this.localTabObject.map
+    },
+
     cellSize() {
       return this.tab.cellSize
     }
@@ -82,6 +97,9 @@ export default {
     loadImage(img) {
       this.tab.loadImage(img)
       this._onImageLoaded()
+    },
+    drawMapFrom({ map, cellSize }) {
+      this.$refs['map-drawer'].drawMapFrom({ map, cellSize })
     },
     loadDefaultMap() {
       return new Promise(function (resolve, reject) {
@@ -97,10 +115,10 @@ export default {
       this.$emit('draw-finished', this)
     },
     _onMapChanged(map) {
-      this.tab.availableMap.map = map
+      this.tab.map = map
     },
-    _onGameMapChanged(gameMap) {
-      this.tab.availableMap.mapObjects = gameMap
+    _onTabRemoveButtonClicked() {
+      this.$emit('on-remove', this)
     }
   }
 }

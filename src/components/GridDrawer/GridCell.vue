@@ -1,5 +1,8 @@
 <template>
   <div
+    @mousedown="onMouseDown"
+    @mouseenter="onMouseEnter"
+    @mouseup="onMouseUp"
     :style="getCellStyle" class="cell__container d-inline-flex">
     <b-button
       v-on="$attrs"
@@ -22,7 +25,7 @@ export default {
     },
     color: {
       type: String,
-      required: true,
+      required: false,
       validator: (val) => /(^#[\da-f]{6}$)|(transparent)/.test(val),
       default: () => 'transparent'
     }
@@ -31,8 +34,7 @@ export default {
     return {
       isSelected: false,
       selectedColor: '#0f0f0f',
-      currentColor: this.color,
-      colorStack: []
+      currentColor: this.color
     }
   },
   watch: {
@@ -40,7 +42,7 @@ export default {
       if (!newVal) {
         return
       }
-      this._updateColorStack(newVal)
+      this.currentColor = newVal || 'transparent'
     }
   },
   computed: {
@@ -60,7 +62,7 @@ export default {
   },
   methods: {
     updateColor(color) {
-      this._updateColorStack(color)
+      this.currentColor = color
     },
     select() {
       this.isSelected = true
@@ -86,15 +88,6 @@ export default {
     _onCellClicked() {
       let event = this.isSelected ? 'selected' : 'unselected'
       this.$emit(event, this)
-    },
-    _updateColorStack(color) {
-      if (color !== 'transparent') {
-        this.currentColor = color
-        this.colorStack.push(color)
-        return
-      }
-      this.colorStack.pop()
-      this.currentColor = this.colorStack[this.colorStack.length - 1] || 'transparent'
     }
   }
 }

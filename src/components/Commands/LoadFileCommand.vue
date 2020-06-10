@@ -8,6 +8,7 @@
 import Command from './Command'
 import LoadingDialog from '../Utilities/LoadingDialog'
 import { mapState, mapMutations } from 'vuex'
+import { GameObject } from '../MapUtilities'
 
 export default {
   name: 'LoadFileCommand',
@@ -24,7 +25,10 @@ export default {
       if (!newVal || !this.tab) {
         return
       }
-      this.command = new Command(this._loadImageToMap, this.tab)
+      console.log(newVal)
+      let parts = newVal.name.split('.')
+      let callback = parts[parts.length - 1] === 'json' ? this._loadGameInfo : this._loadImageToMap
+      this.command = new Command(callback, this.tab)
       this.execute()
     }
   },
@@ -33,9 +37,12 @@ export default {
     isLoading: false,
     content: 'Đang load file ...'
   }),
-  computed: mapState({
-    tab: state => state.currentTab
-  }),
+  computed: {
+    ...mapState({
+      tab: state => state.currentTab,
+      currentTabData: state => state.currentTabData
+    })
+  },
   methods: {
     execute() {
       this.isLoading = true
@@ -59,11 +66,12 @@ export default {
         console.error(evt)
       }
     },
-    _loadGameInfo(file) {
+    _loadGameInfo(tab) {
       let reader = new FileReader()
-      reader.readAsText(file, 'utf-8')
+      reader.readAsText(this.file, 'utf-8')
       reader.onload = function(evt) {
-        // this.gameInfo = JSON.parse(evt.target.result)
+        let mapInfo = JSON.parse(evt.target.result)
+        tab.tab.loadAvailableMap(mapInfo)
         this.isLoading = false
       }.bind(this)
     },

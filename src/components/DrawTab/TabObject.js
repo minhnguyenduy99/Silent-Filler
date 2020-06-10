@@ -9,9 +9,14 @@ export default class TabObject {
   title
 
   /**
-   * @type {{ objects: GameObject[], map: Array, mapObjects: GameMap }}
+   * @type {Array}
    */
-  availableMap
+  map
+
+  /**
+   * @type {GameObject[]}
+   */
+  objects
 
   /**
    * @type {{
@@ -36,6 +41,11 @@ export default class TabObject {
   cellSize
 
   /**
+   * @type {{[key: Number]: String}}
+   */
+  colors
+
+  /**
    * @type {Number}
    */
   currentSelectedIndex
@@ -47,23 +57,21 @@ export default class TabObject {
 
   constructor() {
     this.title = ''
-    this.availableMap = {
-      objects: [],
-      map: null,
-      mapObjects: new GameMap()
-    }
+    this.objects = []
+    this.map = null
     this.image = {
       width: 0,
       height: 0,
       src: null
     }
+    this.colors = {}
     this.cellSize = this.DEFAULT_CELL_SIZE
     this.currentSelectedIndex = -1
     this.isImageLoaded = false
   }
 
   isMapLoaded() {
-    return this.availableMap.map !== null
+    return this.map !== null
   }
 
   loadImage(img) {
@@ -74,22 +82,31 @@ export default class TabObject {
     this.__setMapInfo()
   }
 
+  loadAvailableMap({ map, objects, cellSize }) {
+    this.map = map
+    this.objects = objects.map(obj => new GameObject(
+      obj.tag, obj.name, obj._color, obj.size, obj.isOverlapable
+    ))
+    this.cellSize = cellSize
+    let colorMap = {}
+    this.objects.forEach(function(obj) {
+      colorMap[obj.tag] = obj.color
+    })
+    this.colors = colorMap
+  }
+
   /**
    * @returns {TabObject}
    */
   copy() {
     let clone = new TabObject()
     clone.title = this.title
-    clone.availableMap = {
-      map: this.availableMap.map ? [...this.availableMap.map] : null,
-      mapObjects: this.availableMap.mapObjects.copy()
-    }
-    let mapObjects = clone.availableMap.mapObjects.getDistinctObjects()
-    if (mapObjects.length === 0) {
-      clone.availableMap.objects = this.availableMap.objects.map(obj => obj.copy())
-    } else {
-      clone.availableMap.objects = mapObjects
-    }
+    clone.map = this.map ? [...this.map.map(row => [...row])] : null
+    clone.objects = this.objects.map(obj => obj.copy())
+    clone.objects.forEach(function(obj) {
+      obj.onColorChanged = this.__onObjectColorChanged.bind(this)
+    }.bind(this))
+    clone.colors = { ...this.colors }
     clone.currentSelectedIndex = this.currentSelectedIndex
     clone.image = { ...this.image }
     clone.isImageLoaded = this.isImageLoaded
@@ -99,7 +116,28 @@ export default class TabObject {
   }
 
   get currentSelectedObj() {
-    return this.availableMap.objects[this.currentSelectedIndex]
+    return this.objects[this.currentSelectedIndex]
+  }
+
+  /**
+   *
+   * @param {GameObject} obj
+   */
+  addObject(obj) {
+    if (!obj) {
+      return
+    }
+    this.objects.push(obj)
+    this.colors[obj.tag] = obj.color
+    obj.onColorChanged = this.__onObjectColorChanged.bind(this)
+  }
+
+  /**
+   * Callback when color of object changed
+   * @param {GameObject} object
+   */
+  __onObjectColorChanged(object) {
+    this.colors[object.tag] = object.color
   }
 
   __setMapInfo() {

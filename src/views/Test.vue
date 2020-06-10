@@ -20,9 +20,10 @@
       <b-tabs
         card
         v-model="currentTabIndex">
-        <draw-tab v-for="tab in tabs" :key="tab.id"
+        <draw-tab v-for="(tab, index) in tabs" :key="tab.id"
           :tab="tab"
           ref='draw-tabs'
+          @on-remove="removeTab(index)"
         />
       </b-tabs>
     </b-card>
@@ -91,9 +92,18 @@ export default {
       this.tabs.push(newTab)
       this._onTabAdded()
     },
+    removeTab(index) {
+      this.tabs.splice(index, 1)
+      this._onTabRemoved()
+    },
     _onTabAdded() {
       this.generateTabIndex++
       this.updateLengthTab(this.tabs.length)
+    },
+    _onTabRemoved() {
+      if (this.tabs.length === 0) {
+        this.generateTabIndex = 0
+      }
     }
   }
 }

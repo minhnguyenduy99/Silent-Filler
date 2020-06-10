@@ -14,7 +14,7 @@ export default class GameObject {
   /**
    * @type {String}
    */
-  color
+  _color
 
   /**
    * @type {String}
@@ -32,20 +32,37 @@ export default class GameObject {
   isOverlapable
 
   /**
+   * @type {(GameObject) => void}
+   */
+  onColorChanged
+
+  /**
    *
    * @param {number} tag
    * @param {String} name
-   * @param {Stringg} color
+   * @param {Stringg} _color
    * @param {{ width: number, height: number }} size
    * @param {Boolean} isOverlapable Specify if this object can be overlap another object
    */
-  constructor(tag, name, color, size, isOverlapable = true) {
+  constructor(tag, name, _color, size, isOverlapable = true) {
     this.id = uniqid()
     this.tag = tag
     this.name = name
-    this.color = color
+    this._color = _color
     this.size = size
     this.isOverlapable = isOverlapable
+  }
+
+  get color() {
+    return this._color
+  }
+
+  set color(val) {
+    if (this._color === val) {
+      return
+    }
+    this._color = val
+    this.onColorChanged(this)
   }
 
   /**
@@ -55,7 +72,7 @@ export default class GameObject {
     return new GameObject(
       this.tag,
       this.name,
-      this.color,
+      this._color,
       { ...this.size },
       this.isOverlapable
     )

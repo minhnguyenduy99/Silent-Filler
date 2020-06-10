@@ -24,6 +24,9 @@ export default {
   },
   watch: {
     tab: function(newVal, oldVal) {
+      if (!newVal) {
+        return
+      }
       this.command = new Command(this._loadDefaultMap.bind(this), newVal)
       newVal.$on('draw-finished', function() {
         this.isLoading = false

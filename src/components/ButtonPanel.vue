@@ -35,7 +35,6 @@
               </icon-button>
             </size-input>
             <b-form-file
-              accept="image/*"
               size="lg"
               v-model="file"
               @input="onFileUploaded"
@@ -102,6 +101,7 @@ export default {
     ...mapActions(['changeMode']),
 
     onFileUploaded(file) {
+      this.file = file
       this.$emit('fileUploaded', file)
     },
     onBlockButtonClicked(ev) {

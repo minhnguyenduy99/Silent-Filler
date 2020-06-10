@@ -2,13 +2,12 @@
   <div>
     <grid-cell-layout
       v-model="currentMap"
-      :colors="colors"
       :cell-size="sizeOfCell"
       ref="layout"
-      @selectedCellChanged="_onSelectedCellChanged"/>
-    <b-modal cancel-disabled :id="modalId">
-      <span> {{ errorMsg }}</span>
-    </b-modal>
+      :color="color"
+      :colors="colorTagMap"
+      :tag="tag"
+    />
   </div>
 </template>
 
@@ -16,7 +15,6 @@
 import GridCellLayout from './GridCellLayout'
 import { GameMap, GameObject, RectangleArea, Position } from '../MapUtilities'
 import { mapState, mapGetters } from 'vuex'
-import uniqid from 'uniqid'
 
 export default {
   name: 'MapDrawer',
@@ -38,49 +36,35 @@ export default {
       required: false,
       default: () => null
     },
-    availableMap: {
-      objects: {
-        type: Array,
-        required: false,
-        default: () => []
-      },
-      map: {
-        type: Array,
-        required: false,
-        default: () => null
-      },
-      mapObjects: {
-        type: GameMap,
-        required: false,
-        default: () => []
-      }
+    map: {
+      type: Array,
+      required: false,
+      default: () => null
     },
     cellSize: {
       type: Number,
       required: false,
       default: () => 0
     },
-    drawObject: GameObject
+    drawObject: {
+      type: GameObject,
+      required: true,
+      default: () => new GameObject(-1, null, 'transparent', { width: 0, height: 0 }, true)
+    }
   },
   data: () => ({
     currentMap: null,
     selectedCell: null,
-    objectLocationMap: {},
-    gameMap: new GameMap(),
     mapWidth: 0,
     mapHeight: 0,
     localCellSize: 0,
     emptyTag: -1,
-    objects: [],
-    modalId: uniqid(),
-    OVERLAP_ERROR: 'This object has overlap another object',
-    ERASE_ERROR: 'Cannot erase object overlap by another object',
-    ERASE_EMPTY_ERROR: 'No object to erase',
-    errorMsg: null
+    emptyColor: 'transparent',
+    colorMap: null
   }),
   created: function() {
     // If the map has not been loaded
-    if (this.availableMap.map) {
+    if (this.map) {
       this._setMapBasedOnAvailableMap()
       return
     }
@@ -108,13 +92,16 @@ export default {
     currentMap: function(newVal, oldVal) {
       this.$emit('map-changed', newVal)
     },
+    map: function(newVal, oldVal) {
+      this.currentMap = newVal
+    },
     cellSize: function(newVal, oldVal) {
       this.localCellSize = this.cellSize
     }
   },
   computed: {
     ...mapState(['AVAILABLE_MODE']),
-    ...mapGetters(['mode', 'isMapLoaded']),
+    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData']),
 
     cellLayout() {
       return this.$refs.layout
@@ -122,14 +109,20 @@ export default {
     sizeOfCell() {
       return this.localCellSize
     },
+    tag() {
+      return this.mode === this.AVAILABLE_MODE.DRAW_MODE ? this.drawObject.tag : this.emptyTag
+    },
+    color() {
+      return this.mode === this.AVAILABLE_MODE.DRAW_MODE ? this.drawObject.color : this.emptyColor
+    },
     rows() {
       return Math.floor(this.mapHeight / this.localCellSize)
     },
     cols() {
       return Math.floor(this.mapWidth / this.localCellSize)
     },
-    colors() {
-      return this.objects.map(obj => obj.color)
+    colorTagMap() {
+      return this.currentTabData.colors
     }
   },
   methods: {
@@ -137,45 +130,12 @@ export default {
       this.currentMap = this._getDefaultMap()
     },
 
-    /**
-     * @param {GameObject} obj
-     */
-    async drawObjOnSelectedCell(obj) {
-      let { row: y, col: x } = this.selectedCell.pos
-      let isNotOverlap = await this.gameMap.add(new Position(x, y), obj)
-      if (!isNotOverlap) {
-        this.errorMsg = this.OVERLAP_ERROR
-        this.$bvModal.show(this.modalId)
-        return
-      }
-      this.cellLayout.drawFromSelectedCell(obj)
-      this._onGameMapChanged()
-    },
-
-    async eraseObject() {
-      if (!this.selectedCell) {
-        return
-      }
-      let cellPosition = this.selectedCell.pos
-      let selectedPos = new Position(cellPosition.col, cellPosition.row)
-      if (this.gameMap.isEmpty()) {
-        this.errorMsg = this.ERASE_EMPTY_ERROR
-        this.$bvModal.show(this.modalId)
-        return
-      }
-      let removedObj = await this.gameMap.remove(selectedPos)
-      if (!removedObj) {
-        this.errorMsg = this.ERASE_ERROR
-        this.$bvModal.show(this.modalId)
-        return
-      }
-      this.cellLayout.drawFromSelectedCell({ ...removedObj, tag: this.emptyTag, color: 'transparent' })
-      this._onGameMapChanged()
+    loadMapFrom({ map, cellSize }) {
+      this._setMapBasedOnAvailableMap()
     },
 
     resetMap() {
       this.currentMap = this._getDefaultMap()
-      this.gameMap = new GameMap()
     },
 
     _setMapByMapInfo(mapInfo, cellSize) {
@@ -186,30 +146,10 @@ export default {
     },
 
     _setMapBasedOnAvailableMap() {
-      let { objects, map, mapObjects } = this.availableMap
       this.localCellSize = this.cellSize
-      this.currentMap = map
-      this.mapWidth = map[0].length
-      this.mapHeight = map.length
-      this.objects = objects ?? []
-      this.gameMap = mapObjects
-    },
-
-    _onGameMapChanged() {
-      this.$emit('gamemap-changed', this.gameMap)
-    },
-
-    _onSelectedCellChanged(cell) {
-      this.selectedCell = cell
-      switch (this.mode) {
-        case this.AVAILABLE_MODE.DRAW_MODE:
-          if (!this.drawObject) {
-            console.log('No object selected')
-            return
-          }
-          this.drawObjOnSelectedCell(this.drawObject); break
-        case this.AVAILABLE_MODE.ERASE_MODE: this.eraseObject(); break
-      }
+      this.currentMap = this.map
+      this.mapWidth = this.map[0].length
+      this.mapHeight = this.map.length
     },
 
     _getDefaultMap() {
@@ -218,30 +158,6 @@ export default {
         return Array(this.cols).fill(this.emptyTag)
       }.bind(this))
       return map
-    },
-
-    /**
-     * @param {GameObject} obj
-     */
-    async _isObjectsOverlap(obj) {
-      let { col: x, row: y } = this.selectedCell.pos
-      return this.gameMap.isOverlap(new Position(x, y), obj)
-    },
-
-    _createArrayOfAllPositions(startY, endY, startX, endX) {
-      let arrayY = this._createArrayFromRange(startY, endY)
-      let arrayX = this._createArrayFromRange(startX, endX)
-      let cells = []
-      arrayY.forEach(y => {
-        arrayX.forEach(x => {
-          cells.push({ x, y })
-        })
-      })
-      return cells
-     },
-
-    _createArrayFromRange(a, b) {
-      return Array.from(Array(b - a + 1), (x, index) => index + a)
     }
   }
 }

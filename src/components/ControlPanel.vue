@@ -3,7 +3,7 @@
     <side-panel direction="horizontal-left" background="#eeffee">
       <div class="d-flex flex-column p-1">
         <b-button class="m-1" variant="outline-primary">Test</b-button>
-        <b-button class="m-1" variant="outline-primary">Save and Quit</b-button>
+        <b-button class="m-1" variant="outline-primary" @click="saveCurrentMap" :disabled="isButtonDisabled">Save and Quit</b-button>
         <b-button class="m-1" variant="outline-primary">Play and Upload</b-button>
         <b-button class="m-1" variant="outline-primary">Quit Edit Mode</b-button>
       </div>
@@ -13,6 +13,8 @@
 
 <script>
 import SidePanel from './Utilities/SidePanel'
+import { mapGetters, mapState } from 'vuex'
+import { saveAs } from 'file-saver'
 
 export default {
   name: 'ControlPanel',
@@ -23,6 +25,26 @@ export default {
     return {
       buttonClass: 'm-1 sm',
       isPanelShown: true
+    }
+  },
+  computed: {
+    ...mapState(['tabLength']),
+    ...mapGetters(['currentTabData']),
+
+    isButtonDisabled() {
+      return this.tabLength === 0
+    }
+  },
+  methods: {
+    saveCurrentMap() {
+      let saveObj = {
+        objects: this.currentTabData.objects,
+        map: this.currentTabData.map,
+        cellSize: this.currentTabData.cellSize
+      }
+      var blob = new Blob([JSON.stringify(saveObj)], { type: 'application/json' })
+      let fileName = 'map_' + this.currentTabData.title.toLowerCase()
+      saveAs(blob, fileName)
     }
   }
 }

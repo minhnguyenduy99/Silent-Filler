@@ -7,7 +7,7 @@
     <b-container fluid="false" style="max-width: 250px">
       <b-row no-gutters class="text-light justify-content-between" align-v="center">
         <b-col class="d-flex">
-          <b-form-input ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" :disabled="!isSelected" class="w-25 mb-2"></b-form-input>
+          <b-form-input v-b-tooltip.hover title="Tag" ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" disabled class="w-25 mb-2"></b-form-input>
           <b-form-checkbox
             class="h-100 ml-2"
             name="overlapable-checkbox"
