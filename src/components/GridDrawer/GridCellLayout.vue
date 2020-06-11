@@ -87,30 +87,53 @@ export default {
     }
   },
   methods: {
+
+    drawBySize(startPoint, { width, height }) {
+      let endPoint = {
+        col: startPoint.col + width - 1,
+        row: startPoint.row + height - 1
+      }
+      this._onDrawOnSelectedZone(startPoint, endPoint)
+    },
+
+    drawByZone(startPoint, endPoint) {
+      this._onDrawOnSelectedZone(startPoint, endPoint)
+    },
+
     _parseToPx(value) {
       return `${value}px`
     },
+
     _onEnterSelectedMode(cell) {
       this.isOnSelectedMode = true
       this.startPoint = cell.pos
+      this.$emit('selected-cell-changed', this.startPoint)
     },
+
     _onUpdateSelectedEndPoint(cell) {
       if (this.isOnSelectedMode) {
         this.endPoint = cell.pos
       }
     },
+
     _getColorByTag(cell) {
       return cell === -1 ? 'transparent' : this.colors[cell]
     },
+
     _onUpdateSelectedZone(cell) {
       this.endPoint = cell.pos
-      this._actionOnCell(this.startPoint, this.endPoint, function(cell) {
+      this.$emit('selected-zone-changed', this.startPoint, this.endPoint)
+      this.isOnSelectedMode = false
+    },
+
+    _onDrawOnSelectedZone(startPoint, endPoint) {
+      this._actionOnCell(startPoint, endPoint, function(cell) {
         let pos = cell.pos
         cell.updateColor(this._color)
         this.currentMap[pos.row][pos.col] = this._tag
       }.bind(this))
-      this.isOnSelectedMode = false
     },
+
     _actionOnCell(startPoint, endPoint, cb) {
       let { row: sRow, col: sCol } = startPoint
       let { row: eRow, col: eCol } = endPoint
@@ -119,9 +142,13 @@ export default {
       eRow = dentaRow > 0 ? eRow + 1 : eRow - 1
       eCol = dentaCol > 0 ? eCol + 1 : eCol - 1
       let cells = Array.from(this.$refs.cells)
-      for (let i = sRow; Math.abs(i - eRow) !== 0; i += dentaRow) {
-        for (let j = sCol; Math.abs(eCol - j) !== 0; j += dentaCol) {
+      for (let i = sRow; Math.abs(i - eRow) !== 0 && i < this.map.length; i += dentaRow) {
+        for (let j = sCol; Math.abs(eCol - j) !== 0 && j < this.map[0].length; j += dentaCol) {
           let index = i * this.columns + j
+          let cell = cells[index]
+          if (!cell) {
+            return
+          }
           // call the callback on every cell
           cb(cells[index])
         }

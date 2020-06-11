@@ -69,7 +69,7 @@ export default {
       ],
       file: null,
       isDrawButtonPressed: false,
-      localCellSize: 20
+      localCellSize: 32
     }
   },
   watch: {

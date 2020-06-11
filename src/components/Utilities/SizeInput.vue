@@ -79,13 +79,11 @@ export default {
     }
   },
   created: function() {
-    if (this.square) {
-      this.squareSize = this.size
-    } else {
-      let { width, height } = this.size
-      this.width = width
-      this.height = height
-      this.inputSize = this.size
+    this._setInputSize(this.size)
+  },
+  watch: {
+    size: function(newVal, oldVal) {
+      this._setInputSize(newVal)
     }
   },
   computed: {
@@ -131,6 +129,16 @@ export default {
       this.inputSize.width = this.width
       this.inputSize.height = this.height
       this.$emit('input', this.inputSize)
+    },
+    _setInputSize(size) {
+      if (this.square) {
+        this.squareSize = size
+      } else {
+        let { width, height } = size
+        this.width = width
+        this.height = height
+        this.inputSize = size
+      }
     }
   }
 }

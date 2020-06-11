@@ -1,6 +1,8 @@
 import uniqid from 'uniqid'
 
 export default class GameObject {
+  static DEFAULT_STATIC_OBJECT_SIZE = 1
+
   /**
    * @type {String}
    */
@@ -29,7 +31,7 @@ export default class GameObject {
   /**
    * @type {Boolean}
    */
-  isOverlapable
+  isStatic
 
   /**
    * @type {(GameObject) => void}
@@ -42,15 +44,22 @@ export default class GameObject {
    * @param {String} name
    * @param {Stringg} _color
    * @param {{ width: number, height: number }} size
-   * @param {Boolean} isOverlapable Specify if this object can be overlap another object
+   * @param {Boolean} isStatic Specify if the object is static (ground, grass, ...)
    */
-  constructor(tag, name, _color, size, isOverlapable = true) {
+  constructor(tag, name, _color, size, isStatic = true) {
     this.id = uniqid()
     this.tag = tag
     this.name = name
     this._color = _color
-    this.size = size
-    this.isOverlapable = isOverlapable
+    this.isStatic = isStatic
+    if (this.isStatic) {
+      this.size = {
+        width: GameObject.DEFAULT_STATIC_OBJECT_SIZE,
+        height: GameObject.DEFAULT_STATIC_OBJECT_SIZE
+      }
+    } else {
+      this.size = size
+    }
   }
 
   get color() {
@@ -74,7 +83,7 @@ export default class GameObject {
       this.name,
       this._color,
       { ...this.size },
-      this.isOverlapable
+      this.isStatic
     )
   }
 }

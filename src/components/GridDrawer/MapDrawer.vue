@@ -7,6 +7,8 @@
       :color="color"
       :colors="colorTagMap"
       :tag="tag"
+      @selected-cell-changed="_onSelectedCellChanged"
+      @selected-zone-changed="_onSelectedZoneChanged"
     />
   </div>
 </template>
@@ -59,6 +61,7 @@ export default {
     mapHeight: 0,
     localCellSize: 0,
     emptyTag: -1,
+    drawStatic: true,
     emptyColor: 'transparent',
     colorMap: null
   }),
@@ -97,6 +100,12 @@ export default {
     },
     cellSize: function(newVal, oldVal) {
       this.localCellSize = this.cellSize
+    },
+    drawObject: {
+      handler: function (newVal, oldVal) {
+        this.drawStatic = newVal.isStatic
+      },
+      deep: true
     }
   },
   computed: {
@@ -158,6 +167,19 @@ export default {
         return Array(this.cols).fill(this.emptyTag)
       }.bind(this))
       return map
+    },
+
+    _onSelectedCellChanged(startPoint) {
+      if (!this.drawStatic) {
+        this.cellLayout.drawBySize(startPoint, this.drawObject.size)
+      }
+    },
+
+    _onSelectedZoneChanged(startPoint, endPoint) {
+      if (!this.drawStatic) {
+        return
+      }
+      this.cellLayout.drawByZone(startPoint, endPoint)
     }
   }
 }

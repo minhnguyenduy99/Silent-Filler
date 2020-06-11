@@ -2,11 +2,13 @@
   <div
     @mousedown="onMouseDown"
     @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
     @mouseup="onMouseUp"
     :style="getCellStyle" class="cell__container d-inline-flex">
     <b-button
       v-on="$attrs"
       @click="toggleSelect"
+      ref="button-cell"
       class="cell__object --flat bg-transparent"></b-button>
   </div>
 </template>
@@ -34,6 +36,7 @@ export default {
     return {
       isSelected: false,
       selectedColor: '#0f0f0f',
+      isHover: false,
       currentColor: this.color
     }
   },
@@ -56,7 +59,7 @@ export default {
     },
     _getStyleByState() {
       return {
-        'border-width': this.isSelected ? '4px' : '1px'
+        backgroundColor: this.isHover ? 'rgba(255, 255, 255, 20%)' : this.currentColor
       }
     }
   },
@@ -83,7 +86,11 @@ export default {
       this.$emit('mouseup', this)
     },
     onMouseEnter() {
+      this.isHover = true
       this.$emit('mouseenter', this)
+    },
+    onMouseLeave() {
+      this.isHover = false
     },
     _onCellClicked() {
       let event = this.isSelected ? 'selected' : 'unselected'

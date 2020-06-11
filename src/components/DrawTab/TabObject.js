@@ -1,7 +1,7 @@
-import { GameObject, GameMap } from '../MapUtilities'
+import { GameObject } from '../MapUtilities'
 
 export default class TabObject {
-  DEFAULT_CELL_SIZE = 20
+  DEFAULT_CELL_SIZE = 32
 
   /**
    * @type {String}

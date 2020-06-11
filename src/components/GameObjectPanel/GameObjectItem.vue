@@ -12,19 +12,19 @@
             class="h-100 ml-2"
             name="overlapable-checkbox"
             v-b-tooltip.hover
-            :title="isOverlapable ? 'Không overlapable' : 'Chọn overlapable'"
+            :title="isStatic ? 'Not static' : 'Select static'"
             button
             button-variant="primary"
             size="sm"
             @click.native.stop
-            v-model="isOverlapable"
+            v-model="isStatic"
             :disabled="!isSelected"
           >
-            {{ isOverlapable ? 'Overlapable' : 'Not overlapable' }}
+            {{ isStatic ? 'Static' : 'Non-static' }}
           </b-form-checkbox>
         </b-col>
         <b-col cols="3" class="text-right">
-          <size-input @click.stop v-model="size" :disabled="!isSelected" class="mb-1" v-b-tooltip.hover title="Size" />
+          <size-input @click.stop v-model="size" :disabled="!isSelected || isStatic" class="mb-1" v-b-tooltip.hover title="Size" />
         </b-col>
         <b-col cols="9">
            <b-form-input ref="name-input" @click.stop type="text" required lazy v-model="name" placeholder="Object name" :disabled="!isSelected"></b-form-input>
@@ -63,7 +63,7 @@ export default {
       name: this.gameObject.name,
       size: this.gameObject.size,
       color: this.gameObject.color,
-      isOverlapable: this.gameObject.isOverlapable,
+      isStatic: this.gameObject.isStatic,
       isCreated: false,
       localGameObject: this.gameObject,
       isSelected: false,
@@ -86,8 +86,14 @@ export default {
     color: function(newVal) {
       this._setGameObjectValue('color', newVal)
     },
-    isOverlapable: function(newVal) {
-      this._setGameObjectValue('isOverlapable', newVal)
+    isStatic: function(newVal) {
+      if (newVal) {
+        this.size = {
+          width: 1,
+          height: 1
+        }
+      }
+      this._setGameObjectValue('isStatic', newVal)
     }
   },
   computed: {
