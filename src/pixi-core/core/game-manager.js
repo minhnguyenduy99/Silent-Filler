@@ -135,7 +135,7 @@ class GameManager {
     currentScene.update(delta)
     PhysicalInstance.update(delta)
     PhysicalInstance.CollisionCall(delta)
-    // keyboard.KeyboardManager.update()
+    PhysicalInstance.lateUpdate(delta)
     currentScene.render(this._app.renderer)
 
     ControlComponent.update()

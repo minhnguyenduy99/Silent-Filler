@@ -22,6 +22,7 @@ export default {
     let resourceManager = GameManager.resourceManager
     resourceManager.addResourceFile('tilemap', require('../assets/tilemap.png'))
     resourceManager.addResourceFile('player', require('../assets/player.png'))
+    resourceManager.addResourceFile('SelectArrow', require('../assets/SelectArrow.png'))
     await resourceManager.load()
     let scene = new TestScene()
     GameManager.addScene(scene)

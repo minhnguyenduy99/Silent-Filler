@@ -11,7 +11,7 @@ export default class Component {
    * @protected
    * @type {Boolean}
    */
-  _isActive
+  _isActive = true
 
   /**
    *
@@ -31,8 +31,12 @@ export default class Component {
   /**
    * Specify if the component is active
    */
-  get isActive() {
+  get IsActive() {
     return this._isActive
+  }
+
+  set IsActive(value) {
+    this._isActive = value
   }
 
   /**
