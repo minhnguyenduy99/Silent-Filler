@@ -22,7 +22,7 @@ export default class BaseScene extends pixi.Container {
    */
   update(delta) {
     this.children.forEach((child) => {
-      if (child.update) {
+      if (child.update && child.IsActive) {
         child.update(delta)
       }
     })

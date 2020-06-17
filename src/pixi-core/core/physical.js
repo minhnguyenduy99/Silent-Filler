@@ -20,7 +20,11 @@ class Physical {
     }
 
     update(delta) {
-        this.RigidbodyList.forEach(e => e.update(delta))
+        this.RigidbodyList.forEach(e => { if (e.IsActive) { e.update(delta) } })
+    }
+
+    lateUpdate(delta) {
+        this.RigidbodyList.forEach(e => { if (e.IsActive) { e.lateUpdate(delta) } })
     }
 
     CollisionCall(delta) {
@@ -28,7 +32,9 @@ class Physical {
 
         for (let i = 0; i < this.RigidbodyList.length - 1; i++) {
             for (let j = i + 1; j < this.RigidbodyList.length; j++) {
-                sweptAABB(this.RigidbodyList[i]._object, this.RigidbodyList[j]._object, delta, true)
+                if (sweptAABB(this.RigidbodyList[i]._object, this.RigidbodyList[j]._object, delta, true)) {
+                    // console.log('2 object collision')
+                }
             }
         }
 

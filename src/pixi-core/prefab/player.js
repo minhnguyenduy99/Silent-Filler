@@ -1,4 +1,4 @@
-import { GameObject, TileSprite, CollisionOut, ControlComponent } from '../core'
+import { GameObject, TileSprite, CollisionOut, ControlComponent, Sprite } from '../core'
 import { Rigidbody } from '../components'
 
 export default class Player extends GameObject {
@@ -29,7 +29,24 @@ export default class Player extends GameObject {
 		this.addComponent(this.__controler)
 	}
 
+	width = 0
+	height = 0
+
+	__defaultPoint = 0
+
+	/**
+	 * @type {Sprite}
+	 */
+	arrow
+
 	__MakeRenderer(width = 1, height = 1) {
+		this.width = 32 * width
+		this.height = 32 * height
+
+		this.arrow = new Sprite('SelectArrow')
+		this.__defaultPoint = (this.height >> 1) + 16
+		this.addChild(this.arrow)
+
 		if (width === 1 && height === 1) {
 			this.__renderer = new TileSprite('player', 32, 32)
 			this.addChild(this.__renderer)
@@ -118,7 +135,12 @@ export default class Player extends GameObject {
 		if (this.__controler.isKeyPressed('KeyW', 'ArrowUp')) {
 			this.vy = 10
 		}
+
+		this.__totalTime += delta
+		this.arrow.y = this.__defaultPoint + Math.sin(this.__totalTime * 6) * 4
 	}
+
+	__totalTime = 0
 
 	/**
 	 * set filter color

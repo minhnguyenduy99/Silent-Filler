@@ -57,6 +57,11 @@ export default class Rigidbody extends Component {
         this._object.vy += this.ay * gravitiScale * delta
     }
 
+    lateUpdate(delta) {
+        this._object.x += this._object.vx * delta * DEFAULT_PIXEL_TO_CENTIMET
+        this._object.y += this._object.vy * delta * DEFAULT_PIXEL_TO_CENTIMET
+    }
+
     /**
      * @param {CollisionOut} out
      */

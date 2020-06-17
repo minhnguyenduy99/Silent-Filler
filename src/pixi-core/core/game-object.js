@@ -26,6 +26,8 @@ export default class GameObject extends pixi.Container {
    */
   _renderObj
 
+  _physicalID = -1
+
   /**
    * @protected
    * @type {Component[]}
@@ -37,6 +39,21 @@ export default class GameObject extends pixi.Container {
    * @type {AnimationComponent}
    */
   _tileAnimationComponent
+
+  _IsActive = true
+
+  get IsActive() {
+    return this._IsActive
+  }
+
+  set IsActive(value) {
+    this._IsActive = value
+    this._components.forEach(e => { e._isActive = value })
+    this.children.forEach(e => { if (e.IsActive !== undefined) e.IsActive = value })
+    if (this._physicalID >= 0 && (!value)) {
+      this.vx = 0
+    }
+  }
 
   constructor() {
     super()
@@ -78,6 +95,7 @@ export default class GameObject extends pixi.Container {
     }
     newComponent._object = this
     if (newComponent.IsPhysical) {
+      this._physicalID = PhysicalInstance.RigidbodyList.length
       PhysicalInstance.RigidbodyList.push(newComponent)
     } else {
       this._components.push(newComponent)
@@ -127,13 +145,13 @@ export default class GameObject extends pixi.Container {
   update(delta) {
     this.__updateComponents(delta)
     this.children.forEach((child) => {
-      if (child.isGameObject) {
+      if (child.isGameObject && child.IsActive) {
         child.update(delta)
       }
     })
 
-    this.x += this.vx * delta * DEFAULT_PIXEL_TO_CENTIMET
-    this.y += this.vy * delta * DEFAULT_PIXEL_TO_CENTIMET
+    // this.x += this.vx * delta * DEFAULT_PIXEL_TO_CENTIMET
+    // this.y += this.vy * delta * DEFAULT_PIXEL_TO_CENTIMET
   }
 
   /**
@@ -176,10 +194,9 @@ export default class GameObject extends pixi.Container {
    */
   __updateComponents(delta) {
     this._components.forEach(component => {
-      if (!component.isActive) {
-        component.activate()
+      if (component.IsActive) {
+        component.update(delta)
       }
-      component.update(delta)
     })
   }
 
