@@ -1,6 +1,6 @@
-import { DEFAULT_PIXEL_TO_CENTIMET } from './physical'
 import GameObject from './game-object'
 import { Rigidbody } from '../components'
+import { TILE_SIZE } from './constant'
 
 /**
  * @param {Box} box
@@ -136,11 +136,10 @@ export function sweptAABB(a, b, TimeStep, collisionCall = true) {
     }
 
     let isCollide = collisionList.length > 0
-
     if (isCollide && collisionCall) {
         collisionList.forEach(e => CollisionCall(box1, new CollisionOut(e.gameObject, false, normalX, normalY)))
         if (box2.length === 1) {
-            CollisionCall(box2[0], new CollisionOut(box1.gameObject, false, -normalX, -normalY))
+            CollisionCall(box2[0], new CollisionOut(box1.gameObject, false, normalX, normalY))
         }
     }
 
@@ -205,12 +204,12 @@ export class Box {
         this.width = o.width
         this.height = o.height
         if (o.vx) {
-            this.vx = o.vx * DEFAULT_PIXEL_TO_CENTIMET
+            this.vx = o.vx * TILE_SIZE
         } else {
             this.vx = 0
         }
         if (o.vy) {
-            this.vy = o.vy * DEFAULT_PIXEL_TO_CENTIMET
+            this.vy = o.vy * TILE_SIZE
         } else {
             this.vy = 0
         }

@@ -23,8 +23,8 @@ export default class TestScene extends BaseScene {
     this.addChild(mapContainer)
     this.addChild(p)
 
-    this.p2 = new Player(1, 1)
-    this.p2.position.set(32 * 1 - 16, 32 * 11)
+    this.p2 = new Player(2, 3)
+    this.p2.position.set(32 * 2 - 16, 32 * 11)
     this.p2.setFilter(0xffff00)
     this.addChild(this.p2)
     this.p2.IsActive = false
@@ -38,6 +38,7 @@ export default class TestScene extends BaseScene {
     this._players.push(this.p2)
 
     tmp.onKeyPressed(() => {
+      console.log(this._players[this._currentPlayer].position)
       this._players[this._currentPlayer].IsActive = false
       this._currentPlayer++
       if (this._currentPlayer === this._players.length) {
