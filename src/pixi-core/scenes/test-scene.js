@@ -1,6 +1,6 @@
-import { BaseScene, GameObject, PhysicalInstance } from '../core'
+import { BaseScene, GameObject, PhysicalInstance, ControlComponent } from '../core'
 import Player from '../prefab/player'
-import { TileMap, Rigidbody } from '../components'
+import { TileMap } from '../components'
 
 export default class TestScene extends BaseScene {
   constructor() {
@@ -9,6 +9,8 @@ export default class TestScene extends BaseScene {
     this.__initializeGameObjects()
   }
 
+  p2
+
   __initializeGameObjects() {
     let mapContainer = new GameObject()
     let map = mapContainer.addComponent(new TileMap(mapContainer))
@@ -16,11 +18,36 @@ export default class TestScene extends BaseScene {
     PhysicalInstance.tilemap = map
 
     let p = new Player(1, 1)
-    p.position.set(32 * 8 - 16, 32 * 8 - 16 + 64 * 2)
+    p.position.set(32 * 4 - 16, 32 * 9)
     p.setFilter(0xff0000)
-    p.addComponent(new Rigidbody())
-    p.setVelocity(-12, -6)
     this.addChild(mapContainer)
     this.addChild(p)
+
+    this.p2 = new Player(2, 3)
+    this.p2.position.set(32 * 2 - 16, 32 * 11)
+    this.p2.setFilter(0xffff00)
+    this.addChild(this.p2)
+    this.p2.IsActive = false
+
+    let control = new GameObject()
+    let tmp = new ControlComponent()
+    control.addComponent(tmp)
+    this.addChild(control)
+
+    this._players.push(p)
+    this._players.push(this.p2)
+
+    tmp.onKeyPressed(() => {
+      console.log(this._players[this._currentPlayer].position)
+      this._players[this._currentPlayer].IsActive = false
+      this._currentPlayer++
+      if (this._currentPlayer === this._players.length) {
+        this._currentPlayer = 0
+      }
+      this._players[this._currentPlayer].IsActive = true
+    }, 'KeyR')
   }
+
+  _currentPlayer = 0
+  _players = []
 }

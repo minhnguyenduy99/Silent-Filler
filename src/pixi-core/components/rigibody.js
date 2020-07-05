@@ -1,27 +1,26 @@
-import { Component, CollisionOut, DEFAULT_PIXEL_TO_CENTIMET } from '../core'
-
-const gravitiScale = 1
+import { Component, CollisionOut } from '../core'
+import { ACCELERATION_GRAVITY, TILE_SIZE } from '../core/constant'
 
 export default class Rigidbody extends Component {
     /**
      * Acceleration on x-axis
-     * @public
      * @type {number}
      */
-    ax;
+    ax
 
     /**
      * Acceleration on y-axis
-     * @public
      * @type {number}
      */
-    ay;
+    ay
+
+    OnTheFloor = false
 
     /**
      * @param {number} ax Acceleration on x-axis
      * @param {number} ay Acceleration on y-axis
      */
-    constructor(ax = 0, ay = -9.8) {
+    constructor(ax = 0, ay = ACCELERATION_GRAVITY) {
         super()
         this.ax = ax
         this.ay = ay
@@ -30,19 +29,28 @@ export default class Rigidbody extends Component {
     update(delta) {
         super.update(delta)
         this._object.vx += this.ax * delta
-        this._object.vy += this.ay * gravitiScale * delta
+        this._object.vy += this.ay * delta
+        this.OnTheFloor = false
+    }
+
+    lateUpdate(delta) {
+        this._object.x += this._object.vx * delta * TILE_SIZE
+        this._object.y += this._object.vy * delta * TILE_SIZE
     }
 
     /**
      * @param {CollisionOut} out
      */
-	OnCollision(out) {
-        if (out.normalX >= 0) {
-            this._object.x += this._object.vx * out.normalX * DEFAULT_PIXEL_TO_CENTIMET
+    OnCollision(out = undefined) {
+        if (out.normalX !== undefined) {
+            this._object.x += this._object.vx * out.normalX * TILE_SIZE
             this._object.vx = 0
         }
-        if (out.normalY >= 0) {
-            this._object.y += this._object.vy * out.normalY * DEFAULT_PIXEL_TO_CENTIMET
+        if (out.normalY !== undefined) {
+            if (this._object.vy < 0) {
+                this.OnTheFloor = true
+            }
+            this._object.y += this._object.vy * out.normalY * TILE_SIZE
             this._object.vy = 0
         }
     }
