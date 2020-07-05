@@ -3,12 +3,21 @@
     :style="_cardStyle"
     class="game-object__container p-3" bg-variant="info"
     @click="toggleSelect"
-    >
-    <b-container fluid="false" style="max-width: 200px">
+  >
+    <b-container fluid="false" style="max-width: 250px">
       <b-row no-gutters class="text-light justify-content-between" align-v="center">
-        <b-form-input class="col col-12 p-2" ref="name-input" @click.stop type="text" required lazy v-model="name" placeholder="Object name" :disabled="!isSelected"></b-form-input>
-        <b-form-input class="col p-2 mt-2 mr-2" v-b-tooltip.hover title="Tag" ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" disabled></b-form-input>
-        <color-input class="col col-auto mt-2" @click.stop v-model="color" size="lg" :disabled="!isSelected"></color-input>
+        <b-col class="d-flex">
+          <b-form-input v-b-tooltip.hover title="Tag" ref="tag-input" @click.stop type="text" placeholder="Tag" required lazy v-model.number="tag" disabled class="w-25 mb-2"></b-form-input>
+        </b-col>
+        <b-col cols="3" class="text-right">
+          <size-input @click.stop v-model="size" :disabled="!isSelected" class="mb-1" v-b-tooltip.hover title="Size" />
+        </b-col>
+        <b-col cols="9">
+           <b-form-input ref="name-input" @click.stop type="text" required lazy v-model="name" placeholder="Object name" :disabled="!isSelected"></b-form-input>
+        </b-col>
+        <b-col cols="3" class="text-right">
+          <color-input @click.stop v-model="color" size="lg" :disabled="!isSelected"></color-input>
+        </b-col>
       </b-row>
     </b-container>
   </b-card>
@@ -16,16 +25,17 @@
 
 <script>
 import ColorInput from '../ColorPicker/ColorInput'
-import { StaticObject } from '../MapUtilities'
+import SizeInput from '../Utilities/SizeInput'
+import { PlayableObject } from '../MapUtilities'
 
 export default {
-  name: 'GameObjectItem',
+  name: 'PlayableObjectItem',
   components: {
-    ColorInput
+    ColorInput, SizeInput
   },
   props: {
     gameObject: {
-      type: StaticObject,
+      type: PlayableObject,
       required: true
     }
   },
@@ -37,6 +47,7 @@ export default {
     return {
       tag: this.gameObject.tag,
       name: this.gameObject.name,
+      size: this.gameObject.size,
       color: this.gameObject.color,
       isCreated: false,
       localGameObject: this.gameObject,
@@ -54,6 +65,9 @@ export default {
     tag: function(newVal) {
       this._setGameObjectValue('tag', newVal)
     },
+    size: function(newVal) {
+      this._setGameObjectValue('size', newVal)
+    },
     color: function(newVal) {
       this._setGameObjectValue('color', newVal)
     }
@@ -64,6 +78,10 @@ export default {
         opacity: this.isSelected ? '1' : '0.6',
         transition: '0.2s'
       }
+    },
+    getFormatSize() {
+      let { width, height } = this.size
+      return `${width} x ${height}`
     }
   },
   methods: {

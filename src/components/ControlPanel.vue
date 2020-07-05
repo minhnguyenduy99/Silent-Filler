@@ -37,11 +37,7 @@ export default {
   },
   methods: {
     saveCurrentMap() {
-      let saveObj = {
-        objects: this.currentTabData.objects,
-        map: this.currentTabData.map,
-        cellSize: this.currentTabData.cellSize
-      }
+      let saveObj = this.currentTabData.save()
       var blob = new Blob([JSON.stringify(saveObj)], { type: 'application/json' })
       let fileName = 'map_' + this.currentTabData.title.toLowerCase()
       saveAs(blob, fileName)

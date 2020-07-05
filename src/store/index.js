@@ -9,11 +9,17 @@ export default new Vuex.Store({
       DRAW_MODE: 0,
       ERASE_MODE: 1
     },
+    AVAILABLE_ERASE_MODE: {
+      OBJECT: 0,
+      MAP: 1
+    },
     currentTab: null,
     tabLength: 0,
     mode: 0,
+    eraseMode: 0,
     currentCommand: null,
-    listCommands: []
+    listCommands: [],
+    activePanel: 0
   },
   mutations: {
     updateCurrentTab (state, newTab) {
@@ -21,6 +27,9 @@ export default new Vuex.Store({
     },
     updateLengthTab (state, length) {
       state.tabLength = length
+    },
+    updateActivePanel(state, value) {
+      state.activePanel = value
     }
   },
   getters: {
@@ -44,6 +53,15 @@ export default new Vuex.Store({
     },
     lengthOfTabs: (state) => {
       return state.tabLength
+    },
+    currentActivePanel: (state) => {
+      return state.activePanel
+    },
+    isEraseMode: (state) => {
+      return state.mode === state.AVAILABLE_MODE.ERASE_MODE
+    },
+    eraseMode: (state) => {
+      return state.eraseMode
     }
   },
   actions: {
@@ -66,6 +84,13 @@ export default new Vuex.Store({
         return
       }
       state.mode = mode
+    },
+    changeEraseMode({ state }, mode) {
+      let { MAP, OBJECT } = state.AVAILABLE_ERASE_MODE
+      if (mode !== MAP && mode !== OBJECT) {
+        return
+      }
+      state.eraseMode = mode
     }
   },
   modules: {

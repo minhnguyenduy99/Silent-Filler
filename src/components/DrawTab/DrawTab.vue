@@ -34,7 +34,7 @@
 import MapDrawer from '../GridDrawer/MapDrawer'
 import TabObject from './TabObject'
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
-import GameObject from '../MapUtilities/GameObject'
+import { GameObject } from '../MapUtilities'
 import IconButton from '../Utilities/IconButton'
 
 export default {
@@ -82,7 +82,7 @@ export default {
     ...mapGetters(['currentTabData']),
 
     selectedObj() {
-      return this.currentTabData.currentSelectedObj
+      return this.currentTabData.selectedObj
     },
 
     map() {
@@ -105,6 +105,15 @@ export default {
       return new Promise(function (resolve, reject) {
         setTimeout(function() {
           this.$refs['map-drawer'].loadDefaultMap()
+        }.bind(this), 1000)
+      }.bind(this))
+    },
+    resetMap() {
+      return new Promise(function (resolve, reject) {
+        setTimeout(async function() {
+          await this.$refs['map-drawer'].resetMap()
+          this.currentTabData.resetMap()
+          resolve()
         }.bind(this), 1000)
       }.bind(this))
     },

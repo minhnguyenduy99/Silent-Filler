@@ -1,21 +1,27 @@
 import GameObject from './GameObject'
+import PlayableObject from './PlayableObject'
 import Position from './Position'
 import RectangleArea from './RectangleArea'
 
 export default class GameMap {
   /**
-   * @type {{[key: string]: GameObject}}
+   * @type {{[key: string]: PlayableObject}}
    */
   _maps = {}
-
-  _objArr = []
 
   _concatKeyMapCharacter = 'x'
 
   /**
+   * @param {[key string]: PlayableObject} objMap
+   */
+  constructor(objMap = null) {
+    this._maps = objMap ?? {}
+  }
+
+  /**
    * Add a game object to map
    * @param {Position} position The position of object in the map
-   * @param {GameObject} gameObj
+   * @param {PlayableObject} gameObj
    */
   async add(position, gameObj) {
     if (!gameObj) {
@@ -27,7 +33,6 @@ export default class GameMap {
     }
     let key = this.__generateMapKey(position)
     this._maps[key] = gameObj
-    this._objArr.push(gameObj)
     return true
   }
 
@@ -36,14 +41,12 @@ export default class GameMap {
    * @param {Position} position
    * @returns {GameObject} The removed object
    */
-  async remove(position) {
+  remove(position) {
     let posKey = this.__generateMapKey(position)
     let obj = this._maps[posKey]
-    // The remove object is not the last object
-    if (obj !== this._objArr[this._objArr.length - 1]) {
+    if (!obj) {
       return null
     }
-    this._objArr.pop()
     this._maps[posKey] = undefined
     delete this._maps[posKey]
     return obj
@@ -69,8 +72,31 @@ export default class GameMap {
     return false
   }
 
+  isObjectInMap(objId) {
+    let objs = Object.values(this._maps)
+    let obj = objs.find(obj => obj.id === objId)
+    return obj !== undefined
+  }
+
   isEmpty() {
     return Object.keys(this._maps).length === 0
+  }
+
+  /**
+   * Check if any drawn objects in range
+   * @param {Position} topLeft
+   * @param {Position} bottomRight
+   */
+  isAnyObjectsInRange(topLeft, bottomRight) {
+    let checkArea = new RectangleArea(topLeft, bottomRight)
+    for (const posStr in this._maps) {
+      let obj = this._maps[posStr]
+      let objTopLeft = this.__degenerateMapKey(posStr)
+      if (checkArea.isOverlap(new RectangleArea(objTopLeft, obj.size))) {
+        return true
+      }
+    }
+    return false
   }
 
   /**
@@ -114,6 +140,14 @@ export default class GameMap {
       ids.push(obj.id)
       return true
     })
+  }
+
+  getMapObject() {
+    let rawMap = {}
+    for (let key in this._maps) {
+      rawMap[key] = this._maps[key].id
+    }
+    return rawMap
   }
 
   /**

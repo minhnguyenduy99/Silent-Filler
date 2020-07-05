@@ -10,13 +10,16 @@
       @selected-cell-changed="_onSelectedCellChanged"
       @selected-zone-changed="_onSelectedZoneChanged"
     />
+    <b-modal :id="modalId">
+      <span><strong>{{ currentMsg }}</strong></span>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import GridCellLayout from './GridCellLayout'
-import { GameMap, GameObject, RectangleArea, Position } from '../MapUtilities'
-import { mapState, mapGetters } from 'vuex'
+import { GameMap, RectangleArea, Position, StaticObject, GameObject } from '../MapUtilities'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'MapDrawer',
@@ -51,19 +54,21 @@ export default {
     drawObject: {
       type: GameObject,
       required: true,
-      default: () => new GameObject(-1, null, 'transparent', { width: 0, height: 0 }, true)
+      default: () => new StaticObject('-1', null, 'transparent')
     }
   },
   data: () => ({
+    OBJECT_OVERLAP_MSG: 'Object bị overlap',
+    OBJECT_NOT_EXIST_MSG: 'Không có object tại ô này',
     currentMap: null,
     selectedCell: null,
     mapWidth: 0,
     mapHeight: 0,
     localCellSize: 0,
-    emptyTag: -1,
-    drawStatic: true,
-    emptyColor: 'transparent',
-    colorMap: null
+    emptyTag: '-1',
+    eraseColor: 'transparent',
+    colorMap: null,
+    currentMsg: null
   }),
   created: function() {
     // If the map has not been loaded
@@ -100,18 +105,15 @@ export default {
     },
     cellSize: function(newVal, oldVal) {
       this.localCellSize = this.cellSize
-    },
-    drawObject: {
-      handler: function (newVal, oldVal) {
-        this.drawStatic = newVal.isStatic
-      },
-      deep: true
     }
   },
   computed: {
-    ...mapState(['AVAILABLE_MODE']),
-    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData']),
+    ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE']),
+    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode']),
 
+    modalId() {
+      return 'modal_' + this.currentTabData._id
+    },
     cellLayout() {
       return this.$refs.layout
     },
@@ -122,7 +124,7 @@ export default {
       return this.mode === this.AVAILABLE_MODE.DRAW_MODE ? this.drawObject.tag : this.emptyTag
     },
     color() {
-      return this.mode === this.AVAILABLE_MODE.DRAW_MODE ? this.drawObject.color : this.emptyColor
+      return this.mode === this.AVAILABLE_MODE.DRAW_MODE ? this.drawObject.color : this.eraseColor
     },
     rows() {
       return Math.floor(this.mapHeight / this.localCellSize)
@@ -131,10 +133,28 @@ export default {
       return Math.floor(this.mapWidth / this.localCellSize)
     },
     colorTagMap() {
-      return this.currentTabData.colors
+      let map = {}
+      let { staticObjects, playableObjects } = this.currentTabData
+      staticObjects.objects.forEach(function(val) {
+        map[val.tag] = val.color
+      })
+      playableObjects.objects.forEach(function(val) {
+        map[val.tag] = val.color
+      })
+      return map
+    },
+    drawStatic() {
+      return this.isEraseMode
+        ? this.eraseMode === this.AVAILABLE_ERASE_MODE.MAP
+        : this.drawObject ? this.drawObject.isStatic : false
+    },
+    playableObjects() {
+      return this.currentTabData.playableObjects
     }
   },
   methods: {
+    ...mapActions(['changeMode']),
+
     loadDefaultMap() {
       this.currentMap = this._getDefaultMap()
     },
@@ -143,8 +163,12 @@ export default {
       this._setMapBasedOnAvailableMap()
     },
 
-    resetMap() {
+    async resetMap() {
+      if (!this.isMapLoaded) {
+        return
+      }
       this.currentMap = this._getDefaultMap()
+      await this.cellLayout.clearAll()
     },
 
     _setMapByMapInfo(mapInfo, cellSize) {
@@ -170,16 +194,75 @@ export default {
     },
 
     _onSelectedCellChanged(startPoint) {
-      if (!this.drawStatic) {
-        this.cellLayout.drawBySize(startPoint, this.drawObject.size)
+      if (this.drawStatic) {
+        return
       }
+      if (this.isEraseMode) {
+        this._eraseObjectOnSelectedPoint(startPoint)
+        return
+      }
+      return this._drawObjectOnSelectedPoint(startPoint)
     },
 
     _onSelectedZoneChanged(startPoint, endPoint) {
-      if (!this.drawStatic) {
+      if (!this.drawStatic || (this.isEraseMode && this.eraseMode !== this.AVAILABLE_ERASE_MODE.MAP)) {
+        return
+      }
+      if (this.isEraseMode) {
+        this._eraseOnSelectedZone(startPoint, endPoint)
+        return
+      }
+      this._drawOnSelectedZone(startPoint, endPoint)
+    },
+
+    async _drawObjectOnSelectedPoint(startPoint) {
+      let position = new Position(startPoint.col, startPoint.row)
+      let notOverlap = await this.currentTabData.savePlayableObjectPosition(this.drawObject, position)
+      if (!notOverlap) {
+        this._notify(this.OBJECT_OVERLAP_MSG)
+        return
+      }
+      this.cellLayout.drawBySize(startPoint, this.drawObject.size)
+    },
+
+    _eraseObjectOnSelectedPoint(startPoint) {
+      let position = new Position(startPoint.col, startPoint.row)
+      // remove object in tab data (pass position to it as parameter)
+      let object = this.currentTabData.removeObject(position)
+      if (!object) {
+        this._notify(this.OBJECT_NOT_EXIST_MSG)
+        return
+      }
+      // erase object on map
+      this.cellLayout.drawBySize(startPoint, object.size)
+    },
+
+    async _drawOnSelectedZone(startPoint, endPoint) {
+      let [top, left, bottom, right] = await Promise.all([
+        Math.min(startPoint.row, endPoint.row),
+        Math.min(startPoint.col, endPoint.col),
+        Math.max(startPoint.row, endPoint.row),
+        Math.max(startPoint.col, endPoint.col)
+      ])
+
+      let isObjectInRange = this.currentTabData.isAnyObjectInRange(
+        new Position(left, top),
+        new Position(right, bottom)
+      )
+      if (isObjectInRange) {
+        this._notify(this.OBJECT_OVERLAP_MSG)
         return
       }
       this.cellLayout.drawByZone(startPoint, endPoint)
+    },
+
+    _eraseOnSelectedZone(startPoint, endPoint) {
+      this.cellLayout.drawByZone(startPoint, endPoint, (map, pos) => map[pos.row][pos.col][0] !== 'P')
+    },
+
+    _notify(msg) {
+      this.currentMsg = msg
+      this.$bvModal.show(this.modalId)
     }
   }
 }

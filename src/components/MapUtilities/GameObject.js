@@ -1,8 +1,6 @@
 import uniqid from 'uniqid'
 
 export default class GameObject {
-  static DEFAULT_STATIC_OBJECT_SIZE = 1
-
   /**
    * @type {String}
    */
@@ -16,7 +14,7 @@ export default class GameObject {
   /**
    * @type {String}
    */
-  _color
+  color
 
   /**
    * @type {String}
@@ -31,7 +29,7 @@ export default class GameObject {
   /**
    * @type {Boolean}
    */
-  isStatic
+  _isStatic
 
   /**
    * @type {(GameObject) => void}
@@ -42,36 +40,19 @@ export default class GameObject {
    *
    * @param {number} tag
    * @param {String} name
-   * @param {Stringg} _color
+   * @param {Stringg} color
    * @param {{ width: number, height: number }} size
-   * @param {Boolean} isStatic Specify if the object is static (ground, grass, ...)
    */
-  constructor(tag, name, _color, size, isStatic = true) {
-    this.id = uniqid()
+  constructor(tag, name, color, size, id = null) {
+    this.id = id ?? uniqid()
     this.tag = tag
     this.name = name
-    this._color = _color
-    this.isStatic = isStatic
-    if (this.isStatic) {
-      this.size = {
-        width: GameObject.DEFAULT_STATIC_OBJECT_SIZE,
-        height: GameObject.DEFAULT_STATIC_OBJECT_SIZE
-      }
-    } else {
-      this.size = size
-    }
+    this.color = color
+    this.size = size
   }
 
-  get color() {
-    return this._color
-  }
-
-  set color(val) {
-    if (this._color === val) {
-      return
-    }
-    this._color = val
-    this.onColorChanged(this)
+  get isStatic() {
+    return this._isStatic
   }
 
   /**
@@ -81,9 +62,8 @@ export default class GameObject {
     return new GameObject(
       this.tag,
       this.name,
-      this._color,
-      { ...this.size },
-      this.isStatic
+      this.color,
+      { ...this.size }
     )
   }
 }

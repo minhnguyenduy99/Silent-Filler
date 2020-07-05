@@ -1,61 +1,56 @@
 <template>
   <div :style="_getPanelStyle">
-    <side-panel
-      @panelClosed="_onPanelClosed"
-      background="#efefef" direction="horizontal-right" main-panel-class="shadow-lg">
-      <div>
-        <div class="d-flex justify-content-start">
-          <icon-button class="m-2" btnIconName="plus-circle" variant="outline-primary" size="lg"
-            v-b-tooltip.hover title="Thêm object"
-            @click="_addObject" />
-          <icon-button class="m-2" btnIconName="trash2" variant="danger" size="lg"
-            v-b-tooltip.hover title="Xóa object"
-            @click="_deleteSelectedObj"
-            :disabled="!_hasObjectSelected" />
-        </div>
-        <div class="d-flex flex-column">
-          <game-object-item
-            class="mb-1 m-2"
-            v-for="(object, index) in listObjects"
-            :key="object.id"
-            :game-object="object"
-            v-show="_isObjectInCurrentPage(index)"
-            @input="_onObjectChanged(index, $event)"
-            @selected="_updateSelectedObj(index)"
-            @unselected="_onItemUnselected(index)"
-            ref="gameObjects"/>
-          <b-pagination
-            v-show="listObjects.length > 0"
-            class="ml-2"
-            v-model="currentPage"
-            :total-rows.sync="totalRow"
-            :per-page="objectPerPage"
-            :limit="3"
-            ref="pagination">
-          </b-pagination>
-        </div>
-      </div>
-    </side-panel>
-    <b-modal id="invalid-object-modal">
-      <span>Invalid value: <strong>{{ invalidValue }}</strong></span>
+    <div class="d-flex justify-content-start">
+      <icon-button class="m-2" btnIconName="plus-circle" variant="outline-primary" size="lg"
+        v-b-tooltip.hover title="Thêm object"
+        @click="_addObject" />
+      <icon-button class="m-2" btnIconName="trash2" variant="danger" size="lg"
+        v-b-tooltip.hover title="Xóa object"
+        @click="_deleteSelectedObj"
+        :disabled="!_hasObjectSelected" />
+    </div>
+    <div class="d-flex flex-column">
+      <playable-object-item
+        class="mb-1 m-2"
+        v-for="(object, index) in listObjects"
+        :key="object.id"
+        :game-object="object"
+        v-show="_isObjectInCurrentPage(index)"
+        @input="_onObjectChanged(index, $event)"
+        @selected="_updateSelectedObj(index)"
+        @unselected="_onItemUnselected(index)"
+        ref="PlayableObjects"/>
+      <b-pagination
+        v-show="listObjects.length > 0"
+        class="ml-2"
+        v-model="currentPage"
+        :total-rows.sync="totalRow"
+        :per-page="objectPerPage"
+        :limit="3"
+        ref="pagination">
+      </b-pagination>
+    </div>
+    <b-modal id="error-modal">
+      <span><strong>{{ invalidValue }}</strong></span>
     </b-modal>
   </div>
 </template>
 
 <script>
-import GameObjectItem from './GameObjectItem'
-import SidePanel from '../Utilities/SidePanel'
+import PlayableObjectItem from './PlayableObjectItem'
 import IconButton from '../Utilities/IconButton'
-import { GameObject, StaticObject } from '../MapUtilities'
+import { PlayableObject } from '../MapUtilities'
 import { mapState, mapGetters, mapMutations } from 'vuex'
 
 export default {
-  name: 'GameObjectPanel',
+  name: 'PlayableObjectPanel',
   components: {
-    GameObjectItem, SidePanel, IconButton
+    PlayableObjectItem, IconButton
   },
   data() {
     return {
+      OBJ_NAME_EXISTS_MSG: 'Tên của object đã tồn tại',
+      OBJ_DRAWN_ON_MAP_MSG: 'Object đã được vẽ lên map',
       selectedIndex: -1,
       objectPerPage: 3,
       currentPage: 1,
@@ -87,7 +82,7 @@ export default {
       this.totalRow = newVal.length
     },
     activePanel: async function(newVal, oldVal) {
-      if (newVal === 1) {
+      if (newVal === 0) {
         return
       }
       this._updateSelectedObj(-1)
@@ -95,9 +90,6 @@ export default {
   },
   created: function() {
     this.listObjects = []
-  },
-  mounted: function() {
-    this.$refs.gameObjects = []
   },
   computed: {
     ...mapState({
@@ -109,23 +101,23 @@ export default {
       tabData: 'currentTabData',
       activePanel: 'currentActivePanel'
     }),
+    _autoIncrementTagValue() {
+      if (!this.listObjects || this.listObjects.length === 0) {
+        return 'P0'
+      }
+      let indexTag = Number.parseInt(this.listObjects[this.listObjects.length - 1].tag.slice(1))
+      return `P${indexTag + 1}`
+    },
     panelData: {
-      get() {
-        return this.tabData ? this.tabData.staticObjects : null
+      get () {
+        return this.tabData ? this.tabData.playableObjects : null
       }
     },
     listObjects: {
       get () {
         return this.panelData ? this.panelData.objects : []
       },
-      set(val) {}
-    },
-    _autoIncrementTagValue() {
-      if (!this.listObjects || this.listObjects.length === 0) {
-        return 'S0'
-      }
-      let tagIndex = Number.parseInt(this.listObjects[this.listObjects.length - 1].tag.slice(1))
-      return `S${tagIndex + 1}`
+      set (newVal) {}
     },
     _selectedObj() {
       return this.listObjects[this.selectedIndex]
@@ -147,7 +139,10 @@ export default {
   },
   methods: {
     ...mapMutations(['updateActivePanel']),
-
+    unselect() {
+      this.panelData.select(-1)
+       this.$refs.PlayableObjects[this.selectedIndex].unselect()
+    },
     _onObjectChanged(objIndex, objVal) {
       let sameObj = this.listObjects.filter((obj, index) =>
         objIndex !== index && (obj.name === objVal.name || obj.tag === objVal.tag))[0]
@@ -155,16 +150,12 @@ export default {
         this._onCurrentObjectChanged(objIndex, objVal)
         return
       }
-      if (sameObj.tag === objVal.tag) {
-        this._showInvalidObjectValue(objVal.tag)
-      } else {
-        this._showInvalidObjectValue(objVal.name)
-      }
-      this.$refs.gameObjects[objIndex].restoreThePreviousValue()
+      this._showErrorDialog(this.OBJ_NAME_EXISTS_MSG)
+      this.$refs.PlayableObjects[objIndex].restoreThePreviousValue()
     },
     _updateSelectedObj(index) {
       let selectedObj = this.listObjects[index]
-      let preObj = this.$refs.gameObjects[this.selectedIndex]
+      let preObj = this.$refs.PlayableObjects ? this.$refs.PlayableObjects[this.selectedIndex] : null
       let shouldUnselectPreObj = false
       if (index !== this.selectedIndex && this.selectedIndex !== -1) {
         shouldUnselectPreObj = true
@@ -184,15 +175,21 @@ export default {
     },
     _addObject() {
       let tagValue = this._autoIncrementTagValue
-      this.panelData.addObject(new StaticObject(
+      this.panelData.addObject(new PlayableObject(
         tagValue,
          `Object ${tagValue}`,
-         '#000000'
+         '#000000',
+         { width: 1, height: 1 }
       ))
       this._onObjectAdded()
     },
     _deleteSelectedObj() {
       if (this.selectedIndex === -1) {
+        return
+      }
+      let isObjDrawn = this.tabData.objectMap.isObjectInMap(this._selectedObj.id)
+      if (isObjDrawn) {
+        this._showErrorDialog(this.OBJ_DRAWN_ON_MAP_MSG)
         return
       }
       this.$delete(this.listObjects, this.selectedIndex)
@@ -213,14 +210,14 @@ export default {
     },
     _onCurrentObjectChanged(objIndex, obj) {
       if (obj) {
-        this.updateActivePanel(1)
+        this.updateActivePanel(0)
       }
       this.panelData.select(objIndex)
       this.$emit('current-object-changed', objIndex, obj)
     },
-    _showInvalidObjectValue(obj) {
-      this.invalidValue = obj
-      this.$bvModal.show('invalid-object-modal')
+    _showErrorDialog(msg) {
+      this.invalidValue = msg
+      this.$bvModal.show('error-modal')
     },
     _navigateCurrentPage() {
       let isLastObjOfPage = this.listObjects.length !== 0 && this.listObjects.length % this.objectPerPage === 0
@@ -242,9 +239,6 @@ export default {
           this.currentPage = this._paginator.$data.localNumberOfPages
         }
       }
-    },
-    _onPanelClosed(e) {
-      this.panelData.select(-1)
     }
   }
 }

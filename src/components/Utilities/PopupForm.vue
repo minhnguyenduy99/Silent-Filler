@@ -5,7 +5,8 @@
       no-caret
       right
       toggle-class="p-0 m-0 bg-transparent border-0"
-      menu-class="p-1" :disabled="disabled">
+      menu-class="p-1" :disabled="disabled"
+      @hide="_beforePanelHidden">
       <slot slot="button-content" name="active"></slot>
       <b-dropdown-form form-class="p-2">
         <slot></slot>
@@ -47,18 +48,21 @@ export default {
     }
   },
   mounted: function() {
-    this.$root.$on('bv::dropdown::hide', function(bvEvent) {
-      if (this.isDataValid && !this.dataChanged) {
-        return
-      }
-      bvEvent.preventDefault()
-    }.bind(this))
+    // this.$root.$on('bv::dropdown::hide', function(bvEvent) {
+
+    // }.bind(this))
   },
   methods: {
     _saveButtonClicked() {
       this.$emit('save', this)
       this.dataChanged = false
       this.$refs['drop-down'].hide(true)
+    },
+    _beforePanelHidden(e) {
+      if (this.isDataValid && !this.dataChanged) {
+        return
+      }
+      e.preventDefault()
     }
   }
 }

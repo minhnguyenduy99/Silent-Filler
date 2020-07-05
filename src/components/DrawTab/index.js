@@ -1,2 +1,5 @@
 export { default as TabObject } from './TabObject'
+export { default as ObjectPanel } from './ObjectPanel'
+export { default as PlayableObjectPanel } from './PlayableObjectPanel'
+export { default as StaticObjectPanel } from './StaticObjectPanel'
 export { default as DrawTab } from './DrawTab'

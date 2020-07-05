@@ -42,7 +42,7 @@ export default {
       type: String
     },
     tag: {
-      type: Number
+      type: String
     }
   },
   model: {
@@ -55,7 +55,11 @@ export default {
       startPoint: null,
       endPoint: null,
       currentMap: this.map,
-      selectedCell: null
+      selectedCell: null,
+      options: {
+        boundaryPadding: 5,
+        variant: 'info'
+      }
     }
   },
   watch: {
@@ -96,8 +100,12 @@ export default {
       this._onDrawOnSelectedZone(startPoint, endPoint)
     },
 
-    drawByZone(startPoint, endPoint) {
-      this._onDrawOnSelectedZone(startPoint, endPoint)
+    drawByZone(startPoint, endPoint, cb = (map, pos) => true) {
+      this._onDrawOnSelectedZone(startPoint, endPoint, cb)
+    },
+
+    async clearAll() {
+      await Promise.all(this.$refs.cells.map(cell => cell.updateColor('transparent')))
     },
 
     _parseToPx(value) {
@@ -117,7 +125,7 @@ export default {
     },
 
     _getColorByTag(cell) {
-      return cell === -1 ? 'transparent' : this.colors[cell]
+      return cell === '-1' ? 'transparent' : this.colors[cell]
     },
 
     _onUpdateSelectedZone(cell) {
@@ -126,11 +134,13 @@ export default {
       this.isOnSelectedMode = false
     },
 
-    _onDrawOnSelectedZone(startPoint, endPoint) {
+    _onDrawOnSelectedZone(startPoint, endPoint, cb = (map, pos) => true) {
       this._actionOnCell(startPoint, endPoint, function(cell) {
         let pos = cell.pos
-        cell.updateColor(this._color)
-        this.currentMap[pos.row][pos.col] = this._tag
+        if (cb(this.map, pos)) {
+          cell.updateColor(this._color)
+          this.currentMap[pos.row][pos.col] = this._tag
+        }
       }.bind(this))
     },
 
@@ -162,6 +172,16 @@ export default {
       let isXInMiddle = (col - this.startPoint.col) * (col - this.endPoint.col) < 0
       let isYInMiddle = (row - this.startPoint.row) * (row - this.endPoint.row) < 0
       return isXInMiddle && isYInMiddle
+    },
+
+    _tagInfo(tag) {
+      if (tag === '-1') {
+        return 'Empty'
+      }
+      if (tag[0] === 'P') {
+        return 'Playable object'
+      }
+      return 'Static object'
     }
   }
 }

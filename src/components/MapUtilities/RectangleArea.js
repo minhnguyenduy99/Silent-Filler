@@ -49,6 +49,26 @@ export default class RectangleArea {
     return x >= this.topLeft.x && x <= this.topRight.x && y >= this.topLeft.y && y <= this.bottomLeft.y
   }
 
+  async areAnyPointsIn(...points) {
+    let values = await Promise.all(points.map(point => this.isPointIn(point)))
+    return values.some((val) => val === true)
+  }
+
+  /**
+   *
+   * @param {RectangleArea} rectangle
+   */
+  isOverlap(rectangle) {
+    let { topLeft: { x: x1, y: y1 }, bottomRight: { x: x2, y: y2 } } = rectangle
+    let { x: curX1, y: curY1 } = this.topLeft
+    let { x: curX2, y: curY2 } = this.bottomRight
+
+    // return ((x1 - curX1) * (x1 - curX2) <= 0 || (x2 - curX1) * (x2 - curX2) <= 0 || (x1 - curX1) * (x2 - curX2) <= 0) &&
+    //   ((y1 - curY1) * (y1 - curY2) <= 0 || (y2 - curY1) * (y2 - curY2) <= 0)
+
+    return !((x2 < curX1) || (x1 > curX2) || (y2 < curY1) || (y1 > curY2))
+  }
+
   getPointsAsArray() {
     return [this.topLeft, this.topRight, this.bottomLeft, this.bottomRight]
   }
