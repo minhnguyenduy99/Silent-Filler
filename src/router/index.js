@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Dashboard from '../views/Dashboard.vue'
 import GameView from '../views/GameView.vue'
-import Test from '../views/Test.vue'
+import EditMap from '../views/EditMap.vue'
 
 Vue.use(VueRouter)
 
@@ -11,6 +12,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: Dashboard
   },
   {
     path: '/about',
@@ -26,9 +32,9 @@ const routes = [
     component: GameView
   },
   {
-    path: '/test',
-    name: 'Test',
-    component: Test
+    path: '/editmap',
+    name: 'EditMap',
+    component: EditMap
   }
 ]
 

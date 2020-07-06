@@ -42,7 +42,7 @@ import { DrawTab, TabObject } from '../components/DrawTab'
 import { mapMutations, mapGetters, mapState } from 'vuex'
 
 export default {
-  name: 'Test',
+  name: 'EditMap',
   components: {
     ButtonPanel, ControlPanel, GameObjectPanel, LoadingDialog, DrawTab
   },

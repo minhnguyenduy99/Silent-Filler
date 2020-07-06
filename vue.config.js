@@ -7,5 +7,12 @@ module.exports = {
       game: path.resolve(__dirname, 'src/pixi-core/')
     }
     config.devtool = 'source-map'
+  },
+  css: {
+    loaderOptions: {
+      scss: {
+        prependData: `@import "@/styles/styles.scss";`
+      }
+    }
   }
 }
