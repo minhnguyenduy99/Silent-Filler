@@ -46,6 +46,20 @@
               menu-class="p-0 border-0"
               variant="transparent"
               ref="drop-down-panel"
+              :disabled="_playerPanelDisabled"
+              @toggle="toggleShow"
+              @hide="_beforeHidden">
+              <icon-button :disabled="_playerPanelDisabled" size="lg" slot="button-content" btnIconName="person" btnTitle="Player"></icon-button>
+              <div class="p-2 shadow-lg" style="width: 300px;background-color: rgb(230, 230, 230)">
+                <player-item-panel />
+              </div>
+            </b-dropdown>
+            <b-dropdown class="col col-auto align-items-start"
+              no-caret
+              toggle-class="p-0"
+              menu-class="p-0 border-0"
+              variant="transparent"
+              ref="drop-down-panel"
               :disabled="_playObjectPanelDisabled"
               @toggle="toggleShow"
               @hide="_beforeHidden">
@@ -117,6 +131,9 @@ import SidePanel from './Utilities/SidePanel'
 import IconButton from './Utilities/IconButton'
 import SizeInput from './Utilities/SizeInput'
 import PlayableObjectPanel from './PlayableObjectPanel/PlayableObjectPanel'
+import PlayerItemPanel from './PlayableObjectPanel/PlayerItemPanel'
+import PlayerItem from './PlayableObjectPanel/PlayerItem'
+import { Player } from './MapUtilities'
 import { LoadFileCommand, DrawMapCommand, ResetMapCommand } from './Commands'
 import { mapActions, mapState, mapGetters } from 'vuex'
 import { Closable } from './Utilities/Directives'
@@ -124,7 +141,7 @@ import { Closable } from './Utilities/Directives'
 export default {
   name: 'ButtonPanel',
   components: {
-    SidePanel, IconButton, SizeInput, PlayableObjectPanel, LoadFileCommand, DrawMapCommand, ResetMapCommand
+    SidePanel, IconButton, SizeInput, PlayableObjectPanel, LoadFileCommand, DrawMapCommand, ResetMapCommand, PlayerItemPanel
   },
   directives: {
     Closable
@@ -152,6 +169,9 @@ export default {
     ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE', 'tabLength', 'mode', 'eraseMode']),
     ...mapGetters(['lengthOfTabs', 'isImageLoaded', 'isMapLoaded', 'currentTabData', 'isEraseMode']),
 
+    _player() {
+      return this.currentTabData ? this.currentTabData.player : Player.create()
+    },
     _blockButtonDisabled() {
         return this.lengthOfTabs === 0 || !this.isImageLoaded
     },
@@ -160,6 +180,9 @@ export default {
     },
     _eraseButtonDisabled() {
       return this.lengthOfTabs === 0 || !this.isMapLoaded
+    },
+    _playerPanelDisabled() {
+      return this.mode === this.AVAILABLE_MODE.ERASE_MODE || !this.isMapLoaded
     },
     _playObjectPanelDisabled() {
       return this.mode === this.AVAILABLE_MODE.ERASE_MODE

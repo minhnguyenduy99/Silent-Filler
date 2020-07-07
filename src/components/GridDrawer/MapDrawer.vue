@@ -18,8 +18,8 @@
 
 <script>
 import GridCellLayout from './GridCellLayout'
-import { GameMap, RectangleArea, Position, StaticObject, GameObject } from '../MapUtilities'
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { GameMap, RectangleArea, Position, StaticObject, GameObject, Player } from '../MapUtilities'
+import { mapState, mapGetters, mapActions, mapMutations } from 'vuex'
 
 export default {
   name: 'MapDrawer',
@@ -60,6 +60,7 @@ export default {
   data: () => ({
     OBJECT_OVERLAP_MSG: 'Object bị overlap',
     OBJECT_NOT_EXIST_MSG: 'Không có object tại ô này',
+    PLAYER_NOT_ALLOW_TO_DRAW: 'Không được phép vẽ player',
     currentMap: null,
     selectedCell: null,
     mapWidth: 0,
@@ -109,7 +110,7 @@ export default {
   },
   computed: {
     ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE']),
-    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode']),
+    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode', 'isPlayerAllowedToDraw']),
 
     modalId() {
       return 'modal_' + this.currentTabData._id
@@ -134,7 +135,8 @@ export default {
     },
     colorTagMap() {
       let map = {}
-      let { staticObjects, playableObjects } = this.currentTabData
+      let { staticObjects, playableObjects, player } = this.currentTabData
+      map[player.tag] = player.color
       staticObjects.objects.forEach(function(val) {
         map[val.tag] = val.color
       })
@@ -154,6 +156,7 @@ export default {
   },
   methods: {
     ...mapActions(['changeMode']),
+    ...mapMutations(['updatePlayerPosition', 'updateIsPlayerAllowedToDraw']),
 
     loadDefaultMap() {
       this.currentMap = this._getDefaultMap()
@@ -216,6 +219,10 @@ export default {
     },
 
     async _drawObjectOnSelectedPoint(startPoint) {
+      if (this.drawObject instanceof Player && !this.isPlayerAllowedToDraw) {
+        this._notify(this.PLAYER_NOT_ALLOW_TO_DRAW)
+        return
+      }
       let position = new Position(startPoint.col, startPoint.row)
       let notOverlap = await this.currentTabData.savePlayableObjectPosition(this.drawObject, position)
       if (!notOverlap) {
@@ -223,6 +230,7 @@ export default {
         return
       }
       this.cellLayout.drawBySize(startPoint, this.drawObject.size)
+      this._onObjectDrawn(position)
     },
 
     _eraseObjectOnSelectedPoint(startPoint) {
@@ -235,6 +243,25 @@ export default {
       }
       // erase object on map
       this.cellLayout.drawBySize(startPoint, object.size)
+      this._onObjectErased(object, startPoint)
+    },
+
+    _onObjectDrawn(position) {
+      if (this.drawObject instanceof Player) {
+        this.updatePlayerPosition(position)
+      }
+    },
+
+    _onObjectErased(object, { row, col }) {
+      if (!(object instanceof Player)) {
+        return
+      }
+      if (object.isStartPoint(col, row)) {
+        object.setStartPosition(null)
+      } else if (object.isEndPoint(col, row)) {
+        object.setEndPosition(null)
+      }
+      this.updateIsPlayerAllowedToDraw(true)
     },
 
     async _drawOnSelectedZone(startPoint, endPoint) {

@@ -19,7 +19,9 @@ export default new Vuex.Store({
     eraseMode: 0,
     currentCommand: null,
     listCommands: [],
-    activePanel: 0
+    activePanel: 0,
+    playerPosition: null,
+    isPlayerAllowedToDraw: true
   },
   mutations: {
     updateCurrentTab (state, newTab) {
@@ -30,6 +32,12 @@ export default new Vuex.Store({
     },
     updateActivePanel(state, value) {
       state.activePanel = value
+    },
+    updatePlayerPosition(state, value) {
+      state.playerPosition = value
+    },
+    updateIsPlayerAllowedToDraw(state, value) {
+      state.isPlayerAllowedToDraw = value
     }
   },
   getters: {
@@ -62,6 +70,12 @@ export default new Vuex.Store({
     },
     eraseMode: (state) => {
       return state.eraseMode
+    },
+    playerPosition: (state) => {
+      return state.playerPosition
+    },
+    isPlayerAllowedToDraw: (state) => {
+      return state.isPlayerAllowedToDraw
     }
   },
   actions: {

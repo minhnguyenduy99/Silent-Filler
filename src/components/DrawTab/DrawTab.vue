@@ -94,6 +94,8 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['updateIsPlayerAllowedToDraw']),
+
     loadImage(img) {
       this.tab.loadImage(img)
       this._onImageLoaded()
@@ -113,6 +115,7 @@ export default {
         setTimeout(async function() {
           await this.$refs['map-drawer'].resetMap()
           this.currentTabData.resetMap()
+          this.updateIsPlayerAllowedToDraw(true)
           resolve()
         }.bind(this), 1000)
       }.bind(this))

@@ -1,4 +1,4 @@
-import { GameObject, GameMap, Position } from '../MapUtilities'
+import { GameObject, GameMap, Position, Player } from '../MapUtilities'
 import { PlayableObjectPanel, StaticObjectPanel } from '.'
 import uniqid from 'uniqid'
 
@@ -9,6 +9,16 @@ export default class TabObject {
    * @type {String}
    */
   _id
+
+  /**
+   * @type {Player}
+   */
+  player
+
+  /**
+   * @type {Boolean}
+   */
+  isPlayerSelected
 
   /**
    * @type {String}
@@ -73,6 +83,8 @@ export default class TabObject {
     this.playableObjects = new PlayableObjectPanel()
     this.staticObjects = new StaticObjectPanel()
     this.map = null
+    this.player = Player.create()
+    this.isPlayerSelected = true
     this.objMap = new GameMap()
     this.image = {
       width: 0,
@@ -85,7 +97,7 @@ export default class TabObject {
   }
 
   get selectedObj() {
-    return this.staticObjects.selectedObj || this.playableObjects.selectedObj
+    return (this.isPlayerSelected && this.player) || this.staticObjects.selectedObj || this.playableObjects.selectedObj
   }
 
   get objectMap() {
@@ -146,6 +158,8 @@ export default class TabObject {
    */
   resetMap() {
     this.objMap = new GameMap()
+    this.player.setStartPosition(null)
+    this.player.setEndPosition(null)
   }
 
   loadImage(img) {
@@ -156,15 +170,30 @@ export default class TabObject {
     this.__setMapInfo()
   }
 
-  loadAvailableMap({ map, playableObjects, staticObjects, cellSize, objectMap }) {
+  loadAvailableMap({
+    map,
+    player: {
+      id, tag, name, size, color,
+      _startPosition,
+      _endPosition
+    },
+    playableObjects, staticObjects, cellSize, objectMap
+  }) {
     this.map = map
     this.playableObjects = new PlayableObjectPanel(playableObjects)
     this.staticObjects = new StaticObjectPanel(staticObjects)
+    this.player = new Player(
+      tag, name,
+      color,
+      size,
+      id,
+      _startPosition == null ? null : new Position(_startPosition.x, _startPosition.y),
+      _endPosition == null ? null : new Position(_endPosition.x, _endPosition.y))
     this.cellSize = cellSize
     let rawObjMap = objectMap
     for (let pos in objectMap) {
       let id = objectMap[pos]
-      rawObjMap[pos] = this.playableObjects.getById(id)
+      rawObjMap[pos] = this.playableObjects.getById(id) || this.player
     }
     this.objMap = new GameMap(rawObjMap)
   }
@@ -207,6 +236,7 @@ export default class TabObject {
    */
   save() {
     return {
+      player: this.player,
       staticObjects: this.staticObjects.objects,
       playableObjects: this.playableObjects.objects,
       map: this.map,
