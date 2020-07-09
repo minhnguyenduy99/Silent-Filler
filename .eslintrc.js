@@ -20,6 +20,7 @@ module.exports = {
     'no-undef': 'off',
     'scss(css-identifierexpected)': 'off',
     indent: 'off',
-    'quote-props': 'off'
+    'quote-props': 'off',
+    'camelcase': 'off'
   }
 }

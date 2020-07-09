@@ -92,16 +92,16 @@ export default {
   },
   methods: {
 
-    drawBySize(startPoint, { width, height }) {
+    drawBySize(startPoint, { width, height }, color = null) {
       let endPoint = {
         col: startPoint.col + width - 1,
         row: startPoint.row + height - 1
       }
-      this._onDrawOnSelectedZone(startPoint, endPoint)
+      this._onDrawOnSelectedZone(startPoint, endPoint, color)
     },
 
-    drawByZone(startPoint, endPoint, cb = (map, pos) => true) {
-      this._onDrawOnSelectedZone(startPoint, endPoint, cb)
+    drawByZone(startPoint, endPoint, color = null, cb = (map, pos) => true) {
+      this._onDrawOnSelectedZone(startPoint, endPoint, color, cb)
     },
 
     async clearAll() {
@@ -134,11 +134,11 @@ export default {
       this.isOnSelectedMode = false
     },
 
-    _onDrawOnSelectedZone(startPoint, endPoint, cb = (map, pos) => true) {
+    _onDrawOnSelectedZone(startPoint, endPoint, color = null, cb = (map, pos) => true) {
       this._actionOnCell(startPoint, endPoint, function(cell) {
         let pos = cell.pos
         if (cb(this.map, pos)) {
-          cell.updateColor(this._color)
+          cell.updateColor(color ?? this._color)
           this.currentMap[pos.row][pos.col] = this._tag
         }
       }.bind(this))

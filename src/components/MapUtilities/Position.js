@@ -22,4 +22,12 @@ export default class Position {
     this.x = Math.floor(x)
     this.y = Math.floor(y)
   }
+
+  /**
+   * Check if the same position
+   * @param {Position} position
+   */
+  equals(position) {
+    return position !== null && position.x === this.x && position.y === this.y
+  }
 }

@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    user: null,
     AVAILABLE_MODE: {
       DRAW_MODE: 0,
       ERASE_MODE: 1
@@ -20,8 +21,10 @@ export default new Vuex.Store({
     currentCommand: null,
     listCommands: [],
     activePanel: 0,
-    playerPosition: null,
-    isPlayerAllowedToDraw: true
+    playerItemState: {
+      playerPosition: null,
+      isStartPosSelected: true
+    }
   },
   mutations: {
     updateCurrentTab (state, newTab) {
@@ -34,10 +37,17 @@ export default new Vuex.Store({
       state.activePanel = value
     },
     updatePlayerPosition(state, value) {
-      state.playerPosition = value
+      state.playerItemState.playerPosition = value
     },
-    updateIsPlayerAllowedToDraw(state, value) {
-      state.isPlayerAllowedToDraw = value
+    selectPlayerPosition(state, value) {
+      if (value === 'start') {
+        state.playerItemState.isStartPosSelected = true
+      } else {
+        state.playerItemState.isStartPosSelected = false
+      }
+    },
+    updateUser(state, user) {
+      state.user = user
     }
   },
   getters: {
@@ -74,8 +84,12 @@ export default new Vuex.Store({
     playerPosition: (state) => {
       return state.playerPosition
     },
-    isPlayerAllowedToDraw: (state) => {
-      return state.isPlayerAllowedToDraw
+    isPlayerStartPositionSelected: (state) => {
+      let playerStartPos = state.currentTab.player.startPosition
+      return state.playerPosition.equals(playerStartPos)
+    },
+    user: (state) => {
+      return state.user
     }
   },
   actions: {

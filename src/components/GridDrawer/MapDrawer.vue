@@ -109,8 +109,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE']),
-    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode', 'isPlayerAllowedToDraw']),
+    ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE', 'playerItemState']),
+    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode']),
 
     modalId() {
       return 'modal_' + this.currentTabData._id
@@ -152,11 +152,14 @@ export default {
     },
     playableObjects() {
       return this.currentTabData.playableObjects
+    },
+    isPlayerStartPositionSelected() {
+      return this.playerItemState.isStartPosSelected
     }
   },
   methods: {
     ...mapActions(['changeMode']),
-    ...mapMutations(['updatePlayerPosition', 'updateIsPlayerAllowedToDraw']),
+    ...mapMutations(['updatePlayerPosition']),
 
     loadDefaultMap() {
       this.currentMap = this._getDefaultMap()
@@ -219,10 +222,6 @@ export default {
     },
 
     async _drawObjectOnSelectedPoint(startPoint) {
-      if (this.drawObject instanceof Player && !this.isPlayerAllowedToDraw) {
-        this._notify(this.PLAYER_NOT_ALLOW_TO_DRAW)
-        return
-      }
       let position = new Position(startPoint.col, startPoint.row)
       let notOverlap = await this.currentTabData.savePlayableObjectPosition(this.drawObject, position)
       if (!notOverlap) {
@@ -248,6 +247,19 @@ export default {
 
     _onObjectDrawn(position) {
       if (this.drawObject instanceof Player) {
+        let previousPosition = null
+        if (this.isPlayerStartPositionSelected) {
+          previousPosition = this.drawObject._startPosition
+        } else {
+          previousPosition = this.drawObject._endPosition
+        }
+        if (previousPosition) {
+          this.cellLayout.drawBySize(
+            { row: previousPosition.y, col: previousPosition.x },
+            this.drawObject.size, 'transparent')
+          this.currentTabData.removeObject(previousPosition)
+        }
+
         this.updatePlayerPosition(position)
       }
     },
@@ -261,7 +273,6 @@ export default {
       } else if (object.isEndPoint(col, row)) {
         object.setEndPosition(null)
       }
-      this.updateIsPlayerAllowedToDraw(true)
     },
 
     async _drawOnSelectedZone(startPoint, endPoint) {
@@ -284,7 +295,7 @@ export default {
     },
 
     _eraseOnSelectedZone(startPoint, endPoint) {
-      this.cellLayout.drawByZone(startPoint, endPoint, (map, pos) => map[pos.row][pos.col][0] !== 'P')
+      this.cellLayout.drawByZone(startPoint, endPoint, null, (map, pos) => map[pos.row][pos.col][0] !== 'P')
     },
 
     _notify(msg) {

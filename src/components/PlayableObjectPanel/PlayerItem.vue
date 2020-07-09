@@ -82,17 +82,6 @@ export default {
     this.select()
   },
   watch: {
-    gameObject: function(newVal) {
-      if (!newVal) {
-        return
-      }
-      if ((!newVal._startPosition && this.selectedPosition === 'start') ||
-        (!newVal._endPosition && this.selectedPosition === 'end')) {
-          this.updateIsPlayerAllowedToDraw(true)
-      } else {
-        this.updateIsPlayerAllowedToDraw(false)
-      }
-    },
     name: function(newVal) {
       this._setGameObjectValue('name', newVal)
     },
@@ -106,17 +95,12 @@ export default {
       this._setGameObjectValue('color', newVal)
     },
     selectedPosition: function(newVal) {
-      if ((newVal === 'start' && this.localGameObject._startPosition) ||
-        (newVal === 'end' && this.localGameObject._endPosition)) {
-          this.updateIsPlayerAllowedToDraw(false)
-      } else {
-        this.updateIsPlayerAllowedToDraw(true)
-      }
-    },
-    playerPosition: function(newVal) {
-      if (!this.isPlayerAllowedToDraw && this.mode === this.AVAILABLE_MODE.DRAW_MODE) {
+      if (!newVal) {
         return
       }
+      this.selectPlayerPosition(newVal)
+    },
+    playerPosition: function(newVal) {
       if (this.selectedPosition === 'start') {
         this._updateStartPosition(newVal)
       } else {
@@ -125,14 +109,17 @@ export default {
     }
   },
   computed: {
-    ...mapState(['AVAILABLE_MODE']),
-    ...mapGetters(['playerPosition', 'isPlayerAllowedToDraw', 'mode']),
+    ...mapState(['AVAILABLE_MODE', 'playerItemState']),
+    ...mapGetters(['mode']),
 
     _cardStyle() {
       return {
         opacity: this.isSelected ? '1' : '0.6',
         transition: '0.2s'
       }
+    },
+    playerPosition() {
+      return this.playerItemState.playerPosition
     },
     _isStartPositionSet() {
       return this.gameObject.isStartPositionSet
@@ -146,7 +133,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['updateIsPlayerAllowedToDraw']),
+    ...mapMutations(['selectPlayerPosition']),
 
     toggleSelect(ev) {
       let cb = this.isSelected ? this.unselect : this.select
@@ -169,12 +156,10 @@ export default {
     },
 
     _updateStartPosition(position) {
-      this.updateIsPlayerAllowedToDraw(!position)
       this._setGameObjectValue('_startPosition', position)
     },
 
     _updateEndPosition(position) {
-      this.updateIsPlayerAllowedToDraw(!position)
       this._setGameObjectValue('_endPosition', position)
     },
 
