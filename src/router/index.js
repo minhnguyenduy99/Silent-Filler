@@ -4,6 +4,8 @@ import Home from '../views/Home.vue'
 import Dashboard from '../views/Dashboard.vue'
 import GameView from '../views/GameView.vue'
 import EditMap from '../views/EditMap.vue'
+import Profile from '../views/Profile.vue'
+import store from '../store'
 
 Vue.use(VueRouter)
 
@@ -16,6 +18,9 @@ const routes = [
   {
     path: '/dashboard',
     name: 'Dashboard',
+    meta: {
+      requiresAuth: true
+    },
     component: Dashboard
   },
   {
@@ -29,12 +34,26 @@ const routes = [
   {
     path: '/game',
     name: 'Game',
-    component: GameView
+    component: GameView,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/editmap',
     name: 'EditMap',
-    component: EditMap
+    component: EditMap,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: {
+      requiresAuth: true
+    }
   }
 ]
 
@@ -42,6 +61,21 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeResolve((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    let isAuthenticated = store.getters['auth/isAuthenticated']
+    if (!isAuthenticated) {
+      next({
+        name: 'Home'
+      })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

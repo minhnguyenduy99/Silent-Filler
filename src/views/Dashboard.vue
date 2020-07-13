@@ -4,15 +4,15 @@
       <b-img class="image-container__image" src="@/assets/background.jpg" />
     </div>
     <nav class="navigation p-5 d-flex justify-content-end">
-      <div class="user-info" v-if="$auth.user.picture">
+      <div class="user-info" v-if="user.picture">
         <b-dropdown variant="outline-info" no-caret menu-class="bg-info" toggle-class="p-0 border-0">
           <b-button slot="button-content" variant="outline-info" size="lg" class="d-flex align-items-center">
-            <b-avatar class="d-inline-block" :src="$auth.user.picture"></b-avatar>
-            <h5 class="d-inline-block text-light m-0 ml-3">{{ $auth.user.family_name }}</h5>
+            <b-avatar class="d-inline-block" :src="user.picture"></b-avatar>
+            <h5 class="d-inline-block text-light m-0 ml-3">{{ user.family_name }}</h5>
           </b-button>
           <div class="d-flex flex-column p-2">
-            <b-button type="link" variant="outline-light">Profile</b-button>
-            <b-button class="mt-2" type="link" variant="outline-light">Logout</b-button>
+            <b-button type="link" variant="outline-light" to="profile">Profile</b-button>
+            <b-button class="mt-2" type="link" variant="outline-light" @click="logout">Logout</b-button>
           </div>
         </b-dropdown>
       </div>
@@ -30,7 +30,18 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
+  computed: {
+    ...mapGetters({
+      user: 'auth/user'
+    })
+  },
+  methods: {
+    logout() {
+      this.$auth.logout()
+    }
+  }
 }
 </script>
 

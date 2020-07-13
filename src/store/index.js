@@ -1,11 +1,28 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import createPersistedState from 'vuex-persistedstate'
+import * as Cookies from 'js-cookie'
+import { auth } from './auth-state'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  modules: {
+    auth: auth
+  },
+  plugins: [
+    createPersistedState({
+      paths: ['auth']
+      // storage: {
+      //   getItem: (key) => Cookies.get(key),
+      //   setItem: (key, value) => {
+      //     Cookies.set(key, value, { expires: 3, secure: true })
+      //   },
+      //   removeItem: (key) => Cookies.remove(key)
+      // }
+    })
+  ],
   state: {
-    user: null,
     AVAILABLE_MODE: {
       DRAW_MODE: 0,
       ERASE_MODE: 1
@@ -45,9 +62,6 @@ export default new Vuex.Store({
       } else {
         state.playerItemState.isStartPosSelected = false
       }
-    },
-    updateUser(state, user) {
-      state.user = user
     }
   },
   getters: {
@@ -87,9 +101,6 @@ export default new Vuex.Store({
     isPlayerStartPositionSelected: (state) => {
       let playerStartPos = state.currentTab.player.startPosition
       return state.playerPosition.equals(playerStartPos)
-    },
-    user: (state) => {
-      return state.user
     }
   },
   actions: {
@@ -120,7 +131,5 @@ export default new Vuex.Store({
       }
       state.eraseMode = mode
     }
-  },
-  modules: {
   }
 })

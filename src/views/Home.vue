@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="image-container --full-screen">
-      <b-img class="image-container__image" src="@/assets/background.jpg" />
+      <b-img class="image-container__image" src="@/assets/background.jpg" referrerpolicy="origin"/>
     </div>
     <div class="main-content__container d-flex justify-content-center align-items-center">
       <div class="main-content__area">
@@ -17,15 +17,32 @@
 </template>
 
 <script>
-import { login as authLogin } from '@/services'
+import { login as authLogin, repository } from '@/services'
+import { mapMutations, mapActions } from 'vuex'
 
 export default {
   name: 'Home',
   methods: {
-    login () {
-      this.$auth.loginWithRedirect().then(result => {
-        console.log(result)
-      })
+    async login () {
+      console.log(this.$store)
+      try {
+        let result = await this.$auth.loginWithPopup()
+        let socialUser = this.$auth.user
+        let user = {
+          social_id: socialUser.sub.split('|')[1],
+          family_name: socialUser.family_name,
+          given_name: socialUser.given_name,
+          picture: socialUser.picture,
+          picture_large: socialUser.picture_large,
+          user: {
+            email: socialUser.email
+          }
+        }
+        await this.$store.dispatch('auth/authenticateUser', user)
+        this.$router.push('/dashboard')
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 }
