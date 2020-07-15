@@ -136,13 +136,16 @@ export function sweptAABB(a, b, TimeStep, collisionCall = true) {
     }
 
     let isCollide = collisionList.length > 0
-    if (isCollide && collisionCall) {
-        collisionList.forEach(e => CollisionCall(box1, new CollisionOut(e.gameObject, false, normalX, normalY)))
-        if (box2.length === 1) {
-            CollisionCall(box2[0], new CollisionOut(box1.gameObject, false, normalX, normalY))
+    if (isCollide) {
+        if (collisionCall) {
+            collisionList.forEach(e => CollisionCall(box1, new CollisionOut(e.gameObject, false, normalX, normalY)))
+            if (box2.length === 1) {
+                CollisionCall(box2[0], new CollisionOut(box1.gameObject, false, normalX, normalY))
+            }
+        } else {
+            box1.gameObject.collisionOut = new CollisionOut(collisionList[0].gameObject, false, normalX, normalY)
         }
     }
-
     return isCollide
 }
 
