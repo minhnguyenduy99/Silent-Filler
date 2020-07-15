@@ -107,7 +107,7 @@ class GameManager {
   start() {
     this._sceneManager.nextScene()
     this._app.renderer.backgroundColor = 0x00ff00
-    this._app.ticker.maxFPS = 120
+    this._app.ticker.maxFPS = 90
     this._app.ticker.add((delta) => {
       this._gameLoop(delta / this._app.ticker.FPS)
     })

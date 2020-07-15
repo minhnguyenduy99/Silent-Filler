@@ -21,24 +21,30 @@ class Physical {
     }
 
     update(delta) {
-        this.RigidbodyList.forEach(e => { if (e.IsActive) { e.update(delta) } })
+        if (this._isActive) {
+            this.RigidbodyList.forEach(e => { if (e.IsActive) { e.update(delta) } })
+        }
     }
 
     lateUpdate(delta) {
-        this.RigidbodyList.forEach(e => { if (e.IsActive) { e.lateUpdate(delta) } })
+        if (this._isActive) {
+            this.RigidbodyList.forEach(e => { if (e.IsActive) { e.lateUpdate(delta) } })
+        }
     }
 
-    _isActive = false
+    _isActive = true
     get IsActive() {
         return this._isActive
     }
 
     set IsActive(value) {
         this._isActive = value
-        this.RigidbodyList.forEach(e => { e.IsActive = value })
     }
 
     CollisionCall(delta) {
+        if (!this._isActive) {
+            return
+        }
         // Collision to tilemap
         if (this.tilemap) {
             for (let i = 0; i < this.RigidbodyList.length; i++) {

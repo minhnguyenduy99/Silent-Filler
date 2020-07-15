@@ -1,4 +1,4 @@
-import { ACCELERATION_GRAVITY, TILE_SIZE } from './constant'
+import { ACCELERATION_GRAVITY } from './constant'
 
 /**
  * @returns {number} velocity jump

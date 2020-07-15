@@ -26,13 +26,13 @@ export default class Player extends GameObject {
 	}
 
 	__MakeInput() {
-		// this.__controler = new ControlComponent()
 	this.__controler = new PlayerController(this)
 		this.addComponent(this.__controler)
 	}
 
 	width = 0
 	height = 0
+	isPlayer = true;
 
 	__defaultPoint = 0
 
