@@ -2,6 +2,7 @@ import * as pixi from 'pixi.js'
 import { ControlComponent } from '../components'
 import PhysicalInstance from './physical'
 import { PointBounding } from '.'
+import GameManagerInstance from './game-manager'
 
 export default class BaseScene extends pixi.Container {
   /**
@@ -23,6 +24,22 @@ export default class BaseScene extends pixi.Container {
     window.addEventListener('resize', () => {
       this.UpdateDeadZone()
     })
+    this._controller.onKeyPressed(this.changePlayable.bind(this), 'KeyR')
+    this.IsPause = true
+  }
+
+  changePlayable() {
+    if (this._players.length <= 1) {
+      return
+    }
+    this._players[this._currentPlayer].arrow.alpha = 0
+    this._players[this._currentPlayer].IsActive = false
+    this._currentPlayer++
+    if (this._currentPlayer === this._players.length) {
+      this._currentPlayer = 0
+    }
+    this._players[this._currentPlayer].IsActive = true
+    this._players[this._currentPlayer].arrow.alpha = 1
   }
 
   /**
@@ -61,6 +78,7 @@ export default class BaseScene extends pixi.Container {
 
   set IsPause(value) {
     this._IsPause = value
+    GameManagerInstance.gameView.dispatchEvent(new Event('Pause', { value: value }))
     PhysicalInstance.IsActive = !value
   }
 
@@ -85,6 +103,23 @@ export default class BaseScene extends pixi.Container {
     this.updateCamera()
   }
 
+  lateUpdate(delta) {
+    if (this.IsPause) {
+      return
+    }
+    this.children.forEach((child) => {
+      if (child.lateUpdate && child.IsActive) {
+        child.lateUpdate(delta)
+      }
+    })
+
+    if (this._players.length === 0) {
+      GameManagerInstance.gameView.dispatchEvent(new Event('Win'))
+      console.log('Win')
+      this.IsPause = true
+    }
+  }
+
   cam = new PointBounding()
 
   updateCamera() {
@@ -94,10 +129,26 @@ export default class BaseScene extends pixi.Container {
     this.position.set(Math.clamp(this._deadzoneBox.left, this._deadzoneBox.right, this.position.x), Math.clamp(this._deadzoneBox.bottom, this._deadzoneBox.top, this.position.y))
   }
 
+  addChild(child) {
+    if (child.constructor.name === 'Player') {
+      this.cam.push(child)
+      this._players.push(child)
+      this.addChild(child.fplayer)
+      if (this._players.length > 1) {
+        child.IsActive = false
+      }
+      this.updateCamera()
+    }
+    super.addChild(child)
+  }
+
   /**
    * @returns {pixi.Point}
    */
   get GlobalPosition() {
     return new pixi.Point(0, 0)
   }
+
+  _currentPlayer = 0
+  _players = []
 }

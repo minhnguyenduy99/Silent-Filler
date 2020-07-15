@@ -35,6 +35,49 @@ Math.lerp = function (a, b, damping) {
     }
 }
 
+var mathP = {}
+
+/**
+ * @return {number}
+ * @param {Point} a
+ * @param {Point} b
+ */
+mathP.distance = function (a, b) {
+    let x = a.x - b.x
+    let y = a.y - b.y
+    return Math.sqrt(x * x + y * y)
+}
+
+/**
+ * @return {number}
+ * @param {Point} v
+ */
+mathP.direction = function (v) {
+    return Math.atan2(v.y, v.x)
+}
+
+/**
+ * @return {number}
+ * @param {Point} v
+ */
+mathP.magnitude = function (v) {
+    return Math.sqrt(v.x * v.x + v.y * v.y)
+}
+
+/**
+ * @return {{x:number, y:number}}
+ * @param {number} magnitude
+ * @param {number} direction
+ */
+mathP.makeVector = function (magnitude, direction) {
+    return {
+        x: Math.cos(direction) * magnitude,
+        y: Math.sin(direction) * magnitude
+    }
+}
+
+export const MathP = mathP
+
 export default class PointBounding {
     /**
      * @type {pixi.Container[]}
