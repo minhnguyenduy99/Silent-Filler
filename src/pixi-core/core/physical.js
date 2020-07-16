@@ -21,24 +21,30 @@ class Physical {
     }
 
     update(delta) {
-        this.RigidbodyList.forEach(e => { if (e.IsActive) { e.update(delta) } })
+        if (this._isActive) {
+            this.RigidbodyList.forEach(e => { if (e.IsActive) { e.update(delta) } })
+        }
     }
 
     lateUpdate(delta) {
-        this.RigidbodyList.forEach(e => { if (e.IsActive) { e.lateUpdate(delta) } })
+        if (this._isActive) {
+            this.RigidbodyList.forEach(e => { if (e.IsActive) { e.lateUpdate(delta) } })
+        }
     }
 
-    _isActive = false
+    _isActive = true
     get IsActive() {
         return this._isActive
     }
 
     set IsActive(value) {
         this._isActive = value
-        this.RigidbodyList.forEach(e => { e.IsActive = value })
     }
 
     CollisionCall(delta) {
+        if (!this._isActive) {
+            return
+        }
         // Collision to tilemap
         if (this.tilemap) {
             for (let i = 0; i < this.RigidbodyList.length; i++) {
@@ -76,6 +82,13 @@ class Physical {
         // Collision to other object
         for (let i = 0; i < this.RigidbodyList.length - 1; i++) {
             for (let j = i + 1; j < this.RigidbodyList.length; j++) {
+                if (sweptAABB(this.RigidbodyList[i], this.RigidbodyList[j], delta, true)) {
+                    // console.log('2 object collision')
+                }
+            }
+        }
+        for (let i = this.RigidbodyList.length - 1; i >= 0; i--) {
+            for (let j = i - 1; j >= 0; j--) {
                 if (sweptAABB(this.RigidbodyList[i], this.RigidbodyList[j], delta, true)) {
                     // console.log('2 object collision')
                 }

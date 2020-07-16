@@ -42,7 +42,7 @@ class GameManager {
     this.setGameColor(0xffffff)
     this._bump = new Bump(pixi)
     this._sceneManager.onCurrentSceneChanged((oldScene, newScene) => this._replaceSceneChildFromApp(oldScene, newScene))
-  }
+}
 
   /**
    * @type {PIXI.Graphics}
@@ -107,7 +107,7 @@ class GameManager {
   start() {
     this._sceneManager.nextScene()
     this._app.renderer.backgroundColor = 0x00ff00
-    this._app.ticker.maxFPS = 120
+    this._app.ticker.maxFPS = 90
     this._app.ticker.add((delta) => {
       this._gameLoop(delta / this._app.ticker.FPS)
     })
@@ -133,6 +133,7 @@ class GameManager {
   _gameLoop(delta) {
     const currentScene = this._sceneManager.currentScene
     currentScene.update(delta)
+    currentScene.lateUpdate(delta)
     PhysicalInstance.update(delta)
     PhysicalInstance.CollisionCall(delta)
     PhysicalInstance.lateUpdate(delta)

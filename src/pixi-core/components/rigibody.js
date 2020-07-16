@@ -31,9 +31,11 @@ export default class Rigidbody extends Component {
         this._object.vx += this.ax * delta
         this._object.vy += this.ay * delta
         this.OnTheFloor = false
+        this._object.collisionOut = undefined
     }
 
     lateUpdate(delta) {
+        this.OnCollision(this._object.collisionOut)
         this._object.x += this._object.vx * delta * TILE_SIZE
         this._object.y += this._object.vy * delta * TILE_SIZE
     }
@@ -42,6 +44,9 @@ export default class Rigidbody extends Component {
      * @param {CollisionOut} out
      */
     OnCollision(out = undefined) {
+        if (!out) {
+            return
+        }
         if (out.normalX !== undefined) {
             this._object.x += this._object.vx * out.normalX * TILE_SIZE
             this._object.vx = 0
