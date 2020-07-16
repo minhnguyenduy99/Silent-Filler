@@ -132,7 +132,18 @@ export default class TabObject {
    * @param {Position} position
    */
   removeObject(position) {
-    return this.objMap.remove(position)
+    let obj = this.objMap.remove(position)
+    if (!obj) {
+      return null
+    }
+    let { x, y } = position
+    let { size: { width, height } } = obj
+    for (let row = y; row < y + height; row++) {
+      for (let col = x; col < x + width; col++) {
+        this.map[row][col] = '-1'
+      }
+    }
+    return obj
   }
 
   /**
@@ -243,6 +254,10 @@ export default class TabObject {
       cellSize: this.cellSize,
       objectMap: this.objMap.getMapObject()
     }
+  }
+
+  get imageSrc() {
+    return this.image.src
   }
 
   __setMapInfo() {

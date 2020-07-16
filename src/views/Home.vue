@@ -24,7 +24,6 @@ export default {
   name: 'Home',
   methods: {
     async login () {
-      console.log(this.$store)
       try {
         let result = await this.$auth.loginWithPopup()
         let socialUser = this.$auth.user

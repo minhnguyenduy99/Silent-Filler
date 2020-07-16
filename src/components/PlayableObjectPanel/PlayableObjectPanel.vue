@@ -81,7 +81,7 @@ export default {
       this.isRowIncreased = newVal.length > this.totalRow
       this.totalRow = newVal.length
     },
-    activePanel: async function(newVal, oldVal) {
+    activePanel: function(newVal, oldVal) {
       if (newVal === 0) {
         return
       }
@@ -92,11 +92,11 @@ export default {
     this.listObjects = []
   },
   computed: {
-    ...mapState({
+    ...mapState('map-edit', {
       tab: 'currentTab',
       AVAILABLE_MODE: 'AVAILABLE_MODE'
     }),
-    ...mapGetters({
+    ...mapGetters('map-edit', {
       mode: 'mode',
       tabData: 'currentTabData',
       activePanel: 'currentActivePanel'
@@ -138,7 +138,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['updateActivePanel']),
+    ...mapMutations('map-edit', ['updateActivePanel']),
     unselect() {
       this.panelData.select(-1)
        this.$refs.PlayableObjects[this.selectedIndex].unselect()

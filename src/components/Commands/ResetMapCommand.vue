@@ -20,7 +20,7 @@ export default {
     content: 'Đang tạo map ...'
   }),
   computed: {
-    ...mapGetters(['tab'])
+    ...mapGetters('map-edit', ['tab'])
   },
   watch: {
     tab: function(newVal, oldVal) {
@@ -34,7 +34,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['addCommand']),
+    ...mapActions('map-edit', ['addCommand']),
 
     execute() {
       this.command.execute()

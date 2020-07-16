@@ -108,9 +108,9 @@ export default {
     this.form.family_name = family_name
   },
   computed: {
-    ...mapGetters({
-      isAuthenticated: 'auth/isAuthenticated',
-      user: 'auth/user'
+    ...mapGetters('auth', {
+      isAuthenticated: 'isAuthenticated',
+      user: 'user'
     })
   },
   methods: {

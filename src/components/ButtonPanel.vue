@@ -114,7 +114,9 @@
                 </template>
               </b-form-file>
             </b-dropdown>
-            <div class="col col-xl-6 col-lg-4 col-md-2 col-1">
+            <div class="col col-xl-6 col-12 d-flex justify-content-end d-none">
+              <map-info-view />
+              <b-button variant="outline-danger" class="h-100" @click="navigateToListMapPage">Back to list map</b-button>
             </div>
           </b-row>
         </b-container>
@@ -133,6 +135,7 @@ import SizeInput from './Utilities/SizeInput'
 import PlayableObjectPanel from './PlayableObjectPanel/PlayableObjectPanel'
 import PlayerItemPanel from './PlayableObjectPanel/PlayerItemPanel'
 import PlayerItem from './PlayableObjectPanel/PlayerItem'
+import MapInfoView from './MapInfoView'
 import { Player } from './MapUtilities'
 import { LoadFileCommand, DrawMapCommand, ResetMapCommand } from './Commands'
 import { mapActions, mapState, mapGetters } from 'vuex'
@@ -141,7 +144,7 @@ import { Closable } from './Utilities/Directives'
 export default {
   name: 'ButtonPanel',
   components: {
-    SidePanel, IconButton, SizeInput, PlayableObjectPanel, LoadFileCommand, DrawMapCommand, ResetMapCommand, PlayerItemPanel
+    SidePanel, IconButton, SizeInput, PlayableObjectPanel, LoadFileCommand, DrawMapCommand, ResetMapCommand, PlayerItemPanel, MapInfoView
   },
   directives: {
     Closable
@@ -166,8 +169,8 @@ export default {
   mounted: function () {
   },
   computed: {
-    ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE', 'tabLength', 'mode', 'eraseMode']),
-    ...mapGetters(['lengthOfTabs', 'isImageLoaded', 'isMapLoaded', 'currentTabData', 'isEraseMode']),
+    ...mapState('map-edit', ['isNewMap', 'mapObj', 'AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE', 'tabLength', 'mode', 'eraseMode']),
+    ...mapGetters('map-edit', ['lengthOfTabs', 'isImageLoaded', 'isMapLoaded', 'currentTabData', 'isEraseMode']),
 
     _player() {
       return this.currentTabData ? this.currentTabData.player : Player.create()
@@ -207,7 +210,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['changeMode', 'changeEraseMode']),
+    ...mapActions('map-edit', ['changeMode', 'changeEraseMode']),
 
     onFileUploaded(file) {
       this.file = file
@@ -282,6 +285,11 @@ export default {
       if (!this.isObjectPanelShown) {
         this.$refs['drop-down-panel'].hide()
       }
+    },
+    navigateToListMapPage() {
+      this.$router.push({
+        name: 'ListMap'
+      })
     }
   }
 }

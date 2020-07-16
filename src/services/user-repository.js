@@ -4,8 +4,7 @@ import Axios from 'axios'
 export default class UserRepository extends Repository {
   async createUser(data) {
     let user = await this.create('/user/', data)
-    Axios.defaults.headers.Authorization = `Token ${user.user.token}`
-    delete user.user.token
+    console.log(user)
     return user
   }
 

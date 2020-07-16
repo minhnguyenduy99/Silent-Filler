@@ -79,7 +79,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['currentTabData']),
+    ...mapGetters('map-edit', ['currentTabData']),
 
     selectedObj() {
       return this.currentTabData.selectedObj

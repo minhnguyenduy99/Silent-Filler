@@ -9,32 +9,57 @@ import Command from './Command'
 import LoadingDialog from '../Utilities/LoadingDialog'
 import { mapState, mapMutations } from 'vuex'
 import { GameObject } from '../MapUtilities'
+import { readFileHelper } from '../../services'
 
 export default {
-  name: 'LoadFileCommand',
+  name: 'LoadFileUrlCommand',
   components: {
     LoadingDialog
   },
   props: {
-    file: {
-      type: File
+    url: {
+      type: String,
+      required: false
+    },
+    lazy: {
+      type: Boolean,
+      default: () => false,
+      required: false
     }
   },
   watch: {
-    file: function(newVal, oldVal) {
+    url: function(newVal, oldVal) {
       if (!newVal || !this.tab) {
         return
       }
-      console.log(newVal)
-      let parts = newVal.name.split('.')
-      let callback = parts[parts.length - 1] === 'json' ? this._loadGameInfo : this._loadImageToMap
-      this.command = new Command(callback, this.tab)
-      this.execute()
+      this.name = newVal
+      readFileHelper.toBlobFromURL(newVal)
+      .then(file => {
+        this.localFile = file
+        this._setUpCommand()
+        if (this.lazy) {
+          return
+        }
+        this.execute()
+      })
     }
+  },
+  created: function() {
+    if (!this.url) {
+      return
+    }
+    this.name = this.url
+    readFileHelper.toBlobFromURL(this.url)
+    .then(file => {
+      this.localFile = file
+      this._setUpCommand()
+    })
   },
   data: () => ({
     command: null,
     isLoading: false,
+    localFile: null,
+    name: '',
     content: 'Đang load file ...'
   }),
   computed: {
@@ -52,7 +77,7 @@ export default {
     _loadImageToMap(tab) {
       // this.isLoading = true
       let reader = new FileReader()
-      reader.readAsDataURL(this.file)
+      reader.readAsDataURL(this.localFile)
       reader.onload = evt => {
         let img = new Image()
         img.onload = function() {
@@ -68,7 +93,7 @@ export default {
     },
     _loadGameInfo(tab) {
       let reader = new FileReader()
-      reader.readAsText(this.file, 'utf-8')
+      reader.readAsText(this.localFile, 'utf-8')
       reader.onload = function(evt) {
         let mapInfo = JSON.parse(evt.target.result)
         tab.tab.loadAvailableMap(mapInfo)
@@ -77,6 +102,11 @@ export default {
     },
     _isImage(ext) {
       return ['.png', '.jpg', 'jpeg'].includes(ext.toLowerCase())
+    },
+    _setUpCommand() {
+      let parts = this.name.split('.')
+      let callback = parts[parts.length - 1] === 'json' ? this._loadGameInfo : this._loadImageToMap
+      this.command = new Command(callback, this.tab)
     }
   }
 }

@@ -8,13 +8,17 @@
         <b-button class="m-1" variant="outline-primary">Quit Edit Mode</b-button>
       </div>
     </side-panel>
+    <b-modal id="save-object-modal">
+      <span><strong>{{ msg }}</strong></span>
+    </b-modal>
   </div>
 </template>
 
 <script>
 import SidePanel from './Utilities/SidePanel'
-import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState, mapActions, mapMutations } from 'vuex'
 import { saveAs } from 'file-saver'
+import { readFileHelper, repository } from '../services'
 
 export default {
   name: 'ControlPanel',
@@ -24,23 +28,65 @@ export default {
   data() {
     return {
       buttonClass: 'm-1 sm',
-      isPanelShown: true
+      isPanelShown: true,
+      msg: null
     }
   },
   computed: {
-    ...mapState(['tabLength']),
-    ...mapGetters(['currentTabData']),
+    ...mapState('map-edit', ['isNewMap', 'tabLength', 'mapObj']),
+    ...mapGetters('map-edit', ['currentTabData']),
 
     isButtonDisabled() {
       return this.tabLength === 0
     }
   },
   methods: {
+    ...mapActions('map', ['updateMap', 'createMap']),
+    ...mapMutations('map-edit', ['updateIsNewMap', 'updateMapObj']),
+
     saveCurrentMap() {
       let saveObj = this.currentTabData.save()
-      var blob = new Blob([JSON.stringify(saveObj)], { type: 'application/json' })
-      let fileName = 'map_' + this.currentTabData.title.toLowerCase()
-      saveAs(blob, fileName)
+      if (this.isNewMap) {
+        this.createNewMap(saveObj)
+        return
+      }
+      this.saveMap(saveObj)
+    },
+
+    createNewMap(saveObj) {
+      let mapObj = {}
+      let id = this.mapObj.id
+      mapObj.map_file = readFileHelper.toFileFromObject(saveObj, `${this.mapObj.map_name}.json`)
+      mapObj.map_image = readFileHelper.toImageFileFromBase64(this.currentTabData.imageSrc, this.mapObj.map_name)
+      mapObj.map_name = this.mapObj.map_name
+      this.createMap(mapObj).then((mapObj) => {
+        this.notifyMsg('Thêm map thành công')
+        this.updateIsNewMap(false)
+        this.updateMapObj(mapObj)
+      }).catch(err => {
+        this.notifyMsg(err)
+      })
+    },
+
+    async saveMap(saveObj) {
+      let mapObj = {}
+      let id = this.mapObj.id
+      mapObj.map_file = readFileHelper.toFileFromObject(saveObj, `${this.mapObj.map_name}.json`)
+      mapObj.map_image = await readFileHelper.toFileFromURL(this.currentTabData.imageSrc, this.mapObj.map_name)
+      mapObj.map_name = this.mapObj.map_name
+      this.updateMap({
+        id: id,
+        data: mapObj
+      }).then(() => {
+        this.notifyMsg('Cập nhật map thành công')
+      }).catch(err => {
+        this.notifyMsg(err)
+      })
+    },
+
+    notifyMsg(msg) {
+      this.msg = msg
+      this.$bvModal.show('save-object-modal')
     }
   }
 }

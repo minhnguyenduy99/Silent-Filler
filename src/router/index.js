@@ -5,6 +5,7 @@ import Dashboard from '../views/Dashboard.vue'
 import GameView from '../views/GameView.vue'
 import EditMap from '../views/EditMap.vue'
 import Profile from '../views/Profile.vue'
+import ListMapPage from '../views/ListMapPage'
 import store from '../store'
 
 Vue.use(VueRouter)
@@ -40,8 +41,24 @@ const routes = [
     }
   },
   {
-    path: '/editmap',
+    path: '/listmap',
+    name: 'ListMap',
+    component: ListMapPage,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/editmap/:id',
     name: 'EditMap',
+    component: EditMap,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/editmap',
+    name: 'EditNewMap',
     component: EditMap,
     meta: {
       requiresAuth: true
@@ -65,6 +82,7 @@ const router = new VueRouter({
 
 router.beforeResolve((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    console.log(store)
     let isAuthenticated = store.getters['auth/isAuthenticated']
     if (!isAuthenticated) {
       next({

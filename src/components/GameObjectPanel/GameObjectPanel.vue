@@ -100,11 +100,11 @@ export default {
     this.$refs.gameObjects = []
   },
   computed: {
-    ...mapState({
+    ...mapState('map-edit', {
       tab: 'currentTab',
       AVAILABLE_MODE: 'AVAILABLE_MODE'
     }),
-    ...mapGetters({
+    ...mapGetters('map-edit', {
       mode: 'mode',
       tabData: 'currentTabData',
       activePanel: 'currentActivePanel'
@@ -146,7 +146,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['updateActivePanel']),
+    ...mapMutations('map-edit', ['updateActivePanel']),
 
     _onObjectChanged(objIndex, objVal) {
       let sameObj = this.listObjects.filter((obj, index) =>

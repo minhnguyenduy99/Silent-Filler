@@ -109,8 +109,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(['AVAILABLE_MODE', 'playerItemState']),
-    ...mapGetters(['mode']),
+    ...mapState('map-edit', ['AVAILABLE_MODE', 'playerItemState']),
+    ...mapGetters('map-edit', ['mode']),
 
     _cardStyle() {
       return {
@@ -133,7 +133,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['selectPlayerPosition']),
+    ...mapMutations('map-edit', ['selectPlayerPosition']),
 
     toggleSelect(ev) {
       let cb = this.isSelected ? this.unselect : this.select

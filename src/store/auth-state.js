@@ -2,7 +2,7 @@ import { repository } from '../services'
 
 let userRepo = repository.get('user')
 
-export const auth = {
+export default {
   namespaced: true,
   state: () => ({
     user: null,
@@ -11,10 +11,10 @@ export const auth = {
     token: null
   }),
   mutations: {
-    auth_success: (state, user, token) => {
+    auth_success: (state, user) => {
       state.isAuthenticated = true
       state.user = user
-      state.token = token
+      state.token = user.user.token
       state.authError = null
     },
     auth_failed: (state, error) => {
@@ -36,13 +36,16 @@ export const auth = {
     },
     user: (state) => {
       return state.user
+    },
+    getToken: (state) => {
+      return state.token
     }
   },
   actions: {
-    authenticateUser: async ({ commit }, user) => {
+    authenticateUser: async ({ state, commit }, user) => {
       try {
-        let result = await userRepo.create('/user/', user)
-        commit('auth_success', result, result.user.token)
+        let result = await userRepo.createUser(user)
+        commit('auth_success', result)
       } catch (err) {
         console.log(err)
         commit('auth_failed')

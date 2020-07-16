@@ -109,8 +109,8 @@ export default {
     }
   },
   computed: {
-    ...mapState(['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE', 'playerItemState']),
-    ...mapGetters(['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode']),
+    ...mapState('map-edit', ['AVAILABLE_MODE', 'AVAILABLE_ERASE_MODE', 'playerItemState']),
+    ...mapGetters('map-edit', ['mode', 'isMapLoaded', 'currentTabData', 'eraseMode', 'isEraseMode']),
 
     modalId() {
       return 'modal_' + this.currentTabData._id
@@ -158,8 +158,8 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['changeMode']),
-    ...mapMutations(['updatePlayerPosition']),
+    ...mapActions('map-edit', ['changeMode']),
+    ...mapMutations('map-edit', ['updatePlayerPosition']),
 
     loadDefaultMap() {
       this.currentMap = this._getDefaultMap()

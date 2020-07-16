@@ -28,6 +28,9 @@
       </b-tabs>
     </b-card>
     <loading-dialog v-model="isTabLoading" :centered="true" :content="content"/>
+    <draw-map-command ref="drawer"/>
+    <load-file-command :url="fileMap" lazy ref="map-loader"/>
+    <load-file-command :url="image" lazy ref="image-loader"/>
   </div>
 </template>
 
@@ -39,12 +42,13 @@ import GameObjectPanel from '../components/GameObjectPanel/GameObjectPanel'
 import GridCellLayout from '../components/GridDrawer/GridCellLayout'
 import LoadingDialog from '../components/Utilities/LoadingDialog'
 import { DrawTab, TabObject } from '../components/DrawTab'
-import { mapMutations, mapGetters, mapState } from 'vuex'
+import { mapMutations, mapGetters, mapState, mapActions } from 'vuex'
+import { DrawMapCommand, LoadFileCommand } from '../components/Commands'
 
 export default {
   name: 'EditMap',
   components: {
-    ButtonPanel, ControlPanel, GameObjectPanel, LoadingDialog, DrawTab
+    ButtonPanel, ControlPanel, GameObjectPanel, LoadingDialog, DrawTab, DrawMapCommand, LoadFileCommand
   },
   data() {
     return {
@@ -55,30 +59,44 @@ export default {
       currentTab: null,
       generateTabIndex: 0,
       currentTabIndex: -1,
-      content: 'Đang load hình ảnh ...'
+      map: null,
+      content: 'Đang load hình ảnh ...',
+      fileMap: null,
+      image: null,
+      loadedByResource: false
     }
   },
   watch: {
     currentTabIndex: function(newVal, oldVal) {
+      console.log(this.$store)
       this.currentTab = this.tabs[newVal]
-      this.updateCurrentTab(this.tabComponents[this.currentTabIndex])
+      this.updateCurrentTab(this.tabComponents[newVal])
     }
   },
   created: function() {
+    this.createNewTab()
     this.updateCurrentTab(this.currentTab)
+    let mapId = this.$route.params.id
+    if (!mapId) {
+      this.updateIsNewMap(true)
+      return
+    }
+    this.updateIsNewMap(false)
+    this.getMapById(mapId)
+    .then(map => {
+      this.updateMapObj(map)
+    })
   },
   computed: {
-    ...mapGetters(['lengthOfTabs']),
+    ...mapState('map-edit', ['mapObj']),
 
     tabComponents() {
       return this.$refs['draw-tabs']
-    },
-    currentTabData() {
-      return this.currentTab.tab
     }
   },
   methods: {
-    ...mapMutations(['updateCurrentTab', 'updateLengthTab']),
+    ...mapMutations('map-edit', ['updateCurrentTab', 'updateLengthTab', 'updateMapObj', 'updateIsNewMap']),
+    ...mapActions('map', ['getMapById']),
 
     createNewTab() {
       let newTab = new TabObject()
