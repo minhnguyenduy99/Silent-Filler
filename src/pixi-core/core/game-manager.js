@@ -42,7 +42,7 @@ class GameManager {
     this.setGameColor(0xffffff)
     this._bump = new Bump(pixi)
     this._sceneManager.onCurrentSceneChanged((oldScene, newScene) => this._replaceSceneChildFromApp(oldScene, newScene))
-  }
+}
 
   /**
    * @type {PIXI.Graphics}
@@ -133,6 +133,7 @@ class GameManager {
   _gameLoop(delta) {
     const currentScene = this._sceneManager.currentScene
     currentScene.update(delta)
+    currentScene.lateUpdate(delta)
     PhysicalInstance.update(delta)
     PhysicalInstance.CollisionCall(delta)
     PhysicalInstance.lateUpdate(delta)

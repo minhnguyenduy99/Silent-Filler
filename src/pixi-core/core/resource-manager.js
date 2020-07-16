@@ -47,7 +47,6 @@ class ResourceManager {
   load() {
     return new Promise((resolve) => {
       this.__loader.load((loader, resources) => {
-        console.log(resources)
         resolve()
       })
     })

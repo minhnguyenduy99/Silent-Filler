@@ -90,7 +90,10 @@ export default class SceneManager {
       throw new Error('Null scene is not allowed')
     }
     this._scenes.push(scene)
+    scene.onPause = this.onPause
   }
+
+  onPause
 
   /**
    * Go to next scene.
