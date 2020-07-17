@@ -19,6 +19,25 @@ export default {
       }
     })
   },
+  readJSONFileFromURL: (url) => {
+    return new Promise((resolve, reject) => {
+      try {
+        fetch(url)
+        .then(response => response.blob())
+        .then(data => {
+          let file = new FileReader()
+          file.readAsText(data, 'utf-8')
+          file.onload = (evt) => {
+            console.log(evt.target.result)
+            resolve(evt.target.result)
+          }
+        })
+      } catch (err) {
+        console.log(`Read file error: ${err}`)
+        reject(err)
+      }
+    })
+  },
   toBlobFromURL: async (url) => {
     try {
       let response = await fetch(url)

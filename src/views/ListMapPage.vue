@@ -21,6 +21,7 @@
 <script>
 import NavBar from '../web-components/base/NavBar'
 import MapSection from '../web-components/MapSection'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'ListMapPage',
@@ -36,21 +37,28 @@ export default {
     nextURL: null,
     previousURL: null
   }),
-  created: async function() {
-    let { count, next, previous, results, recent } = await this.$store.dispatch('map/getListMap', this.currentPage)
-    results = results.map(result => {
+  created: function() {
+    // this.$store.web.commit('loadingPage', 'List map is loading ...')
+    this.$store.dispatch('map/getListMap', this.currentPage)
+    .then(({ count, next, previous, results, recent }) => {
+      results = results.map(result => {
       result.last_edited = new Date(result.last_edited)
       return result
+      })
+      recent = recent.map(result => {
+        result.last_edited = new Date(result.last_edited)
+        return result
+      })
+      this.recent = recent
+      this.listMaps = results
+      this.nextURL = next
+      this.previousURL = previous
+      this.totalNumber = count
+      // this.unloadingPage()
     })
-    recent = recent.map(result => {
-      result.last_edited = new Date(result.last_edited)
-      return result
-    })
-    this.recent = recent
-    this.listMaps = results
-    this.nextURL = next
-    this.previousURL = previous
-    this.totalNumber = count
+  },
+  computed: {
+    ...mapMutations('web', ['loadingPage', 'unloadingPage'])
   },
   methods: {
     navigateToEditNewMap() {

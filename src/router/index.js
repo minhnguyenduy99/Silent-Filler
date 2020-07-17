@@ -6,6 +6,7 @@ import GameView from '../views/GameView.vue'
 import EditMap from '../views/EditMap.vue'
 import Profile from '../views/Profile.vue'
 import ListMapPage from '../views/ListMapPage'
+import ListGamePlay from '../views/ListGamePlay'
 import store from '../store'
 
 Vue.use(VueRouter)
@@ -33,7 +34,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/game',
+    path: '/game/:id',
     name: 'Game',
     component: GameView,
     meta: {
@@ -44,6 +45,14 @@ const routes = [
     path: '/listmap',
     name: 'ListMap',
     component: ListMapPage,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/game',
+    name: 'ListGamePlay',
+    component: ListGamePlay,
     meta: {
       requiresAuth: true
     }

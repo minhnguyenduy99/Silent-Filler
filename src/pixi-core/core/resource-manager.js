@@ -16,6 +16,11 @@ class ResourceManager {
   __defaultResourceDirectory
 
   /**
+   * @type {ObjectMapper}
+   */
+  config
+
+  /**
    * @public
    * @param {pixi.Loader} __loader The resource __loader to use
    */

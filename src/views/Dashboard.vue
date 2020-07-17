@@ -7,7 +7,7 @@
     <div class="game-menu--container d-flex justify-content-center">
       <div class="game-menu--content">
         <h1 class="display-5 text-light mb-5">Name of the game</h1>
-        <b-button class="game-menu--button" variant="outline-info" size="lg">Play</b-button>
+        <b-button class="game-menu--button" variant="outline-info" size="lg" to="/game">Play</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg">Setting</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg" to="/listmap">Edit map</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg">How to play</b-button>

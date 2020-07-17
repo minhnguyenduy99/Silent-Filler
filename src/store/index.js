@@ -4,6 +4,8 @@ import VuexPersistence from 'vuex-persist'
 import map from './map'
 import { mapEditState } from './map-edit-state'
 import authState from './auth-state'
+import game_state from './game-state-state'
+import webState from './web-state'
 import Cookies from 'js-cookie'
 
 Vue.use(Vuex)
@@ -26,7 +28,9 @@ export default new Vuex.Store({
   modules: {
     map: map,
     'map-edit': mapEditState,
-    auth: authState
+    auth: authState,
+    game_state: game_state,
+    web: webState
   },
   plugins: [
     vuexCookie.plugin

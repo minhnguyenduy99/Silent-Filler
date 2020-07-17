@@ -46,6 +46,7 @@ export default {
 
     saveCurrentMap() {
       let saveObj = this.currentTabData.save()
+      console.log(saveObj)
       if (this.isNewMap) {
         this.createNewMap(saveObj)
         return

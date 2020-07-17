@@ -33,13 +33,15 @@ export default class TileMap extends Component {
 	 */
 	_containerObj
 
+	_deadlineY = Number.POSITIVE_INFINITY
+
 	/**
 	 * @param {GameObject} attachObj
 	 * @param {Number[][]} tile
 	 */
 	constructor(attachObj, tile) {
 		super()
-		this.tile = test.reverse()
+		this.tile = tile.reverse()
 		this._containerObj = new GameObject()
 
 		this.__map = new Array(this.tile.length)
@@ -50,7 +52,10 @@ export default class TileMap extends Component {
 					this.__map[i][j] = new TileSprite('tilemap', TILE_SIZE, TILE_SIZE)
 					this.__map[i][j].setTileByIndex(this.__getTileIndex(i, j))
 					this._containerObj.addChild(this.__map[i][j])
-					this.__map[i][j].position.set(j * TILE_SIZE + (TILE_SIZE >> 1), i * TILE_SIZE + (TILE_SIZE >> 1))
+					let y = i * TILE_SIZE + (TILE_SIZE >> 1)
+					this.__map[i][j].position.set(j * TILE_SIZE + (TILE_SIZE >> 1), y)
+
+					this._deadlineY = Math.min(this._deadlineY, y - (TILE_SIZE << 2))
 				}
 			}
 		}
@@ -107,7 +112,7 @@ export default class TileMap extends Component {
 	 * @param {number} j
 	 */
 	__getPoint(i, j) {
-		if (this.tile[i] && this.tile[i][j]) {
+		if (this.tile[i] !== undefined && this.tile[i][j] !== undefined) {
 			return this.tile[i][j] >= 0
 		} else {
 			return false
@@ -121,6 +126,7 @@ export default class TileMap extends Component {
 	 * @param {number} colorCode
 	 */
 	setFilter(colorCode) {
+		console.log(colorCode)
 		this.__map.forEach(tileArr => {
 			tileArr.forEach(tile => {
 				tile.setFilter(colorCode)

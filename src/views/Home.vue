@@ -13,19 +13,29 @@
         </div>
       </div>
     </div>
+    <loading-dialog :show="showDialog" :content="content" :centered="true" />
   </div>
 </template>
 
 <script>
 import { login as authLogin, repository } from '@/services'
 import { mapMutations, mapActions } from 'vuex'
+import LoadingDialog from 'webcomponents/Utilities/LoadingDialog.vue'
 
 export default {
   name: 'Home',
+  components: {
+    LoadingDialog
+  },
+  data: () => ({
+    showDialog: false,
+    content: 'Login...'
+  }),
   methods: {
-    async login () {
-      try {
-        let result = await this.$auth.loginWithPopup()
+    login () {
+      this.$auth.loginWithPopup()
+      .then(() => {
+        this.showDialog = true
         let socialUser = this.$auth.user
         let user = {
           social_id: socialUser.sub.split('|')[1],
@@ -37,11 +47,15 @@ export default {
             email: socialUser.email
           }
         }
-        await this.$store.dispatch('auth/authenticateUser', user)
-        this.$router.push('/dashboard')
-      } catch (err) {
+        this.$store.dispatch('auth/authenticateUser', user)
+        .then(() => {
+          this.showDialog = false
+          this.$router.push('/dashboard')
+        })
+      })
+      .catch(err => {
         console.log(err)
-      }
+      })
     }
   }
 }
