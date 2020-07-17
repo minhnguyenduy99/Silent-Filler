@@ -48,10 +48,17 @@ export default class NewScene extends BaseScene {
   createPlayerFromPlayableObjects() {
     let listRawPlayers = this.obj.playableObjects
     let listPlayers = listRawPlayers.map((rawPlayer) => {
-      let startPos = this.convertPosition(this.obj._player._startPosition, rawPlayer.size)
-      let endPos = this.convertPosition(this.obj._player._endPosition, rawPlayer.size)
+      let rawPlayerId = rawPlayer.id
+      let allPos = []
+      for (let key in this.obj.objectMap) {
+        if (this.obj.objectMap[key] === rawPlayerId) {
+          allPos.push(this.parseToPosition(key))
+        }
+      }
+      let startPos = this.convertPosition(allPos[0], rawPlayer.size)
+      let endPos = this.convertPosition(allPos[1], rawPlayer.size)
       let color = parseInt(`0x${rawPlayer.color.substr(1)}`, 16)
-      return new Player(startPos, endPos, color, rawPlayer.width, rawPlayer.height)
+      return new Player(startPos, endPos, color, rawPlayer.size.width, rawPlayer.size.height)
     })
     return listPlayers
   }
@@ -63,5 +70,13 @@ export default class NewScene extends BaseScene {
   convertPosition({ x, y }, { width, height }) {
     let rowCount = this.obj.map.length
     return new pixi.Point(TILE_SIZE * (x + width / 2), TILE_SIZE * (rowCount - y - height / 2))
+  }
+
+  parseToPosition(posStr) {
+    let [x, y] = posStr.split('x')
+    return {
+      x: Number.parseInt(x),
+      y: Number.parseInt(y)
+    }
   }
 }

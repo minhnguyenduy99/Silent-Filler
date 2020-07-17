@@ -5,8 +5,8 @@
     </div>
     <div class="main-content__container d-flex justify-content-center align-items-center">
       <div class="main-content__area">
-        <h1 class="main-content__game-title display-3 text-light">The name of the game</h1>
-        <h4 class="main-content__game-description text-light">Description of the game</h4>
+        <h1 class="main-content__game-title display-3 text-light">{{ webTitle }}</h1>
+        <h4 class="main-content__game-description text-light">{{ description }}</h4>
         <div class="d-flex justify-content-center mt-5">
           <b-button class="mr-3 py-3 px-4" size="lg" variant="success" @click="login">Login</b-button>
           <b-button class="ml-3 py-3 px-4" size="lg" variant="outline-info">About</b-button>
@@ -29,7 +29,9 @@ export default {
   },
   data: () => ({
     showDialog: false,
-    content: 'Login...'
+    content: 'Login...',
+    webTitle: 'SILENT FILLER',
+    description: 'Of the Kingdom Paper'
   }),
   methods: {
     login () {

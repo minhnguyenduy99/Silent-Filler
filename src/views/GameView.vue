@@ -39,6 +39,8 @@ export default {
   },
   mounted: function() {
     GameManager.gameView.style.position = 'absolute'
+    GameManager.gameView.style.top = 0
+    GameManager.gameView.style.left = 0
     let map_id = this.$route.params.id
     this.getMapById(map_id)
     .then(function (map) {

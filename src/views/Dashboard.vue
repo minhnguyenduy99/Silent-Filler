@@ -6,7 +6,7 @@
     <nav-bar class="navigation p-5 d-flex justify-content-end" />
     <div class="game-menu--container d-flex justify-content-center">
       <div class="game-menu--content">
-        <h1 class="display-5 text-light mb-5">Name of the game</h1>
+        <h1 class="display-5 text-light mb-5">{{ webTitle }}</h1>
         <b-button class="game-menu--button" variant="outline-info" size="lg" to="/game">Play</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg">Setting</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg" to="/listmap">Edit map</b-button>
@@ -23,6 +23,9 @@ export default {
   components: {
     NavBar
   },
+  data: () => ({
+    webTitle: 'SILENT FILLER'
+  }),
   computed: {
     ...mapGetters({
       user: 'auth/user'
