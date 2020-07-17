@@ -13,6 +13,9 @@ function CollisionCall(box, out) {
     if (box.gameObject.OnCollision) {
         box.gameObject.OnCollision(out)
     }
+    if (out.gameObject.OnCollision) {
+        out.gameObject.OnCollision(out)
+    }
 }
 
 /**

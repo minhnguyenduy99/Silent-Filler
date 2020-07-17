@@ -95,6 +95,7 @@ export default {
       resourceManager.addResourceFile('player', require('../assets/player.png'))
       resourceManager.addResourceFile('fplayer', require('../assets/fplayer.png'))
       resourceManager.addResourceFile('SelectArrow', require('../assets/SelectArrow.png'))
+      resourceManager.addResourceFile('lava', require('../assets/lava.png'))
       resourceManager.load()
       .then(() => {
         let scene = new NewScene()

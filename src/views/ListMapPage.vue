@@ -38,7 +38,7 @@ export default {
     previousURL: null
   }),
   created: function() {
-    // this.$store.web.commit('loadingPage', 'List map is loading ...')
+    this.loadingPage('List of maps are loading ...')
     this.$store.dispatch('map/getListMap', this.currentPage)
     .then(({ count, next, previous, results, recent }) => {
       results = results.map(result => {
@@ -54,13 +54,11 @@ export default {
       this.nextURL = next
       this.previousURL = previous
       this.totalNumber = count
-      // this.unloadingPage()
+      this.unloadingPage()
     })
   },
-  computed: {
-    ...mapMutations('web', ['loadingPage', 'unloadingPage'])
-  },
   methods: {
+    ...mapMutations('web', ['loadingPage', 'unloadingPage']),
     navigateToEditNewMap() {
       this.$router.push('/editmap')
     }

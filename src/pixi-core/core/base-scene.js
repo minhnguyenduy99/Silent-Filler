@@ -1,7 +1,7 @@
 import * as pixi from 'pixi.js'
 import { ControlComponent } from '../components'
 import PhysicalInstance from './physical'
-import { PointBounding } from '.'
+import { PointBounding, GameManager } from '.'
 import GameManagerInstance from './game-manager'
 
 export default class BaseScene extends pixi.Container {
@@ -118,10 +118,18 @@ export default class BaseScene extends pixi.Container {
     })
 
     if (this._players.length === 0) {
-      GameManagerInstance.gameView.dispatchEvent(new Event('Win'))
+      GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Win'))
       console.log('Win')
       this.IsPause = true
     }
+  }
+
+  gameOver(reason) {
+    GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Die', {
+      detail: {
+        value: reason
+      }
+    }))
   }
 
   cam = new PointBounding()

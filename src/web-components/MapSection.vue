@@ -10,6 +10,9 @@
         :data="map"
       />
     </div>
+    <slot>
+      <b-button variant="primary">Load more</b-button>
+    </slot>
   </div>
 </template>
 
