@@ -23,6 +23,7 @@ export default {
     resourceManager.addResourceFile('tilemap', require('../assets/tilemap.png'))
     resourceManager.addResourceFile('player', require('../assets/player.png'))
     resourceManager.addResourceFile('fplayer', require('../assets/fplayer.png'))
+    resourceManager.addResourceFile('lava', require('../assets/lava.png'))
     resourceManager.addResourceFile('SelectArrow', require('../assets/SelectArrow.png'))
     await resourceManager.load()
     let scene = new TestScene()

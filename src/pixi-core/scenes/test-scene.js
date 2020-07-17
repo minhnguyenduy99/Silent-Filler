@@ -26,7 +26,7 @@ export default class TestScene extends BaseScene {
     // let p3 = new Player(new Point(32 * 5.5 - 16, 32 * 11), new Point(32, 32), 0x00ffff, 1, 1)
     // this.addChild(p3)
 
-    this.p2 = new Player(new Point(32 * 2 - 16, 32 * 11), new Point(128 + 16, 32 + 16), 0xffff00, 1, 1)
+    this.p2 = new Player(new Point(32 * 2 - 16, 32 * 11), new Point(128 + 16 + 32, 32 + 16 + 64), 0xffff00, 1, 1)
     this.addChild(this.p2)
   }
 }

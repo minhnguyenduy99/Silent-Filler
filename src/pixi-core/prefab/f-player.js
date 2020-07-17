@@ -113,7 +113,7 @@ export default class FPlayer extends GameObject {
 			let scale = (1 - distance / this.addForceDistance) / 2
 			force.x *= scale
 			force.y *= scale
-			if (force.x < 0.01) {
+			if ((force.x < 0.01) && (direction.x < 0.1)) {
 				this.player.x = this.x
 			} else {
 				this.player.vx += force.x

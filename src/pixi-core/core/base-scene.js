@@ -82,6 +82,10 @@ export default class BaseScene extends pixi.Container {
     PhysicalInstance.IsActive = !value
   }
 
+  gameOver(reason) {
+    GameManagerInstance.gameView.dispatchEvent(new Event('Die', { value: reason }))
+  }
+
   get IsPause() {
     return this._IsPause
   }

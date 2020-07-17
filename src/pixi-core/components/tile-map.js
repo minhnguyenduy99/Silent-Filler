@@ -1,4 +1,4 @@
-import { Component, GameObject, TileSprite } from '../core'
+import { Component, GameObject, TileSprite, GameManager } from '../core'
 import { TILE_SIZE } from '../core/constant'
 
 const test = [
@@ -8,8 +8,8 @@ const test = [
 	[1, -1, -1, -1, -1, -1, -1, 1],
 	[1, -1, -1, -1, -1, -1, -1, 1],
 	[1, -1, -1, -1, -1, -1, -1, 1],
-	[1, -1, -1, 1, -1, 1, -1, 1],
-	[1, 1, 1, 1, 1, 1, 1, 1]
+	[1, -1, -1, -1, -1, -1, -1, 1],
+	[1, 2, 1, 1, 1, 1, 2, 1]
 	// [1, 1, 1, 1, 1, 1],
 	// [1, 1, 1, 1, 1]
 ]
@@ -33,6 +33,8 @@ export default class TileMap extends Component {
 	 */
 	_containerObj
 
+	_deadlineY = Number.POSITIVE_INFINITY
+
 	/**
 	 * @param {GameObject} attachObj
 	 * @param {Number[][]} tile
@@ -47,10 +49,20 @@ export default class TileMap extends Component {
 			this.__map[i] = new Array(this.tile[i].length)
 			for (let j = 0; j < this.tile[i].length; j++) {
 				if (this.__getPoint(i, j)) {
-					this.__map[i][j] = new TileSprite('tilemap', TILE_SIZE, TILE_SIZE)
-					this.__map[i][j].setTileByIndex(this.__getTileIndex(i, j))
+					if (this.tile[i][j] === 2) {
+						this.__map[i][j] = new TileSprite('lava', TILE_SIZE, TILE_SIZE)
+						this.__map[i][j].cantSetFilter = true
+						this.__map[i][j].setTileByIndex(0)
+						this.__map[i][j].OnCollision = this.Die.bind(this.__map[i][j])
+					} else {
+						this.__map[i][j] = new TileSprite('tilemap', TILE_SIZE, TILE_SIZE)
+						this.__map[i][j].setTileByIndex(this.__getTileIndex(i, j))
+					}
 					this._containerObj.addChild(this.__map[i][j])
-					this.__map[i][j].position.set(j * TILE_SIZE + (TILE_SIZE >> 1), i * TILE_SIZE + (TILE_SIZE >> 1))
+					let y = i * TILE_SIZE + (TILE_SIZE >> 1)
+					this.__map[i][j].position.set(j * TILE_SIZE + (TILE_SIZE >> 1), y)
+
+					this._deadlineY = Math.min(this._deadlineY, y - (TILE_SIZE << 2))
 				}
 			}
 		}
@@ -123,8 +135,16 @@ export default class TileMap extends Component {
 	setFilter(colorCode) {
 		this.__map.forEach(tileArr => {
 			tileArr.forEach(tile => {
-				tile.setFilter(colorCode)
+				if (!tile.cantSetFilter) {
+					tile.setFilter(colorCode)
+				}
 			})
 		})
+	}
+
+	Die(out) {
+		console.log('die by larva')
+		GameManager._sceneManager.currentScene.gameOver('Don\'t touch the larva')
+		this.OnCollision = undefined
 	}
 }
