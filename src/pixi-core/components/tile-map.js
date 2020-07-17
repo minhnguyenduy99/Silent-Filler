@@ -1,4 +1,4 @@
-import { Component, GameObject, TileSprite } from '../core'
+import { Component, GameObject, TileSprite, GameManager } from '../core'
 import { TILE_SIZE } from '../core/constant'
 
 const test = [

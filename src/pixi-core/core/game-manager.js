@@ -111,8 +111,9 @@ class GameManager {
     this.time = 0
     this._app.ticker.maxFPS = 90
     this._app.ticker.add((delta) => {
-      this._gameLoop(delta / this._app.ticker.FPS)
-      this.time += delta
+      let dt = delta / this._app.ticker.FPS
+      this._gameLoop(dt)
+      this.time += dt
     })
   }
 

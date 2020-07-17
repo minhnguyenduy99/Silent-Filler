@@ -124,8 +124,8 @@ export default class FPlayer extends GameObject {
 
 			if (distance < this.force * scale) {
 				this.player.position.set(this.position.x, this.position.y)
-				PhysicalInstance.RigidbodyList.splice(this.player._physicalID, 1)
-				GameManagerInstance._sceneManager._currentScene._players.splice(this.player._physicalID)
+				GameManagerInstance._sceneManager._currentScene.FinishPlayer()
+				this.lateUpdate = undefined
 			}
 		}
 	}

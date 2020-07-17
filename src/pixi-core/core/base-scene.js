@@ -42,6 +42,31 @@ export default class BaseScene extends pixi.Container {
     this._players[this._currentPlayer].arrow.alpha = 1
   }
 
+  FinishPlayer() {
+    if (this._players.length <= 1) {
+      GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Win', {
+        detail: {
+          value: GameManagerInstance.time
+        }
+      }))
+      console.log(`Win, time: ${GameManagerInstance.time}`)
+      this._IsPause = true
+      return
+    }
+
+    let playerDone = this._players.splice(this._currentPlayer, 1)[0]
+    playerDone.arrow.alpha = 0
+    playerDone.IsActive = false
+    PhysicalInstance.RigidbodyList[playerDone._physicalID].IsActive = false
+
+    if (this._players.length === this._currentPlayer) {
+      this._currentPlayer--
+    }
+
+    this._players[this._currentPlayer].IsActive = true
+    this._players[this._currentPlayer].arrow.alpha = 1
+  }
+
   /**
    * @type {ControlComponent}
    */
@@ -116,16 +141,6 @@ export default class BaseScene extends pixi.Container {
         child.lateUpdate(delta)
       }
     })
-
-    if (this._players.length === 0) {
-      GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Win', {
-        detail: {
-          value: GameManagerInstance.time
-        }
-      }))
-      console.log('Win')
-      this.IsPause = true
-    }
   }
 
   gameOver(reason) {
@@ -134,6 +149,8 @@ export default class BaseScene extends pixi.Container {
         value: reason
       }
     }))
+    this._IsPause = true
+    PhysicalInstance.IsActive = false
   }
 
   cam = new PointBounding()
