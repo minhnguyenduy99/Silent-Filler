@@ -27,12 +27,17 @@ export default class PlayerController extends ControlComponent {
     }
 
     update(delta) {
+        let move = this.moveAbility
+        if (this.isKeyDown('ArrowDown', 'KeyS')) {
+            move /= 2.5
+        }
+
         if (this.isKeyDown('ArrowLeft', 'KeyA') && (this.isKeyDown('ArrowRight', 'KeyD'))) {
             this._object.vx = 0
         } else if (this.isKeyDown('ArrowLeft', 'KeyA')) {
-            this._object.vx = -this.moveAbility
+            this._object.vx = -move
         } else if (this.isKeyDown('ArrowRight', 'KeyD')) {
-            this._object.vx = this.moveAbility
+            this._object.vx = move
         } else {
             this._object.vx = 0
         }
