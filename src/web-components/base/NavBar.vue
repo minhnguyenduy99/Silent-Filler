@@ -1,5 +1,6 @@
 <template>
-  <nav class="navigation px-5 pt-5 pb-0 d-flex justify-content-end">
+  <nav :class="getNavClass">
+    <b-button :class="dashboardClass" v-if="dashboard" to="/dashboard" size="lg" variant="outline-primary">Dashboard</b-button>
     <div class="user-info" v-if="user.picture">
       <b-dropdown
         :variant="variant" no-caret :menu-class="dropdownBg" toggle-class="p-0 border-0">
@@ -40,6 +41,16 @@ export default {
       type: String,
       required: false,
       default: () => 'light'
+    },
+    dashboard: {
+      type: Boolean,
+      required: false,
+      default: () => false
+    },
+    dashboardClass: {
+      type: String,
+      required: false,
+      default: () => ''
     }
   },
   data: () => ({
@@ -53,6 +64,15 @@ export default {
     }),
     textClass() {
       return [...this.TEXT_CLASS, `text-${this.textVariant}`]
+    },
+    getNavClass() {
+      let baseNavClass = ['navigation', 'px-5', 'pt-5', 'pb-0', 'd-flex', 'align-items-center']
+      if (this.dashboard) {
+        baseNavClass.push('justify-content-between')
+      } else {
+        baseNavClass.push('justify-content-end')
+      }
+      return baseNavClass
     }
   },
   methods: {

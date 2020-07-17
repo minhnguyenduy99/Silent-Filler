@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav-bar class="pb-0" variant="outline-info" dropdownBg="bg-info" textVariant="dark" />
+    <nav-bar class="pb-0" variant="outline-info" dropdownBg="bg-info" textVariant="dark" dashboard dashboardClass="dashboard-class"/>
     <div id="list-map-view" class="d-flex justify-content-center">
       <div class="content__wrapper w-75 mt-5">
         <b-button class="button__add mb-5" variant="primary" @click="navigateToEditNewMap">Add new map</b-button>
@@ -91,5 +91,9 @@ export default {
   &__add {
     display: inherit;
   }
+}
+
+.dashboard-class {
+  margin-left: 125px;
 }
 </style>

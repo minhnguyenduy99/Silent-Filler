@@ -11,6 +11,24 @@
         <b-button variant="danger" class="ml-3" style="justify-content-self: end" @click="exitGame">EXIT</b-button>
       </div>
     </b-modal>
+    <b-modal id="start-game-modal" centered title="ARE YOU READY" hide-footer>
+      <div class="d-flex flex-wrap">
+        <b-button size="lg" variant="primary" class="mr-3" @click="startGame">Yes</b-button>
+        <b-button size="lg" variant="outline-danger" @click="navigateToGamePlay">Back to list game play</b-button>
+      </div>
+    </b-modal>
+    <b-modal id="win-game-modal" centered title="YOU WIN :D" hide-footer>
+      <div class="d-flex flex-wrap">
+        <b-button size="lg" variant="primary" class="mr-3" @click="restartGame">Play again</b-button>
+        <b-button size="lg" variant="outline-danger" @click="navigateToGamePlay">Exit</b-button>
+      </div>
+    </b-modal>
+    <b-modal id="lose-game-modal" centered title="YOU LOSE :((" hide-footer>
+      <div class="d-flex flex-wrap">
+        <b-button size="lg" variant="primary" class="mr-3" @click="restartGame">Play again</b-button>
+        <b-button size="lg" variant="outline-danger" @click="navigateToGamePlay">Exit</b-button>
+      </div>
+    </b-modal>
   </div>
 </template>
 
@@ -23,6 +41,7 @@ import { Player } from 'game/prefab'
 import pixi, { Application, Sprite } from 'pixi.js'
 import { readFileHelper } from '../services'
 
+var timeOutVar
 export default {
   name: 'GameView',
   data() {
@@ -31,7 +50,8 @@ export default {
       isFirstPaused: true,
       map: null,
       mapObj: null,
-      backgroundImage: null
+      backgroundImage: null,
+      countDown: 3
     }
   },
   created: function() {
@@ -50,17 +70,20 @@ export default {
       .then(function (content) {
         this.mapObj = JSON.parse(content)
         this.loadGame()
-        setTimeout(function() {
-          this.unloadingPage()
-        }.bind(this), 1000)
+        this.unloadingPage()
+        this.$bvModal.show('start-game-modal')
       }.bind(this))
     }.bind(this))
     .catch(err => {
       console.log(err)
     })
   },
+  computed: {
+    ...mapGetters('auth', ['user'])
+  },
   methods: {
     ...mapActions('map', ['getMapById']),
+    ...mapActions('game_state', ['updateGameState', 'createState', 'updateGameState']),
     ...mapMutations('web', ['loadingPage', 'unloadingPage']),
 
     onGamePaused(e) {
@@ -73,6 +96,18 @@ export default {
       } else {
         this.$bvModal.hide('pause-game-modal')
       }
+    },
+
+    startGame() {
+      this.$bvModal.hide('start-game-modal')
+      GameManager._sceneManager.currentScene.IsPause = false
+    },
+
+    navigateToGamePlay() {
+      this.$router.push({
+        name: 'ListGamePlay'
+      })
+      document.location.reload()
     },
 
     resumeGame() {
@@ -91,7 +126,19 @@ export default {
     },
 
     onGameWin(e) {
-      console.log(e)
+      this.$bvModal.show('win-game-modal')
+      if (!this.map.state) {
+        this.createState({
+          game_map: this.map.id,
+          user: this.user.id
+        })
+      } else {
+        this.updateGameState(this.map.state.id, 'AR')
+      }
+    },
+
+    onGameLose(e) {
+      this.$bvModal.show('lose-game-modal')
     },
 
     loadGame() {
@@ -99,6 +146,7 @@ export default {
       document.getElementById('game-view').appendChild(GameManager.gameView)
       GameManager.gameView.addEventListener('Pause', this.onGamePaused.bind(this))
       GameManager.gameView.addEventListener('Win', this.onGameWin.bind(this))
+      GameManager.gameView.addEventListener('Die', this.onGameLose.bind(this))
       let resourceManager = GameManager.resourceManager
       resourceManager.addResourceFile('tilemap', require('../assets/tilemap.png'))
       resourceManager.addResourceFile('player', require('../assets/player.png'))
@@ -120,6 +168,8 @@ export default {
 .game {
   &__background {
     z-index: 0;
+    width: fit-content;
+    height: fit-content;
 
     &__darken {
       background-color: black;

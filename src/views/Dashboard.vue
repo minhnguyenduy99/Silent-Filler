@@ -8,7 +8,6 @@
       <div class="game-menu--content">
         <h1 class="display-5 text-light mb-5">{{ webTitle }}</h1>
         <b-button class="game-menu--button" variant="outline-info" size="lg" to="/game">Play</b-button>
-        <b-button class="game-menu--button" variant="outline-info" size="lg">Setting</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg" to="/listmap">Edit map</b-button>
         <b-button class="game-menu--button" variant="outline-info" size="lg">How to play</b-button>
       </div>
