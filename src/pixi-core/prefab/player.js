@@ -1,4 +1,4 @@
-import { GameObject, TileSprite, CollisionOut, ControlComponent, Sprite, PhysicalInstance } from '../core'
+import { GameObject, TileSprite, CollisionOut, ControlComponent, Sprite, PhysicalInstance, GameManager } from '../core'
 import { Rigidbody, PlayerController } from '../components'
 import { TILE_SIZE } from '../core/constant'
 import FPlayer from './f-player'
@@ -39,6 +39,9 @@ export default class Player extends GameObject {
 		this.setFilter(color)
 		this.__MakeInput()
 		this.position.set(startPosition.x, startPosition.y)
+
+		console.log(startPosition)
+		console.log(endPosition)
 
 		this.fplayer = new FPlayer(width, height)
 		this.fplayer.player = this
@@ -150,7 +153,7 @@ export default class Player extends GameObject {
 
 		this.__totalTime += delta
 		this.arrow.y = this.__defaultPoint + Math.sin(this.__totalTime * 6) * 4
-
+    
 		if (this.y < PhysicalInstance.tilemap._deadlineY) {
 			if (!this.stopCall) {
 				GameManagerInstance._sceneManager.currentScene.gameOver('Don\'t jump out of map')

@@ -1,0 +1,5 @@
+{
+  "domain": "dev-qsmcg516.auth0.com",
+  "clientId": "PEFoypIYZBkMsc0CLIftlwIOZCEmjW6s",
+  "redirectUri": "http://localhost:8080/dashboard"
+}

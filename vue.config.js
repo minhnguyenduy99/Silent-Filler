@@ -4,19 +4,16 @@ module.exports = {
   configureWebpack: config => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      game: path.resolve(__dirname, 'src/pixi-core/')
+      game: path.resolve(__dirname, 'src/pixi-core/'),
+      webcomponents: path.resolve(__dirname, 'src/components/')
     }
     config.devtool = 'source-map'
   },
-  chainWebpack: config => {
-    config.module
-      .rule('images')
-      .use('url-loader')
-      .loader('url-loader')
-      .tap(options => {
-        options.encoding = false
-        options.name = 'img/[name].[ext]'
-        return options
-      })
+  css: {
+    loaderOptions: {
+      scss: {
+        prependData: '@import "@/styles/styles.scss";'
+      }
+    }
   }
 }

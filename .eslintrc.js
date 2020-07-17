@@ -18,6 +18,9 @@ module.exports = {
     'prefer-const': 'off',
     'no-tabs': 'off',
     'no-undef': 'off',
-    indent: 'off'
+    'scss(css-identifierexpected)': 'off',
+    indent: 'off',
+    'quote-props': 'off',
+    'camelcase': 'off'
   }
 }

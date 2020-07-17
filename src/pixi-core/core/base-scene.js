@@ -78,7 +78,11 @@ export default class BaseScene extends pixi.Container {
 
   set IsPause(value) {
     this._IsPause = value
-    GameManagerInstance.gameView.dispatchEvent(new Event('Pause', { value: value }))
+    GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Pause', {
+      detail: {
+        value: value
+      }
+    }))
     PhysicalInstance.IsActive = !value
   }
 

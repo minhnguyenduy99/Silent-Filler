@@ -1,0 +1,7 @@
+export { default as GameObject } from './GameObject'
+export { default as StaticObject } from './StaticObject'
+export { default as PlayableObject } from './PlayableObject'
+export { default as Player } from './Player'
+export { default as GameMap } from './GameMap'
+export { default as Position } from './Position'
+export { default as RectangleArea } from './RectangleArea'

@@ -41,7 +41,7 @@ export default class TileMap extends Component {
 	 */
 	constructor(attachObj, tile) {
 		super()
-		this.tile = test.reverse()
+		this.tile = tile.reverse()
 		this._containerObj = new GameObject()
 
 		this.__map = new Array(this.tile.length)
@@ -119,7 +119,7 @@ export default class TileMap extends Component {
 	 * @param {number} j
 	 */
 	__getPoint(i, j) {
-		if (this.tile[i] && this.tile[i][j]) {
+		if (this.tile[i] !== undefined && this.tile[i][j] !== undefined) {
 			return this.tile[i][j] >= 0
 		} else {
 			return false
@@ -133,6 +133,7 @@ export default class TileMap extends Component {
 	 * @param {number} colorCode
 	 */
 	setFilter(colorCode) {
+		console.log(colorCode)
 		this.__map.forEach(tileArr => {
 			tileArr.forEach(tile => {
 				if (!tile.cantSetFilter) {
