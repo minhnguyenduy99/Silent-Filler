@@ -82,16 +82,12 @@ class Physical {
         // Collision to other object
         for (let i = 0; i < this.RigidbodyList.length - 1; i++) {
             for (let j = i + 1; j < this.RigidbodyList.length; j++) {
-                if (sweptAABB(this.RigidbodyList[i], this.RigidbodyList[j], delta, true)) {
-                    // console.log('2 object collision')
-                }
+                sweptAABB(this.RigidbodyList[i], this.RigidbodyList[j], delta, true)
             }
         }
         for (let i = this.RigidbodyList.length - 1; i >= 0; i--) {
             for (let j = i - 1; j >= 0; j--) {
-                if (sweptAABB(this.RigidbodyList[i], this.RigidbodyList[j], delta, true)) {
-                    // console.log('2 object collision')
-                }
+                sweptAABB(this.RigidbodyList[i], this.RigidbodyList[j], delta, true)
             }
         }
     }

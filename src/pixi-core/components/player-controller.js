@@ -22,7 +22,7 @@ export default class PlayerController extends ControlComponent {
         let width = this.rigi._object.width / TILE_SIZE
         let height = this.rigi._object.height / TILE_SIZE
 
-        this.jumpAbility = JumpBlockToVelocity(0.5 + Math.max(1, Math.round(height / width)))
+        this.jumpAbility = JumpBlockToVelocity(1.5 + Math.max(1, Math.round(height / width)))
         this.moveAbility = MoveBlockToVelocity(Math.clamp(2, 5, 15 / (width * height)))
     }
 

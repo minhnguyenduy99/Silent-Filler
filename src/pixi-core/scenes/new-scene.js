@@ -9,7 +9,6 @@ export default class NewScene extends BaseScene {
   constructor() {
     super('New scene')
     this.obj = Math.obj
-    console.log(this.obj)
 
     let tile = this.obj.map
     for (let i = 0; i < tile.length; i++) {

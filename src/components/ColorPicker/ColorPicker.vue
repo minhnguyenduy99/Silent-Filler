@@ -97,7 +97,6 @@ export default {
     changeSelectedColor(color) {
       this.selectedColor = color
       this.$store.commit('updateCurrentColor', this.selectedColor)
-      console.log(`selected color: ${this.selectedColor}`)
     }
   }
 }

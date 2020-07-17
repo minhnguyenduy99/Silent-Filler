@@ -9,7 +9,6 @@ export default {
           let file = new FileReader()
           file.readAsDataURL(data)
           file.onload = (evt) => {
-            console.log(evt.target.result)
             resolve(evt.target.result)
           }
         })
@@ -28,7 +27,6 @@ export default {
           let file = new FileReader()
           file.readAsText(data, 'utf-8')
           file.onload = (evt) => {
-            console.log(evt.target.result)
             resolve(evt.target.result)
           }
         })

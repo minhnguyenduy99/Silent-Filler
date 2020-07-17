@@ -124,7 +124,7 @@ export default class FPlayer extends GameObject {
 
 			if (distance < this.force * scale) {
 				this.player.position.set(this.position.x, this.position.y)
-				GameManagerInstance._sceneManager._currentScene.FinishPlayer()
+				GameManagerInstance._sceneManager._currentScene.FinishPlayer(this.player._physicalID)
 				this.lateUpdate = undefined
 			}
 		}

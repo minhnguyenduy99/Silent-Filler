@@ -39,9 +39,6 @@ export default class Player extends GameObject {
 		this.__MakeInput()
 		this.position.set(startPosition.x, startPosition.y)
 
-		console.log(startPosition)
-		console.log(endPosition)
-
 		this.fplayer = new FPlayer(width, height)
 		this.fplayer.player = this
 		this.fplayer.setFilter(color)

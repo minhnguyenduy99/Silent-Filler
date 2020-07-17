@@ -1,6 +1,6 @@
 <template>
   <div id="game-view" class="position-relative">
-    <div class="game__background position-relative">
+    <div class="game__background position-relative" style="overflow: hidden">
       <div class="game__background__darken position-absolute top-0 left-0 w-100 h-100"></div>
       <b-img class="game__background__image" :src="backgroundImage" />
     </div>
@@ -18,12 +18,14 @@
       </div>
     </b-modal>
     <b-modal id="win-game-modal" centered title="YOU WIN :D" hide-footer>
+      <h4 class="text-left mb-3">Time used: {{ winTime }}s</h4>
       <div class="d-flex flex-wrap">
         <b-button size="lg" variant="primary" class="mr-3" @click="restartGame">Play again</b-button>
         <b-button size="lg" variant="outline-danger" @click="navigateToGamePlay">Exit</b-button>
       </div>
     </b-modal>
     <b-modal id="lose-game-modal" centered title="YOU LOSE :((" hide-footer>
+    <h4 class="text-left mb-3">{{ loseReason }}</h4>
       <div class="d-flex flex-wrap">
         <b-button size="lg" variant="primary" class="mr-3" @click="restartGame">Play again</b-button>
         <b-button size="lg" variant="outline-danger" @click="navigateToGamePlay">Exit</b-button>
@@ -51,7 +53,9 @@ export default {
       map: null,
       mapObj: null,
       backgroundImage: null,
-      countDown: 3
+      countDown: 3,
+      loseReason: '',
+      winTime: 0
     }
   },
   created: function() {
@@ -126,6 +130,7 @@ export default {
     },
 
     onGameWin(e) {
+      this.winTime = Math.floor(e.detail.value)
       this.$bvModal.show('win-game-modal')
       if (!this.map.state) {
         this.createState({
@@ -138,6 +143,7 @@ export default {
     },
 
     onGameLose(e) {
+      this.loseReason = e.detail.value
       this.$bvModal.show('lose-game-modal')
     },
 

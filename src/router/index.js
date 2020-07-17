@@ -91,7 +91,6 @@ const router = new VueRouter({
 
 router.beforeResolve((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    console.log(store)
     let isAuthenticated = store.getters['auth/isAuthenticated']
     if (!isAuthenticated) {
       next({

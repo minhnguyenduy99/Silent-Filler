@@ -143,8 +143,7 @@ export default class TileMap extends Component {
 	}
 
 	Die(out) {
-		console.log('die by larva')
-		GameManager._sceneManager.currentScene.gameOver('Don\'t touch the larva')
+		GameManager._sceneManager.currentScene.gameOver('Don\'t touch the lava')
 		this.OnCollision = undefined
 	}
 }

@@ -42,22 +42,22 @@ export default class BaseScene extends pixi.Container {
     this._players[this._currentPlayer].arrow.alpha = 1
   }
 
-  FinishPlayer() {
+  FinishPlayer(idDone) {
     if (this._players.length <= 1) {
       GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Win', {
         detail: {
           value: GameManagerInstance.time
         }
       }))
-      console.log(`Win, time: ${GameManagerInstance.time}`)
       this._IsPause = true
+      PhysicalInstance.IsActive = false
       return
     }
 
-    let playerDone = this._players.splice(this._currentPlayer, 1)[0]
+    let playerDone = this._players.splice(idDone, 1)[0]
     playerDone.arrow.alpha = 0
     playerDone.IsActive = false
-    PhysicalInstance.RigidbodyList[playerDone._physicalID].IsActive = false
+    PhysicalInstance.RigidbodyList[idDone].IsActive = false
 
     if (this._players.length === this._currentPlayer) {
       this._currentPlayer--

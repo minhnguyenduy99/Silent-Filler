@@ -25,7 +25,6 @@ export default {
       if (!newVal || !this.tab) {
         return
       }
-      console.log(newVal)
       let parts = newVal.name.split('.')
       let callback = parts[parts.length - 1] === 'json' ? this._loadGameInfo : this._loadImageToMap
       this.command = new Command(callback, this.tab)
