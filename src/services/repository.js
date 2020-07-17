@@ -1,8 +1,8 @@
 import axios from 'axios'
 import status from './STATUS'
 
-let domain = 'https://pixijsserver.herokuapp.com'
-// let domain = 'http://127.0.0.1:8000'
+// let domain = 'https://pixijsserver.herokuapp.com'
+let domain = 'http://127.0.0.1:8000'
 let baseURL = `${domain}`
 
 export default class Repository {

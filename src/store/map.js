@@ -33,6 +33,13 @@ export default {
         recent: recentMaps.results
       }
     },
+    async getListMapByPage({ rootState }, page) {
+      console.log(rootState)
+      let token = rootState.auth.token
+      let repo = getMapRepo(token)
+      let pageMaps = await repo.getByPage(page)
+      return pageMaps
+    },
     async getMapById({ rootState }, id) {
       let token = rootState.auth.token
       return getMapRepo(token).getMapById(id)

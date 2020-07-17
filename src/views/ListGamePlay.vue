@@ -6,6 +6,8 @@
         <game-state-section
           title="Choose a map to play"
           :gameStates="listGameStates"
+          :loadButton="!isLastPage"
+          @loadButtonClicked="loadNewGamePlay"
         />
       </div>
     </div>
@@ -15,6 +17,7 @@
 <script>
 import NavBar from '../web-components/base/NavBar'
 import GameStateSection from '../web-components/GameStateSection'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'ListGamePlay',
@@ -22,15 +25,41 @@ export default {
     GameStateSection, NavBar
   },
   data: () => ({
-    listGameStates: []
+    listGameStates: [],
+    currentPage: 1,
+    isLastPage: false
   }),
-  created: async function() {
-    let results = await this.$store.dispatch('game_state/getListGameState')
-    results = results.map(result => {
-      result.last_edited = new Date(result.last_edited)
-      return result
+  created: function() {
+    this.loadingPage('Loading gameplay ...')
+    this.$store.dispatch('game_state/getListGameState')
+    .then(results => {
+      results = results.map(result => {
+        result.last_edited = new Date(result.last_edited)
+        return result
+      })
+      this.currentPage++
+      this.listGameStates = results
+      this.isLastPage = results.length < 6
+      this.unloadingPage()
     })
-    this.listGameStates = results
+  },
+  methods: {
+    ...mapMutations('web', ['loadingPage', 'unloadingPage']),
+
+    loadNewGamePlay() {
+      this.loadingPage('Loading gameplay ...')
+      this.$store.dispatch('game_state/getListGameState', this.currentPage)
+      .then(results => {
+        results = results.map(result => {
+          result.last_edited = new Date(result.last_edited)
+          return result
+        })
+        this.listGameStates.push(...results)
+        this.isLastPage = results.length < 6
+        this.currentPage++
+        this.unloadingPage()
+      })
+    }
   }
 }
 </script>

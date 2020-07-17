@@ -118,7 +118,11 @@ export default class BaseScene extends pixi.Container {
     })
 
     if (this._players.length === 0) {
-      GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Win'))
+      GameManagerInstance.gameView.dispatchEvent(new CustomEvent('Win', {
+        detail: {
+          value: GameManagerInstance.time
+        }
+      }))
       console.log('Win')
       this.IsPause = true
     }

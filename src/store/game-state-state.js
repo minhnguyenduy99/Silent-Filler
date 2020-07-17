@@ -20,11 +20,11 @@ export default {
   getters: {
   },
   actions: {
-    getListGameState({ rootState }) {
+    getListGameState({ rootState }, page = 1) {
       console.log(rootState)
       let token = rootState.auth.token
       let repo = getStateRepo(token)
-      return repo.getByUserId()
+      return repo.getByUserId(page)
     },
     getMapById({ rootState }, id) {
       let token = rootState.auth.token

@@ -1,5 +1,5 @@
 <template>
-  <div class="map-item__container" @click="navigateToEditMapPage">
+  <div class="map-item__container" @click="navigateToGame">
      <b-card
       :img-src="data.map_image"
       img-alt="Image"
@@ -98,9 +98,9 @@ export default {
     onMouseLeave() {
       this.isMouseIn = false
     },
-    navigateToEditMapPage() {
+    navigateToGame() {
       this.$router.push({
-        name: 'GameView',
+        name: 'Game',
         params: {
           id: this.data.id
         }

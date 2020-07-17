@@ -35,7 +35,8 @@ class GameManager {
       width: window.innerWidth,
       height: window.innerHeight,
       resolution: 1,
-      resizeTo: window
+      resizeTo: window,
+      transparent: true
     })
     this._graphics = new pixi.Graphics()
     this._sceneManager = new SceneManager()
@@ -106,10 +107,12 @@ class GameManager {
    */
   start() {
     this._sceneManager.nextScene()
-    this._app.renderer.backgroundColor = 0x00ff00
+    this._app.renderer.backgroundColor = 'transparent'
+    this.time = 0
     this._app.ticker.maxFPS = 90
     this._app.ticker.add((delta) => {
       this._gameLoop(delta / this._app.ticker.FPS)
+      this.time += delta
     })
   }
 

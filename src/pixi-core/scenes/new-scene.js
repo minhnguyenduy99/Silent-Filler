@@ -30,6 +30,9 @@ export default class NewScene extends BaseScene {
     PhysicalInstance.tilemap = tileMap
     this.addChild(mapContainer)
     this.addChild(this.createPlayer())
+    this.createPlayerFromPlayableObjects().forEach(function (player) {
+      this.addChild(player)
+    }.bind(this))
   }
 
   createPlayer() {
@@ -39,8 +42,18 @@ export default class NewScene extends BaseScene {
     let endPos = this.convertPosition(_player._endPosition, playerSize)
     let color = parseInt(`0x${_player.color.substr(1)}`, 16)
     let player = new Player(startPos, endPos, color, playerSize.width, playerSize.height)
-    console.log(startPos, endPos)
     return player
+  }
+
+  createPlayerFromPlayableObjects() {
+    let listRawPlayers = this.obj.playableObjects
+    let listPlayers = listRawPlayers.map((rawPlayer) => {
+      let startPos = this.convertPosition(this.obj._player._startPosition, rawPlayer.size)
+      let endPos = this.convertPosition(this.obj._player._endPosition, rawPlayer.size)
+      let color = parseInt(`0x${rawPlayer.color.substr(1)}`, 16)
+      return new Player(startPos, endPos, color, rawPlayer.width, rawPlayer.height)
+    })
+    return listPlayers
   }
 
   /**

@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <div id="game-view" class="position-relative">
+    <div class="game__background position-relative">
+      <div class="game__background__darken position-absolute top-0 left-0 w-100 h-100"></div>
+      <b-img class="game__background__image" :src="backgroundImage" />
+    </div>
     <b-modal id="pause-game-modal" centered title="PAUSE GAME" hide-footer>
       <div class="d-flex flex-wrap">
         <b-button variant="primary" @click="resumeGame">RESUME</b-button>
@@ -26,17 +30,20 @@ export default {
       resourceFolder: '@/pixi-core/game-assets/',
       isFirstPaused: true,
       map: null,
-      mapObj: null
+      mapObj: null,
+      backgroundImage: null
     }
   },
   created: function() {
     this.loadingPage('Game is loading ...')
   },
   mounted: function() {
+    GameManager.gameView.style.position = 'absolute'
     let map_id = this.$route.params.id
     this.getMapById(map_id)
     .then(function (map) {
       this.map = map
+      this.backgroundImage = map.map_image
       readFileHelper.readJSONFileFromURL(this.map.map_file)
       .then(function (content) {
         this.mapObj = JSON.parse(content)
@@ -87,7 +94,7 @@ export default {
 
     loadGame() {
       Math.obj = this.mapObj
-      document.body.appendChild(GameManager.gameView)
+      document.getElementById('game-view').appendChild(GameManager.gameView)
       GameManager.gameView.addEventListener('Pause', this.onGamePaused.bind(this))
       GameManager.gameView.addEventListener('Win', this.onGameWin.bind(this))
       let resourceManager = GameManager.resourceManager
@@ -106,3 +113,21 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.game {
+  &__background {
+    z-index: 0;
+
+    &__darken {
+      background-color: black;
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    &__image {
+      z-index: 1;
+    }
+  }
+}
+</style>

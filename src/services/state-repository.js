@@ -17,8 +17,12 @@ export default class GameStateRepository extends Repository {
     return this.update(`/game-state/${mapId}/update_state/`, data)
   }
 
-  getByUserId() {
-    return this.get('/game-state/by_user/')
+  getByUserId(page = 1) {
+    return this.get('/game-state/by_user', {
+      params: {
+        page: page
+      }
+    })
   }
 
   getById(id) {

@@ -7,11 +7,15 @@
         <map-section
           title="Recent maps"
           :listMap="recent"
+          emptyContent="There's no map available"
         />
         <map-section
           class="mt-5"
           title="All maps"
           :listMap="listMaps"
+          emptyContent="There's no map available"
+          :loadButton="!isLastPage"
+          @loadButtonClicked="onLoadButtonClicked"
         />
       </div>
     </div>
@@ -32,35 +36,46 @@ export default {
     listMaps: [],
     recent: [],
     currentPage: 1,
-    lastPage: -1,
-    totalNumber: 0,
-    nextURL: null,
-    previousURL: null
+    isLastPage: false
   }),
   created: function() {
     this.loadingPage('List of maps are loading ...')
     this.$store.dispatch('map/getListMap', this.currentPage)
-    .then(({ count, next, previous, results, recent }) => {
-      results = results.map(result => {
-      result.last_edited = new Date(result.last_edited)
-      return result
-      })
-      recent = recent.map(result => {
-        result.last_edited = new Date(result.last_edited)
-        return result
-      })
-      this.recent = recent
-      this.listMaps = results
-      this.nextURL = next
-      this.previousURL = previous
-      this.totalNumber = count
+    .then(result => {
+      this.loadNewMapPage(result)
       this.unloadingPage()
     })
   },
   methods: {
     ...mapMutations('web', ['loadingPage', 'unloadingPage']),
+
     navigateToEditNewMap() {
       this.$router.push('/editmap')
+    },
+
+    onLoadButtonClicked() {
+      this.$store.dispatch('map/getListMapByPage', this.currentPage)
+      .then(result => {
+        this.loadNewMapPage(result)
+      })
+    },
+
+    loadNewMapPage({ count, next, previous, results, recent }) {
+      results = results.map(result => {
+        result.last_edited = new Date(result.last_edited)
+        return result
+      })
+      if (recent) {
+        this.recent = recent.map(result => {
+          result.last_edited = new Date(result.last_edited)
+          return result
+        })
+        this.listMaps = results
+      } else {
+          this.listMaps.push(...results)
+      }
+      this.currentPage++
+      this.isLastPage = next === null
     }
   }
 }

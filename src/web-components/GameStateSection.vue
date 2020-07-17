@@ -10,6 +10,9 @@
         :data="state"
       />
     </div>
+    <slot>
+      <b-button v-if="loadButton" variant="primary" @click="onLoadButtonClicked">Load more</b-button>
+    </slot>
   </div>
 </template>
 
@@ -30,6 +33,16 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+    loadButton: {
+      type: Boolean,
+      required: false,
+      default: () => false
+    }
+  },
+  methods: {
+    onLoadButtonClicked() {
+      this.$emit('loadButtonClicked', this)
     }
   }
 }
