@@ -14,8 +14,8 @@
         </b-col>
       </b-row>
     </b-container>
-    <load-file-url-command :url="mapItem.map_file" lazy ref="map-loader"/>
-    <load-file-url-command :url="mapItem.map_image" lazy ref="image-loader"/>
+    <load-file-url-command :url="mapItem.map_file_url" lazy ref="map-loader"/>
+    <load-file-url-command :url="mapItem.map_image_url" lazy ref="image-loader"/>
   </div>
 </template>
 
@@ -59,8 +59,8 @@ export default {
       }
       return {
         map_name: null,
-        map_file: null,
-        map_image: null,
+        map_file_url: null,
+        map_image_url: null,
         last_edited: new Date()
       }
     },

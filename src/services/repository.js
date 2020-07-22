@@ -1,8 +1,8 @@
 import axios from 'axios'
-import status from './STATUS'
+import ResponseObject, { STATUS } from './ResponseObject'
 
-let domain = 'https://pixijsserver.herokuapp.com'
-// let domain = 'http://127.0.0.1:8000'
+// let domain = 'https://pixijsserver.herokuapp.com'
+let domain = 'http://127.0.0.1:8000'
 let baseURL = `${domain}`
 
 export default class Repository {
@@ -33,13 +33,10 @@ export default class Repository {
         ...this.config,
         ...config
       })
-      if (response.status === 201 || response.status === 200) {
-        return response.data
-      }
-      throw new Error(response.data)
+      return new ResponseObject(response.data, null, STATUS.HTTP_201_CREATED)
     } catch (err) {
       console.log(err)
-      return err
+      return this.getErrorResponse(err.response)
     }
   }
 
@@ -48,20 +45,57 @@ export default class Repository {
    * @param {any} config
    */
   async get(path, config = {}) {
-    let fullURL = baseURL + `${path}`
-    let response = await axios.get(fullURL, {
-      ...this.config,
-      ...config
-    })
-    return response.data
+    try {
+      let fullURL = baseURL + `${path}`
+      let response = await axios.get(fullURL, {
+        ...this.config,
+        ...config
+      })
+      return new ResponseObject(response.data, null, 200)
+    } catch (err) {
+      console.log(err)
+      return this.getErrorResponse(err.response)
+    }
   }
 
   async update(path, data, config = {}) {
-    let fullURL = baseURL + `${path}`
-    let response = await axios.put(fullURL, data, {
+    try {
+      let fullURL = baseURL + `${path}`
+      let response = await axios.put(fullURL, data, {
+        ...this.config,
+        ...config
+      })
+      return new ResponseObject(response.data, null, STATUS.HTTP_400_BAD_REQUEST)
+    } catch (err) {
+      console.log(err)
+      return this.getErrorResponse(err.response)
+    }
+  }
+
+  configToken(token) {
+    return this.configHeaders({
+      Authorization: `Token ${token}`
+    })
+  }
+
+  configHeaders(headers) {
+    this.config.headers = {
+      ...this.config.headers,
+      ...headers
+    }
+    return this
+  }
+
+  otherConfig(config) {
+    this.config = {
       ...this.config,
       ...config
-    })
-    return response.data
+    }
+    return this
+  }
+
+  getErrorResponse(response) {
+    let { data, status } = response
+    return new ResponseObject(null, data.error ?? data.detail, status)
   }
 }

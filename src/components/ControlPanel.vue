@@ -29,8 +29,12 @@ export default {
     return {
       buttonClass: 'm-1 sm',
       isPanelShown: true,
-      msg: null
+      msg: null,
+      mapRepo: null
     }
+  },
+  created: function() {
+    this.mapRepo = repository.get('map').configToken(this.$store.getters['auth/token'])
   },
   computed: {
     ...mapState('map-edit', ['isNewMap', 'tabLength', 'mapObj']),
@@ -41,11 +45,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions('map', ['updateMap', 'createMap']),
     ...mapMutations('map-edit', ['updateIsNewMap', 'updateMapObj']),
+    ...mapMutations('web', ['loadingPage', 'unloadingPage']),
 
     saveCurrentMap() {
       let saveObj = this.currentTabData.save()
+      console.log(saveObj)
+      this.loadingPage('Saving map ...')
       if (this.isNewMap) {
         this.createNewMap(saveObj)
         return
@@ -59,13 +65,17 @@ export default {
       mapObj.map_file = readFileHelper.toFileFromObject(saveObj, `${this.mapObj.map_name}.json`)
       mapObj.map_image = readFileHelper.toImageFileFromBase64(this.currentTabData.imageSrc, this.mapObj.map_name)
       mapObj.map_name = this.mapObj.map_name
-      this.createMap(mapObj).then((mapObj) => {
-        this.notifyMsg('Thêm map thành công')
+      this.mapRepo.createMap(mapObj)
+      .then(function (result) {
+        this.unloadingPage()
+        if (result.error) {
+          this.notifyMsg(result.error)
+          return
+        }
+        this.notifyMsg('Create map successfully...')
         this.updateIsNewMap(false)
         this.updateMapObj(mapObj)
-      }).catch(err => {
-        this.notifyMsg(err)
-      })
+      }.bind(this))
     },
 
     async saveMap(saveObj) {
@@ -74,14 +84,15 @@ export default {
       mapObj.map_file = readFileHelper.toFileFromObject(saveObj, `${this.mapObj.map_name}.json`)
       mapObj.map_image = await readFileHelper.toFileFromURL(this.currentTabData.imageSrc, this.mapObj.map_name)
       mapObj.map_name = this.mapObj.map_name
-      this.updateMap({
-        id: id,
-        data: mapObj
-      }).then(() => {
-        this.notifyMsg('Cập nhật map thành công')
-      }).catch(err => {
-        this.notifyMsg(err)
-      })
+      this.mapRepo.updateMap(id, mapObj)
+      .then(function (result) {
+        this.unloadingPage()
+        if (result.error) {
+          this.notifyMsg(result.error)
+          return
+        }
+        this.notifyMsg('Update map successfully')
+      }.bind(this))
     },
 
     notifyMsg(msg) {

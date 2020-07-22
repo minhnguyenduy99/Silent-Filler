@@ -7,6 +7,7 @@ import EditMap from '../views/EditMap.vue'
 import Profile from '../views/Profile.vue'
 import ListMapPage from '../views/ListMapPage'
 import ListGamePlay from '../views/ListGamePlay'
+import Register from '../views/Register'
 import store from '../store'
 
 Vue.use(VueRouter)
@@ -16,6 +17,11 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
   },
   {
     path: '/dashboard',

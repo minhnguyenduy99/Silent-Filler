@@ -1,12 +1,12 @@
 <template>
   <nav :class="getNavClass">
     <b-button :class="dashboardClass" v-if="dashboard" to="/dashboard" size="lg" variant="outline-primary">Dashboard</b-button>
-    <div class="user-info" v-if="user.picture">
+    <div class="user-info">
       <b-dropdown
         :variant="variant" no-caret :menu-class="dropdownBg" toggle-class="p-0 border-0">
         <b-button slot="button-content" :variant="buttonVariant" size="lg" class="d-flex align-items-center">
-          <b-avatar class="d-inline-block" :src="user.picture"></b-avatar>
-          <h5 :class="textClass">{{ user.family_name }}</h5>
+          <b-avatar class="d-inline-block" :src="user.profile.picture"></b-avatar>
+          <h5 :class="textClass">{{ user.profile.given_name }}</h5>
         </b-button>
         <div class="d-flex flex-column p-2">
           <b-button type="link" variant="outline-light" to="profile">Profile</b-button>
@@ -59,9 +59,7 @@ export default {
     ]
   }),
   computed: {
-    ...mapGetters('auth', {
-      user: 'user'
-    }),
+    ...mapGetters('auth', ['user']),
     textClass() {
       return [...this.TEXT_CLASS, `text-${this.textVariant}`]
     },

@@ -6,7 +6,8 @@
   &.--full-screen {
     position: absolute;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
+    max-height: 100vh;
   }
 
   & > &__image {

@@ -27,6 +27,9 @@
         />
       </b-tabs>
     </b-card>
+    <b-modal id="editmap-modal" centered>
+      {{ errorMsg }}
+    </b-modal>
     <loading-dialog v-model="isTabLoading" :centered="true" :content="content"/>
     <draw-map-command ref="drawer"/>
     <load-file-command :url="fileMap" lazy ref="map-loader"/>
@@ -42,8 +45,9 @@ import GameObjectPanel from '../components/GameObjectPanel/GameObjectPanel'
 import GridCellLayout from '../components/GridDrawer/GridCellLayout'
 import LoadingDialog from '../components/Utilities/LoadingDialog'
 import { DrawTab, TabObject } from '../components/DrawTab'
-import { mapMutations, mapGetters, mapState, mapActions } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 import { DrawMapCommand, LoadFileCommand } from '../components/Commands'
+import { repository } from '../services'
 
 export default {
   name: 'EditMap',
@@ -63,7 +67,9 @@ export default {
       content: 'Đang load hình ảnh ...',
       fileMap: null,
       image: null,
-      loadedByResource: false
+      loadedByResource: false,
+      mapRepo: null,
+      errorMsg: null
     }
   },
   watch: {
@@ -74,6 +80,7 @@ export default {
     }
   },
   created: function() {
+    this.mapRepo = repository.get('map').configToken(this.$store.getters['auth/token'])
     this.createNewTab()
     this.updateCurrentTab(this.currentTab)
     let mapId = this.$route.params.id
@@ -82,10 +89,16 @@ export default {
       return
     }
     this.updateIsNewMap(false)
-    this.getMapById(mapId)
-    .then(map => {
-      this.updateMapObj(map)
-    })
+    this.mapRepo.getMapById(mapId)
+    .then(function (result) {
+      if (result.error) {
+        this.$router.push({
+          name: 'ListMap'
+        })
+        return
+      }
+      this.updateMapObj(result.data)
+    }.bind(this))
   },
   computed: {
     ...mapState('map-edit', ['mapObj']),
@@ -96,7 +109,6 @@ export default {
   },
   methods: {
     ...mapMutations('map-edit', ['updateCurrentTab', 'updateLengthTab', 'updateMapObj', 'updateIsNewMap']),
-    ...mapActions('map', ['getMapById']),
 
     createNewTab() {
       let newTab = new TabObject()
@@ -122,6 +134,10 @@ export default {
       if (this.tabs.length === 0) {
         this.generateTabIndex = 0
       }
+    },
+    openModal(msg) {
+      this.errorMsg = msg
+      this.$bvModal.show('editmap-modal')
     }
   }
 }

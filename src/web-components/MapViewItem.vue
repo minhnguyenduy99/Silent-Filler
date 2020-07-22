@@ -1,15 +1,16 @@
 <template>
-  <div class="map-item__container" @click="navigateToEditMapPage">
+  <div class="map-item__container mb-3" @click="navigateToEditMapPage">
      <b-card
-      :img-src="data.map_image"
+      :img-src="data.map_image_url"
       img-alt="Image"
-      img-top
+      img-width="100%"
+      img-height="200px"
       :text-variant="isMouseIn ? 'light' : 'dark'"
       :bg-variant="isMouseIn ? 'primary' : 'light'"
       :border-variant="isMouseIn ? 'primary' : 'light'"
       tag="article"
       style="max-width: 18rem;"
-      class="map-item__content mb-3 text-left"
+      class="map-item__content text-left h-100"
       @mouseenter="onMouseEnter"
       @mouseleave="onMouseLeave"
     >
@@ -42,8 +43,8 @@ export default {
         return {
           id: null,
           map_name: '',
-          map_image: '',
-          map_file: null,
+          map_image_url: '',
+          map_file_url: null,
           last_edited: new Date()
         }
       },
@@ -55,11 +56,6 @@ export default {
       'map-item__content',
       'mb-3',
       'text-left'
-    ],
-    MOUSE_IN_CARD_CLASS: [
-
-    ],
-    MOUSE_OUT_CARD_CLASS: [
     ],
     isMouseIn: false
   }),

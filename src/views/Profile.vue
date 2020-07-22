@@ -12,7 +12,7 @@
           <b-row align-h="start">
             <b-col cols="3">
               <b-img
-                :src="user.picture_large || user.picture"
+                :src="user.profile.picture_large || user.profile.picture"
                 width="200px"
                 height="200px"
                 rounded="circle"
@@ -27,11 +27,11 @@
                   <div class="d-flex flex-wrap justify">
                     <div class="edit-profile__field --family-name w-100">
                       <label>Họ</label>
-                      <b-input v-model="form.family_name" />
+                      <b-input v-model="form.profile.family_name" />
                     </div>
                     <div class="edit-profile__field --given-  name w-100">
                       <label>Tên</label>
-                      <b-input v-model="form.given_name" />
+                      <b-input v-model="form.profile.given_name" />
                     </div>
                     <div class="edit-profile__field mt-2">
                       <b-button
@@ -47,15 +47,15 @@
                   <div class="d-flex flex-wrap justify">
                     <div class="edit-profile__field --username w-100">
                       <label>Tên đăng nhập</label>
-                      <b-input v-model="form.user.username" />
+                      <b-input v-model="form.username" />
                     </div>
                     <div class="edit-profile__field --password w-50">
                       <label>Mật khẩu mới</label>
-                      <b-input type="password" v-model="form.user.password" />
+                      <b-input type="password" v-model="form.password" />
                     </div>
                     <div class="edit-profile__field --password w-50">
                       <label>Nhập lại mật khẩu</label>
-                      <b-input type="password" v-model="form.user.password_again"/>
+                      <b-input type="password" v-model="form.password_again"/>
                     </div>
                     <div class="edit-profile__field mt-2">
                       <b-button
@@ -73,7 +73,7 @@
         </b-container>
       </div>
     </div>
-    <b-modal id="update-user-modal">
+    <b-modal id="update-user-modal" ok-only @ok="reloadPage">
       {{ msg }}
     </b-modal>
   </div>
@@ -86,68 +86,73 @@ import { repository } from '../services'
 export default {
   data: () => ({
     form: {
-      given_name: null,
-      family_name: null,
-      user: {
-        username: null,
-        password: null,
-        password_again: null
+      username: null,
+      password: null,
+      password_again: null,
+      profile: {
+        given_name: null,
+        family_name: null
       }
     },
-    msg: ''
+    msg: '',
+    userRepo: null
   }),
   created: function() {
-    if (!this.isAuthenticated) {
-      this.$router.push('/')
-    }
-  },
-  mounted: function() {
-    let { user, given_name, family_name, picture_large, picture } = this.user
-    this.form.user = user
-    this.form.given_name = given_name
-    this.form.family_name = family_name
+    this.loadingPage('The page is loading ...')
+    this.userRepo = repository.get('user').configToken(this.token)
+    this.userRepo.getUserById(this.user.id)
+    .then(function (result) {
+      if (result.error) {
+        this.$router.push({
+          name: 'Home'
+        })
+        return
+      }
+      let { profile, username } = result.data
+      this.form.profile = profile
+      this.form.username = username
+      this.unloadingPage()
+    }.bind(this))
   },
   computed: {
-    ...mapGetters('auth', {
-      isAuthenticated: 'isAuthenticated',
-      user: 'user'
-    })
+    ...mapGetters('auth', ['user', 'isAuthenticated', 'token'])
   },
   methods: {
+    ...mapMutations('auth', ['update_user', 'update_profile']),
+    ...mapMutations('web', ['loadingPage', 'unloadingPage']),
+
     updateUserProfile() {
-      let profile = {
-        given_name: this.form.given_name,
-        family_name: this.form.family_name
-      }
-      this.$store.dispatch('auth/updateProfile', this.user.id, profile)
-      .then(result => {
-        this.popup('Cập nhật thành công')
-      })
-      .catch(err => {
-        this.popup('Cập nhật thất bại')
-        console.log(err)
-      })
+      this.userRepo.updateProfile(this.user.id, this.form.profile)
+      .then(function (result) {
+        if (result.error) {
+          this.popup(result.error)
+          return
+        }
+        this.popup('Update user successfully')
+        this.update_profile(result.data)
+      }.bind(this))
     },
     updateUserAccount() {
-      let user = this.form.user
-      let { password, password_again } = this.form.user
+      let { password, password_again } = this.form
       if (password !== password_again || password == null) {
         this.popup('Mật khẩu không khớp')
         return
       }
-      this.$store.dispatch('auth/updateAccount', this.user.id, user)
-      .then(result => {
-        this.popup('Cập nhật thành công')
-        this.form.user.password = this.form.user.password_again = null
-      })
-      .catch(err => {
-        this.popup('Cập nhật thất bại')
-        console.log(err)
-      })
+      this.userRepo.updateUser(this.user.id, this.form)
+      .then(function (result) {
+        if (result.error) {
+          this.popup(result.error)
+          return
+        }
+        this.popup('Update user successfully')
+      }.bind(this))
     },
     popup(msg) {
       this.msg = msg
       this.$bvModal.show('update-user-modal')
+    },
+    reloadPage() {
+      document.location.reload()
     }
   }
 }

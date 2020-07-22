@@ -1,21 +1,25 @@
 import Repository from './repository'
-import Axios from 'axios'
 
 export default class UserRepository extends Repository {
   async createUser(data) {
-    let user = await this.create('/user/', data)
-    console.log(user)
-    return user
+    var form = new FormData()
+    form.append('username', data.username)
+    form.append('password', data.password)
+    form.append('email', data.email)
+    form.append('family_name', data.family_name)
+    form.append('given_name', data.given_name)
+    return super.create('/user/', data)
   }
 
   updateProfile(userId, profile) {
-    return super.update(`/user/${userId}/`, profile, {
-      contentType: 'application/json'
-    })
+    var form = new FormData()
+    form.append('family_name', profile.family_name)
+    form.append('given_name', profile.given_name)
+    return super.update(`/user/${userId}/profile/`, form)
   }
 
-  updateAccount(userId, account) {
-    return super.update(`/user/${userId}/update_account/`, account, {
+  updateUser(userId, account) {
+    return super.update(`/user/${userId}/`, account, {
       contentType: 'application/json'
     })
   }
@@ -24,13 +28,6 @@ export default class UserRepository extends Repository {
     if (!userId) {
       throw Error('The userId is null')
     }
-    return this.get('/user', {
-      params: {
-        user_id: userId
-      }
-    })
-  }
-
-  configHeaders() {
+    return this.get(`/user/${userId}/`)
   }
 }

@@ -4,6 +4,7 @@
     <div id="list-map-view" class="d-flex justify-content-center">
       <div class="content__wrapper w-75 mt-5">
         <game-state-section
+          class="mb-5"
           title="Choose a map to play"
           :gameStates="listGameStates"
           :loadButton="!isLastPage"
@@ -18,6 +19,7 @@
 import NavBar from '../web-components/base/NavBar'
 import GameStateSection from '../web-components/GameStateSection'
 import { mapMutations } from 'vuex'
+import { repository } from '../services'
 
 export default {
   name: 'ListGamePlay',
@@ -27,38 +29,44 @@ export default {
   data: () => ({
     listGameStates: [],
     currentPage: 1,
-    isLastPage: false
+    isLastPage: false,
+    gameStateRepo: null
   }),
   created: function() {
+    this.gameStateRepo = repository.get('game_state').configToken(this.$store.getters['auth/token'])
     this.loadingPage('Loading gameplay ...')
-    this.$store.dispatch('game_state/getListGameState')
-    .then(results => {
-      results = results.map(result => {
-        result.last_edited = new Date(result.last_edited)
-        return result
-      })
-      this.currentPage++
-      this.listGameStates = results
-      this.isLastPage = results.length < 6
+    this.gameStateRepo.getAll(1)
+    .then(function (result) {
+      if (result.error) {
+        this.$router.push({
+          name: 'Dashboard'
+        })
+        return
+      }
+      this.addNewGamePlays(result.data)
       this.unloadingPage()
-    })
+    }.bind(this))
   },
   methods: {
     ...mapMutations('web', ['loadingPage', 'unloadingPage']),
 
     loadNewGamePlay() {
       this.loadingPage('Loading gameplay ...')
-      this.$store.dispatch('game_state/getListGameState', this.currentPage)
-      .then(results => {
-        results = results.map(result => {
-          result.last_edited = new Date(result.last_edited)
-          return result
-        })
-        this.listGameStates.push(...results)
-        this.isLastPage = results.length < 6
-        this.currentPage++
+      this.gameStateRepo.getAll(this.currentPage)
+      .then(function (result) {
+        this.addNewGamePlays(result.data)
         this.unloadingPage()
+      }.bind(this))
+    },
+
+    addNewGamePlays(listGamePlays) {
+      listGamePlays = listGamePlays.map(result => {
+        result.last_edited = new Date(result.last_edited)
+        return result
       })
+      this.listGameStates.push(...listGamePlays)
+      this.isLastPage = listGamePlays.length < 6
+      this.currentPage++
     }
   }
 }

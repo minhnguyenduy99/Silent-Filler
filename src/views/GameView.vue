@@ -41,7 +41,7 @@ import { GameManager, ObjectMapper } from 'game/core'
 import { TestScene, NewScene } from 'game/scenes'
 import { Player } from 'game/prefab'
 import pixi, { Application, Sprite } from 'pixi.js'
-import { readFileHelper } from '../services'
+import { readFileHelper, repository } from '../services'
 
 var timeOutVar
 export default {
@@ -50,27 +50,37 @@ export default {
     return {
       resourceFolder: '@/pixi-core/game-assets/',
       isFirstPaused: true,
-      map: null,
+      state: null,
+      gameMap: null,
       mapObj: null,
       backgroundImage: null,
       countDown: 3,
       loseReason: '',
-      winTime: 0
+      winTime: 0,
+      gameStateRepo: null
     }
   },
   created: function() {
+    this.gameStateRepo = repository.get('game_state').configToken(this.$store.getters['auth/token'])
     this.loadingPage('Game is loading ...')
   },
   mounted: function() {
     GameManager.gameView.style.position = 'absolute'
     GameManager.gameView.style.top = 0
     GameManager.gameView.style.left = 0
-    let map_id = this.$route.params.id
-    this.getMapById(map_id)
-    .then(function (map) {
-      this.map = map
-      this.backgroundImage = map.map_image
-      readFileHelper.readJSONFileFromURL(this.map.map_file)
+    let stateId = this.$route.params.id
+    this.gameStateRepo.getById(stateId)
+    .then(function (result) {
+      if (result.error) {
+        this.$router.push({
+          name: 'ListGamePlay'
+        })
+        return
+      }
+      this.state = result.data
+      this.gameMap = this.state.game_map
+      this.backgroundImage = this.gameMap.map_image_url
+      readFileHelper.readJSONFileFromURL(this.gameMap.map_file_url)
       .then(function (content) {
         this.mapObj = JSON.parse(content)
         this.loadGame()
@@ -81,9 +91,6 @@ export default {
     .catch(err => {
       console.log(err)
     })
-  },
-  computed: {
-    ...mapGetters('auth', ['user'])
   },
   methods: {
     ...mapActions('map', ['getMapById']),
@@ -132,14 +139,7 @@ export default {
     onGameWin(e) {
       this.winTime = Math.floor(e.detail.value)
       this.$bvModal.show('win-game-modal')
-      if (!this.map.state) {
-        this.createState({
-          game_map: this.map.id,
-          user: this.user.id
-        })
-      } else {
-        this.updateGameState(this.map.state.id, 'AR')
-      }
+      this.gameStateRepo.updateState(this.map.state.id, 'AR')
     },
 
     onGameLose(e) {

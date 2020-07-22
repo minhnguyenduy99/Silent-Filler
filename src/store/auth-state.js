@@ -14,20 +14,27 @@ export default {
     auth_success: (state, user) => {
       state.isAuthenticated = true
       state.user = user
-      state.token = user.user.token
+      state.token = user.token.access_token
       state.authError = null
+      console.log(state)
     },
     auth_failed: (state, error) => {
       state.authError = error || 'Authentication failed'
       state.isAuthenticated = false
     },
     update_user: (state, user) => {
-      let account = state.user.user
-      state.user = user
-      state.user.user = account
+      let profile = state.user.profile
+      state.user = {
+        ...state.user,
+        ...user
+      }
+      state.user.profile = profile
     },
-    update_account: (state, account) => {
-      state.user.account = account
+    update_profile: (state, profile) => {
+      state.user.profile = {
+        ...state.user.profile,
+        ...profile
+      }
     }
   },
   getters: {
@@ -37,7 +44,7 @@ export default {
     user: (state) => {
       return state.user
     },
-    getToken: (state) => {
+    token: (state) => {
       return state.token
     }
   },

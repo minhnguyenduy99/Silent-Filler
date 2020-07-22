@@ -10,7 +10,7 @@
           emptyContent="There's no map available"
         />
         <map-section
-          class="mt-5"
+          class="my-5"
           title="All maps"
           :listMap="listMaps"
           emptyContent="There's no map available"
@@ -25,7 +25,8 @@
 <script>
 import NavBar from '../web-components/base/NavBar'
 import MapSection from '../web-components/MapSection'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
+import { repository } from '../services'
 
 export default {
   name: 'ListMapPage',
@@ -36,15 +37,21 @@ export default {
     listMaps: [],
     recent: [],
     currentPage: 1,
-    isLastPage: false
+    isLastPage: false,
+    mapRepo: repository.get('map')
   }),
   created: function() {
+    this.mapRepo = repository.get('map').configToken(this.$store.getters['auth/token'])
     this.loadingPage('List of maps are loading ...')
-    this.$store.dispatch('map/getListMap', this.currentPage)
-    .then(result => {
-      this.loadNewMapPage(result)
+    this.mapRepo.getByPage()
+    .then(function (result) {
+      if (result.error) {
+        return
+      }
+      this.loadNewMapPage(result.data)
+      this.loadRecentMaps()
       this.unloadingPage()
-    })
+    }.bind(this))
   },
   methods: {
     ...mapMutations('web', ['loadingPage', 'unloadingPage']),
@@ -54,28 +61,27 @@ export default {
     },
 
     onLoadButtonClicked() {
-      this.$store.dispatch('map/getListMapByPage', this.currentPage)
-      .then(result => {
-        this.loadNewMapPage(result)
-      })
+      this.mapRepo.getByPage(this.currentPage)
+      .then(function (result) {
+        if (result.error) {
+          return
+        }
+        this.loadNewMapPage(result.data)
+      }.bind(this))
     },
 
-    loadNewMapPage({ count, next, previous, results, recent }) {
+    loadNewMapPage({ count, next, previous, results }) {
       results = results.map(result => {
         result.last_edited = new Date(result.last_edited)
         return result
       })
-      if (recent) {
-        this.recent = recent.map(result => {
-          result.last_edited = new Date(result.last_edited)
-          return result
-        })
-        this.listMaps = results
-      } else {
-          this.listMaps.push(...results)
-      }
+      this.listMaps.push(...results)
       this.currentPage++
       this.isLastPage = next === null
+    },
+
+    loadRecentMaps() {
+      this.recent = [...this.listMaps]
     }
   }
 }

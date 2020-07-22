@@ -1,8 +1,9 @@
 <template>
   <div class="map-item__container" @click="navigateToGame">
      <b-card
-      :img-src="data.map_image"
+      :img-src="game_map.map_image_url"
       img-alt="Image"
+      img-height="200px"
       img-top
       :text-variant="isMouseIn ? 'light' : 'dark'"
       :bg-variant="isMouseIn ? 'primary' : 'light'"
@@ -15,7 +16,7 @@
     >
     <b-card-title>
       <h5 class="overflow-hidden text-nowrap">
-        {{ data.map_name.toUpperCase() }}
+        {{ game_map.map_name.toUpperCase() }}
       </h5>
     </b-card-title>
     <b-card-text>
@@ -41,11 +42,20 @@ export default {
       default: () => {
         return {
           id: null,
+          saved_date: null,
+          state: null,
           map_name: '',
           map_image: '',
           map_file: null,
           last_edited: new Date(),
-          state: null
+          game_map: {
+            id: null,
+            map_name: null,
+            map_image_url: null,
+            map_file_url: null,
+            created_by: null,
+            last_edited: new Date()
+          }
         }
       },
       required: true
@@ -64,11 +74,11 @@ export default {
     isMouseIn: false
   }),
   computed: {
+    game_map() {
+      return this.data.game_map
+    },
     stateText() {
-      if (!this.data.game_state) {
-        return 'Not archieved'
-      }
-      switch (this.data.game_state.state) {
+      switch (this.data.state) {
         case 'AR': return 'Archieved'
         case 'OP': return 'On progress'
         case 'NA': return 'Not archieved'
@@ -79,14 +89,10 @@ export default {
       let style = {
         color: null
       }
-      if (!this.data.game_state) {
-        style.color = 'red'
-      } else {
-        switch (this.data.game_state.state) {
-          case 'AR': style.color = 'green'; break
-          case 'OP': style.color = 'yellow'; break
-          case 'NA': style.color = 'red'; break
-        }
+      switch (this.data.state) {
+        case 'AR': style.color = 'green'; break
+        case 'OP': style.color = 'yellow'; break
+        case 'NA': style.color = 'red'; break
       }
       return style
     }

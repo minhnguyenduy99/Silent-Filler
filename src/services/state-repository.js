@@ -1,13 +1,12 @@
 import Repository from './repository'
+import ResponseObject from './ResponseObject'
 
 export default class GameStateRepository extends Repository {
-  async createGameState(data) {
+  createGameState(data) {
     let form = new FormData()
     form.append('game_map', data.game_map)
     form.append('user', data.user)
-
-    let state = await this.create('/game-state/', form)
-    return state
+    return this.create('/game-state/', form)
   }
 
   updateState(mapId, state) {
@@ -17,8 +16,8 @@ export default class GameStateRepository extends Repository {
     return this.update(`/game-state/${mapId}/update_state/`, data)
   }
 
-  getByUserId(page = 1) {
-    return this.get('/game-state/by_user', {
+  getAll(page = 1) {
+    return this.get('/game-state', {
       params: {
         page: page
       }
@@ -27,9 +26,5 @@ export default class GameStateRepository extends Repository {
 
   getById(id) {
     return this.get(`/game-state/${id}`)
-  }
-
-  getAllGameState() {
-    return this.get('/game-state/')
   }
 }

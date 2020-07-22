@@ -24,12 +24,7 @@ export default {
   },
   data: () => ({
     webTitle: 'SILENT FILLER'
-  }),
-  computed: {
-    ...mapGetters({
-      user: 'auth/user'
-    })
-  }
+  })
 }
 </script>
 
