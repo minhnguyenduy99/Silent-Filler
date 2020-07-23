@@ -100,6 +100,7 @@ export default {
 }
 
 .dashboard-class {
-  margin-left: 125px;
+  margin-right: 20px;
+  height: 100%;
 }
 </style>

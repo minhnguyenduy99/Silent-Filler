@@ -1,6 +1,6 @@
 <template>
   <nav :class="getNavClass">
-    <b-button :class="dashboardClass" v-if="dashboard" to="/dashboard" size="lg" variant="outline-primary">Dashboard</b-button>
+    <b-button type="button" :class="dashboardClass" v-if="dashboard" @click="navigateToDashBoard" size="lg" variant="outline-primary">Dashboard</b-button>
     <div class="user-info">
       <b-dropdown
         :variant="variant" no-caret :menu-class="dropdownBg" toggle-class="p-0 border-0">
@@ -64,18 +64,20 @@ export default {
       return [...this.TEXT_CLASS, `text-${this.textVariant}`]
     },
     getNavClass() {
-      let baseNavClass = ['navigation', 'px-5', 'pt-5', 'pb-0', 'd-flex', 'align-items-center']
-      if (this.dashboard) {
-        baseNavClass.push('justify-content-between')
-      } else {
-        baseNavClass.push('justify-content-end')
-      }
+      let baseNavClass = ['navigation', 'px-5', 'pt-5', 'pb-0', 'd-flex', 'justify-content-end']
       return baseNavClass
     }
   },
   methods: {
     logout() {
+      this.$store.dispatch('auth/logout')
       this.$auth.logout()
+      console.log(this.$store.getters['auth/isAuthenticated'])
+    },
+    navigateToDashBoard() {
+      this.$router.push({
+        name: 'Dashboard'
+      })
     }
   }
 }

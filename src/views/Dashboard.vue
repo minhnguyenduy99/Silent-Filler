@@ -24,7 +24,16 @@ export default {
   },
   data: () => ({
     webTitle: 'SILENT FILLER'
-  })
+  }),
+  beforeMount: function() {
+    let isAuthenticated = this.$store.getters['auth/isAuthenticated']
+    if (!isAuthenticated) {
+      this.$router.push({
+        name: 'Home'
+      })
+      document.location.reload()
+    }
+  }
 }
 </script>
 

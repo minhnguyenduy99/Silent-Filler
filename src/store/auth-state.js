@@ -79,6 +79,7 @@ export default {
     logout: ({ state }) => {
       state.token = null
       state.isAuthenticated = false
+      state.user = null
     }
   }
 }

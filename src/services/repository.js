@@ -1,8 +1,7 @@
 import axios from 'axios'
 import ResponseObject, { STATUS } from './ResponseObject'
 
-// let domain = 'https://pixijsserver.herokuapp.com'
-let domain = 'http://127.0.0.1:8000'
+let domain = process.env.VUE_APP_SERVER_DOMAIN
 let baseURL = `${domain}`
 
 export default class Repository {

@@ -73,11 +73,6 @@ export default {
       errorMsg: null
     }
   },
-  created: function () {
-    if (this.localGameObject.isBothPositionsSet) {
-      this.updateIsPlayerAllowedToDraw(false)
-    }
-  },
   mounted: function() {
     this.select()
   },

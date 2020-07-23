@@ -1,7 +1,7 @@
 import axios from 'axios'
 import ResponseObject from './ResponseObject'
 
-let domain = 'http://127.0.0.1:8000'
+let domain = process.env.VUE_APP_SERVER_DOMAIN
 
 export default {
   login: async ({ username, password }) => {
