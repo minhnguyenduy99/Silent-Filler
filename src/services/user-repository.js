@@ -8,7 +8,8 @@ export default class UserRepository extends Repository {
     form.append('email', data.email)
     form.append('family_name', data.family_name)
     form.append('given_name', data.given_name)
-    return super.create('/user/', data)
+    form.append('picture', data.picture)
+    return super.create('/user/', form)
   }
 
   updateProfile(userId, profile) {

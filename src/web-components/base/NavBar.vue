@@ -71,8 +71,9 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('auth/logout')
-      this.$auth.logout()
-      console.log(this.$store.getters['auth/isAuthenticated'])
+      this.$router.push({
+        name: 'Home'
+      })
     },
     navigateToDashBoard() {
       this.$router.push({
