@@ -27,7 +27,7 @@
 
 <script>
 import { login as authLogin, repository } from '@/services'
-import { mapMutations, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 import LoadingDialog from 'webcomponents/Utilities/LoadingDialog.vue'
 import LoginBox from '../web-components/LoginBox'
 
@@ -42,6 +42,13 @@ export default {
     webTitle: 'SILENT FILLER',
     description: 'Of the Kingdom Paper'
   }),
+  created: function() {
+    if (this.$store.getters['auth/isAuthenticated']) {
+      this.$router.push({
+        name: 'Dashboard'
+      })
+    }
+  },
   methods: {
     openLoginBox() {
       this.$bvModal.show('login-box-modal')

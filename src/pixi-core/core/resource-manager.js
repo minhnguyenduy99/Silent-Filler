@@ -86,6 +86,13 @@ class ResourceManager {
       })
   }
 
+  destroy() {
+    Object.values(pixi.utils.TextureCache).forEach(function(texture) {
+      texture.destroy()
+    })
+    this.__loader.resources = {}
+  }
+
   /**
    * Load a resource from a resource collection
    * @public

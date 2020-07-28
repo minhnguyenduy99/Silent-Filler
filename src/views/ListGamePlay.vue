@@ -1,7 +1,7 @@
 <template>
   <div>
     <nav-bar class="pb-0" variant="outline-info" dropdownBg="bg-info" textVariant="dark" dashboard dashboardClass="dashboard-class h-100"/>
-    <div id="list-map-view" class="d-flex justify-content-center">
+    <div class="d-flex justify-content-center">
       <div class="content__wrapper w-75 mt-5">
         <game-state-section
           class="mb-5"

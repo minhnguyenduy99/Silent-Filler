@@ -176,7 +176,7 @@ export default {
       return this.currentTabData ? this.currentTabData.player : Player.create()
     },
     _blockButtonDisabled() {
-        return this.lengthOfTabs === 0 || !this.isImageLoaded
+        return this.lengthOfTabs === 0 || !this.isImageLoaded || this.isMapLoaded
     },
     _drawButtonDisabled() {
       return this.lengthOfTabs === 0 || !this.isMapLoaded

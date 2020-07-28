@@ -19,14 +19,14 @@
           <color-input @click.stop v-model="color" size="lg" :disabled="!isSelected"></color-input>
         </b-col>
         <b-col cols="12" class="mt-2">
-          <b-form-group label="Vị trí của player" class="m-0">
+          <b-form-group label="Position of player" class="m-0">
             <div class="d-flex justify-content-between text-light">
               <b-form-radio v-model="selectedPosition" value="start">Vị trí bắt đầu</b-form-radio>
-              <div>({{ this._isStartPositionSet ? 'Đã set' : 'Chưa set' }})</div>
+              <div>({{ this._isStartPositionSet ? 'Set' : 'Unset' }})</div>
             </div>
             <div class="d-flex justify-content-between text-light">
               <b-form-radio v-model="selectedPosition" value="end">Vị trí kết thúc</b-form-radio>
-              <div>({{ this._isEndPositionSet ? 'Đã set' : 'Chưa set' }})</div>
+              <div>({{ this._isEndPositionSet ? 'Set' : 'Unset' }})</div>
             </div>
           </b-form-group>
         </b-col>

@@ -10,7 +10,7 @@
           </div>
         </b-col>
         <b-col cols="12" v-if="!isNewMap">
-          <b-button @click="loadMap" class="w-100" variant="primary">Load map</b-button>
+          <b-button @click="loadMap" class="w-100" variant="primary" :disabled="isMapLoaded">Load map</b-button>
         </b-col>
       </b-row>
     </b-container>
@@ -47,7 +47,7 @@ export default {
   },
   computed: {
     ...mapState('map-edit', ['isNewMap']),
-    ...mapGetters('map-edit', ['mapObj']),
+    ...mapGetters('map-edit', ['mapObj', 'isMapLoaded']),
 
     inputNameClass() {
       return this.isNewMap ? ['mb-1', 'w-100'] : ['mb-1', 'w-75']
@@ -75,6 +75,9 @@ export default {
   },
   methods: {
     loadMap() {
+      if (this.isMapLoaded) {
+        return
+      }
       setTimeout(function() {
         this.$refs['image-loader'].execute()
         this.$refs['map-loader'].execute()

@@ -2,13 +2,13 @@
   <div>
     <side-panel direction="horizontal-left" background="#eeffee">
       <div class="d-flex flex-column p-1">
-        <b-button class="m-1" variant="outline-primary">Test</b-button>
         <b-button class="m-1" variant="outline-primary" @click="saveCurrentMap" :disabled="isButtonDisabled">Save and Quit</b-button>
-        <b-button class="m-1" variant="outline-primary">Play and Upload</b-button>
-        <b-button class="m-1" variant="outline-primary">Quit Edit Mode</b-button>
+        <b-button class="m-1" variant="outline-primary" @click="notifyUnderDevelopment">Test</b-button>
+        <b-button class="m-1" variant="outline-primary" @click="notifyUnderDevelopment">Play and Upload</b-button>
+        <b-button class="m-1" variant="outline-primary" @click="notifyUnderDevelopment">Quit Edit Mode</b-button>
       </div>
     </side-panel>
-    <b-modal id="save-object-modal">
+    <b-modal id="save-object-modal" ok-only hide-header>
       <span><strong>{{ msg }}</strong></span>
     </b-modal>
   </div>
@@ -74,7 +74,7 @@ export default {
         }
         this.notifyMsg('Create map successfully...')
         this.updateIsNewMap(false)
-        this.updateMapObj(mapObj)
+        this.updateMapObj(result.data)
       }.bind(this))
     },
 
@@ -98,6 +98,10 @@ export default {
     notifyMsg(msg) {
       this.msg = msg
       this.$bvModal.show('save-object-modal')
+    },
+
+    notifyUnderDevelopment() {
+      this.notifyMsg('This feature is under development')
     }
   }
 }

@@ -11,7 +11,7 @@
         <b-button type="submit" variant="primary" size="lg" class="w-100 mt-3 font-weight-bold">Login</b-button>
       </b-form>
     </b-row>
-    <b-modal class="login-error-modal">
+    <b-modal class="login-modal">
       {{ errorMsg }}
     </b-modal>
   </b-container>
@@ -30,9 +30,13 @@ export default {
   }),
   methods: {
     ...mapMutations('auth', ['auth_success', 'auth_failed']),
+    ...mapMutations('web', ['loadingPage', 'unloadingPage']),
+
     login() {
+      this.loadingPage('The request is processing ...')
       authenticate.login(this.form)
       .then(result => {
+        this.unloadingPage()
         if (result.error) {
           this.auth_failed(result.error)
           this.errorMsg = result.error
@@ -46,10 +50,6 @@ export default {
           name: 'Dashboard'
         })
       })
-    },
-    notify(msg) {
-      this.errorMsg = msg
-      this.$bvModal.show('login-error-modal')
     }
   }
 }

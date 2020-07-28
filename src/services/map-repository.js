@@ -7,8 +7,8 @@ export default class MapRepository extends Repository {
     form.append('map_image', data.map_image)
     form.append('map_file', data.map_file)
 
-    let map = await this.create('/map/', form)
-    return map
+    let response = await this.create('/map/', form)
+    return response
   }
 
   async updateMap(mapId, data) {

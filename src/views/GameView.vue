@@ -37,7 +37,7 @@
 <script>
 import { mapActions, mapState, mapGetters, mapMutations } from 'vuex'
 // game core import
-import { GameManager, ObjectMapper } from 'game/core'
+import { GameManager, ObjectMapper, initializeGame, destroyGame } from 'game/core'
 import { TestScene, NewScene } from 'game/scenes'
 import { Player } from 'game/prefab'
 import pixi, { Application, Sprite } from 'pixi.js'
@@ -63,6 +63,7 @@ export default {
   created: function() {
     this.gameStateRepo = repository.get('game_state').configToken(this.$store.getters['auth/token'])
     this.loadingPage('Game is loading ...')
+    initializeGame()
   },
   mounted: function() {
     GameManager.gameView.style.position = 'absolute'
@@ -92,6 +93,9 @@ export default {
       console.log(err)
     })
   },
+  beforeDestroy: function() {
+    destroyGame()
+  },
   methods: {
     ...mapActions('map', ['getMapById']),
     ...mapActions('game_state', ['updateGameState', 'createState', 'updateGameState']),
@@ -115,10 +119,9 @@ export default {
     },
 
     navigateToGamePlay() {
-      this.$router.push({
+      this.$router.replace({
         name: 'ListGamePlay'
       })
-      document.location.reload()
     },
 
     resumeGame() {
@@ -131,7 +134,7 @@ export default {
     },
 
     exitGame() {
-      this.$router.push({
+      this.$router.replace({
         name: 'ListGamePlay'
       })
     },

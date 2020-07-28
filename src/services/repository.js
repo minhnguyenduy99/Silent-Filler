@@ -1,5 +1,6 @@
 import axios from 'axios'
 import ResponseObject, { STATUS } from './ResponseObject'
+import cookie from 'js-cookie'
 
 let domain = process.env.VUE_APP_SERVER_DOMAIN
 let baseURL = `${domain}`
@@ -50,7 +51,7 @@ export default class Repository {
         ...this.config,
         ...config
       })
-      return new ResponseObject(response.data, null, 200)
+      return new ResponseObject(response.data, null)
     } catch (err) {
       console.log(err)
       return this.getErrorResponse(err.response)
@@ -64,7 +65,7 @@ export default class Repository {
         ...this.config,
         ...config
       })
-      return new ResponseObject(response.data, null, STATUS.HTTP_400_BAD_REQUEST)
+      return new ResponseObject(response.data, null, STATUS.HTTP_200_OK)
     } catch (err) {
       console.log(err)
       return this.getErrorResponse(err.response)
@@ -93,8 +94,24 @@ export default class Repository {
     return this
   }
 
-  getErrorResponse(response) {
+  async getErrorResponse(response) {
     let { data, status } = response
     return new ResponseObject(null, data.error ?? data.detail, status)
+  }
+
+  async acquireAccessToken() {
+    try {
+      let csrftoken = cookie.get('csrftoken')
+      let url = `${baseURL}/acquireaccesstoken`
+      let response = await axios.post(url, null, {
+        headers: {
+          'X-CSRFTOKEN': csrftoken
+        }
+      })
+      return new ResponseObject(response.data, null, response.status)
+    } catch (err) {
+      console.log(err)
+      return this.getErrorResponse(err.response)
+    }
   }
 }

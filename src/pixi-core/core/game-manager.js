@@ -117,6 +117,16 @@ class GameManager {
     })
   }
 
+  destroy() {
+    this._app.stop()
+    this._app.destroy(true, {
+      children: true,
+      texture: true,
+      baseTexture: true
+    })
+    ResourceManager.destroy()
+  }
+
   /**
    *
    * @param {BaseScene[]} args
@@ -147,6 +157,15 @@ class GameManager {
   }
 }
 
-const GameManagerInstance = new GameManager()
+var GameManagerInstance = new GameManager()
 
 export default GameManagerInstance
+
+export function initializeGame() {
+  GameManagerInstance = null
+  GameManagerInstance = new GameManager()
+}
+
+export function destroyGame() {
+  GameManagerInstance.destroy()
+}

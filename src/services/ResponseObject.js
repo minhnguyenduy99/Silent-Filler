@@ -24,4 +24,12 @@ export default class ResponseObject {
     this.error = error
     this.status = status
   }
+
+  isForbidden() {
+    return this.status === STATUS.HTTP_403_FORBIDDEN
+  }
+
+  isBadRequest() {
+    return this.status === STATUS.HTTP_400_BAD_REQUEST
+  }
 }

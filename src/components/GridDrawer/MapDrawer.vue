@@ -58,9 +58,9 @@ export default {
     }
   },
   data: () => ({
-    OBJECT_OVERLAP_MSG: 'Object bị overlap',
-    OBJECT_NOT_EXIST_MSG: 'Không có object tại ô này',
-    PLAYER_NOT_ALLOW_TO_DRAW: 'Không được phép vẽ player',
+    OBJECT_OVERLAP_MSG: 'Object is overlap',
+    OBJECT_NOT_EXIST_MSG: 'There\'s no objects here',
+    PLAYER_NOT_ALLOW_TO_DRAW: 'You are not allowed to draw player',
     currentMap: null,
     selectedCell: null,
     mapWidth: 0,

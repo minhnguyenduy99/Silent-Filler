@@ -22,6 +22,11 @@ export default {
       state.authError = error || 'Authentication failed'
       state.isAuthenticated = false
     },
+    logout: (state) => {
+      state.token = null
+      state.isAuthenticated = false
+      state.user = null
+    },
     update_user: (state, user) => {
       let profile = state.user.profile
       state.user = {
@@ -76,10 +81,8 @@ export default {
         console.log(err)
       }
     },
-    logout: ({ state }) => {
-      state.token = null
-      state.isAuthenticated = false
-      state.user = null
+    logout: ({ commit }) => {
+      commit('logout')
     }
   }
 }
