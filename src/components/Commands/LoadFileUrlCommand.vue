@@ -104,8 +104,9 @@ export default {
       return ['.png', '.jpg', 'jpeg'].includes(ext.toLowerCase())
     },
     _setUpCommand() {
-      let parts = this.name.split('.')
-      let callback = parts[parts.length - 1] === 'json' ? this._loadGameInfo : this._loadImageToMap
+      let isImage = this.name.includes('mapimage')
+      console.log(isImage)
+      let callback = isImage ? this._loadImageToMap : this._loadGameInfo
       this.command = new Command(callback, this.tab)
     }
   }

@@ -95,6 +95,9 @@ export default {
           this.notifyMsg(result.error)
           return
         }
+        result.data.token = {
+          access_token: result.data.access_token
+        }
         this.auth_success(result.data)
         this.$router.push({
           name: 'Dashboard'

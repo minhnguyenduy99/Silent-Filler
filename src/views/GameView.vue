@@ -69,8 +69,8 @@ export default {
     GameManager.gameView.style.position = 'absolute'
     GameManager.gameView.style.top = 0
     GameManager.gameView.style.left = 0
-    let stateId = this.$route.params.id
-    this.gameStateRepo.getById(stateId)
+    let mapId = this.$route.params.map_id
+    this.gameStateRepo.getByMapId(mapId)
     .then(function (result) {
       if (result.error) {
         this.$router.push({

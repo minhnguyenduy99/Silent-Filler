@@ -13,10 +13,7 @@ export default class UserRepository extends Repository {
   }
 
   updateProfile(userId, profile) {
-    var form = new FormData()
-    form.append('family_name', profile.family_name)
-    form.append('given_name', profile.given_name)
-    return super.update(`/user/${userId}/profile/`, form)
+    return super.update(`/user/${userId}/profile/`, profile)
   }
 
   updateUser(userId, account) {

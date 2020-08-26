@@ -74,7 +74,6 @@ export default {
         }
         this.notifyMsg('Create map successfully...')
         this.updateIsNewMap(false)
-        this.updateMapObj(result.data)
       }.bind(this))
     },
 

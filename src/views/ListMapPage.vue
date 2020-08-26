@@ -41,7 +41,7 @@ export default {
     mapRepo: repository.get('map')
   }),
   created: function() {
-    this.mapRepo = repository.get('map').configToken(this.$store.getters['auth/token'])
+    this.mapRepo = repository.get('map').configToken(this.$store.getters['auth/token']).configLastMapId()
     this.loadingPage('List of maps are loading ...')
     this.mapRepo.getByPage()
     .then(function (result) {
@@ -61,7 +61,10 @@ export default {
     },
 
     onLoadButtonClicked() {
-      this.mapRepo.getByPage(this.currentPage)
+      let lastMapId = this.listMaps[this.listMaps.length - 1].id ?? 'None'
+      this.mapRepo
+      .configLastMapId(lastMapId)
+      .getByPage(this.currentPage)
       .then(function (result) {
         if (result.error) {
           return

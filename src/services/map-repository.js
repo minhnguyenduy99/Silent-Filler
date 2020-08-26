@@ -30,6 +30,12 @@ export default class MapRepository extends Repository {
     return this.get('/map?page=1')
   }
 
+  configLastMapId(mapId = 'None') {
+    return this.configHeaders({
+      'amz-last-map-id': mapId
+    })
+  }
+
   getMapById(id) {
     return this.get(`/map/${id}`)
   }

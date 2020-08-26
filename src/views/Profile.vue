@@ -100,7 +100,7 @@ export default {
   created: function() {
     this.loadingPage('The page is loading ...')
     this.userRepo = repository.get('user').configToken(this.token)
-    this.userRepo.getUserById(this.user.id)
+    this.userRepo.getUserById(this.user.user_id)
     .then(function (result) {
       if (result.error) {
         this.$router.push({
@@ -122,7 +122,7 @@ export default {
     ...mapMutations('web', ['loadingPage', 'unloadingPage']),
 
     updateUserProfile() {
-      this.userRepo.updateProfile(this.user.id, this.form.profile)
+      this.userRepo.updateProfile(this.user.user_id, this.form.profile)
       .then(function (result) {
         if (result.error) {
           this.popup(result.error)
@@ -138,7 +138,7 @@ export default {
         this.popup('Mật khẩu không khớp')
         return
       }
-      this.userRepo.updateUser(this.user.id, this.form)
+      this.userRepo.updateUser(this.user.user_id, this.form)
       .then(function (result) {
         if (result.error) {
           this.popup(result.error)

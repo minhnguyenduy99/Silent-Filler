@@ -108,7 +108,7 @@ export default {
       this.$router.push({
         name: 'Game',
         params: {
-          id: this.data.id
+          map_id: this.data.game_map.id
         }
       })
     }

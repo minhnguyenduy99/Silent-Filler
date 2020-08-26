@@ -6,25 +6,31 @@ export default class GameStateRepository extends Repository {
     let form = new FormData()
     form.append('game_map', data.game_map)
     form.append('user', data.user)
-    return this.create('/game-state/', form)
+    return this.create('/gamestate/', form)
   }
 
   updateState(mapId, state) {
     let data = {
       state: state
     }
-    return this.update(`/game-state/${mapId}/update_state/`, data)
+    return this.update(`/gamestate/${mapId}/update_state/`, data)
   }
 
   getAll(page = 1) {
-    return this.get('/game-state', {
+    return this.get('/gamestate', {
       params: {
         page: page
       }
     })
   }
 
-  getById(id) {
-    return this.get(`/game-state/${id}`)
+  getByMapId(mapId) {
+    return this.get(`/gamestate/${mapId}`)
+  }
+
+  configLastMapId(mapId = 'None') {
+    return this.configHeaders({
+      'amz-last-map-id': mapId
+    })
   }
 }

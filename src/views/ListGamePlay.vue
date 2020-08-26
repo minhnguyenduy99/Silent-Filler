@@ -33,7 +33,9 @@ export default {
     gameStateRepo: null
   }),
   created: function() {
-    this.gameStateRepo = repository.get('game_state').configToken(this.$store.getters['auth/token'])
+    this.gameStateRepo = repository.get('game_state')
+    .configLastMapId('None')
+    .configToken(this.$store.getters['auth/token'])
     this.loadingPage('Loading gameplay ...')
     this.gameStateRepo.getAll(1)
     .then(function (result) {
@@ -51,21 +53,22 @@ export default {
     ...mapMutations('web', ['loadingPage', 'unloadingPage']),
 
     loadNewGamePlay() {
+      let lastMapId = this.listGameStates[this.listGameStates.length - 1].game_map.id
       this.loadingPage('Loading gameplay ...')
-      this.gameStateRepo.getAll(this.currentPage)
+      this.gameStateRepo.configLastMapId(lastMapId).getAll(this.currentPage)
       .then(function (result) {
         this.addNewGamePlays(result.data)
         this.unloadingPage()
       }.bind(this))
     },
 
-    addNewGamePlays(listGamePlays) {
-      listGamePlays = listGamePlays.map(result => {
+    addNewGamePlays({ count, next, previous, results }) {
+      let listGamePlays = results.map(result => {
         result.last_edited = new Date(result.last_edited)
         return result
       })
       this.listGameStates.push(...listGamePlays)
-      this.isLastPage = listGamePlays.length < 6
+      this.isLastPage = next === null
       this.currentPage++
     }
   }

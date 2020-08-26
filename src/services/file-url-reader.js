@@ -38,15 +38,19 @@ export default {
   },
   toBlobFromURL: async (url) => {
     try {
+      url = url.replace(/^https:\/\//i, 'http://')
+      console.log(url)
       let response = await fetch(url)
       return response.blob()
     } catch (err) {
-      console.log(`Cannot read blob from URL ${url}`)
+      console.log(`Cannot read blob from URL ${url}: ${err}`)
     }
   },
   toFileFromURL: async (url, fileName) => {
     try {
-      let response = await fetch(url)
+      let response = await fetch(url, {
+        mode: 'no-cors'
+      })
       let data = await response.blob()
       let file = new File([data], fileName)
       return file
